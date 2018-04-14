@@ -38,6 +38,44 @@ class Object
                 'type' => 'string',
                 'format' => 'email',
             ],
+            'billing' => [
+                'allOf' => [
+                    [
+                        'required' => [
+                            'vatID',
+                        ],
+                        'properties' => [
+                            'vatID' => [
+                                'type' => 'string',
+                            ],
+                        ],
+                    ],
+                    [
+                        'oneOf' => [
+                            [
+                                'required' => [
+                                    'foo',
+                                ],
+                                'properties' => [
+                                    'foo' => [
+                                        'type' => 'int',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'required' => [
+                                    'bar',
+                                ],
+                                'properties' => [
+                                    'bar' => [
+                                        'type' => 'string',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             'payment' => [
                 'oneOf' => [
                     [
@@ -136,6 +174,11 @@ class Object
     public $email = null;
 
     /**
+     * @var ObjectBilling|null $billing
+     */
+    public $billing = null;
+
+    /**
      * @var ObjectPaymentAlternative1|ObjectPaymentAlternative2|string|null $payment
      */
     public $payment = null;
@@ -178,6 +221,9 @@ class Object
         if (isset($input['email'])) {
             $obj->email = $input['email'];
         }
+        if (isset($input['billing'])) {
+            $obj->billing = ObjectBilling::buildFromInput($input['billing']);
+        }
         if (isset($input['payment'])) {
             $obj->payment = $input['payment'];
         if (ObjectPaymentAlternative1::validateInput($input['payment'], true)) { $obj->payment = ObjectPaymentAlternative1::buildFromInput($input['payment']); }
@@ -190,7 +236,7 @@ class Object
             $obj->tags = $input['tags'];
         }
         if (isset($input['hobbies'])) {
-            $obj->hobbies = array_map(function($i) { ObjectHobbiesItem::buildFromInput($i); }, $input["hobbies"]);
+            $obj->hobbies = array_map(function($i) { return ObjectHobbiesItem::buildFromInput($i); }, $input["hobbies"]);
         }
 
         return $obj;

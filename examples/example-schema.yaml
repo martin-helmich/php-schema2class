@@ -18,6 +18,21 @@ properties:
   email:
     type: string
     format: email
+  billing:
+    allOf:
+      - required: [vatID]
+        properties:
+          vatID:
+            type: string
+      - oneOf:
+        - required: [foo]
+          properties:
+            foo:
+              type: int
+        - required: [bar]
+          properties:
+            bar:
+              type: string
   payment:
     oneOf:
       - required: [type]

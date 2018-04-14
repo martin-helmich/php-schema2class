@@ -17,6 +17,65 @@ use Zend\Code\Generator\PropertyGenerator;
 
 class SchemaToClass
 {
+    private function buildSchemaUnion(array $schemas)
+    {
+        $combined = [
+            "required" => [],
+            "properties" => [],
+        ];
+
+        foreach ($schemas as $i => $schema) {
+            $required = isset($schema["required"]) ? $schema["required"] : [];
+
+            if ($i === 0) {
+                $combined["required"] = $required;
+            } else {
+                foreach ($combined["required"] as $j => $req) {
+                    if (!in_array($req, $required)) {
+                        unset($combined["required"][$j]);
+                    }
+                }
+            }
+
+            if (isset($schema["properties"])) {
+                foreach ($schema["properties"] as $name => $def) {
+                    $combined["properties"][$name] = $def;
+                }
+            }
+        }
+
+        return $combined;
+    }
+    private function buildSchemaIntersect(array $schemas)
+    {
+        $combined = [
+            "required" => [],
+            "properties" => [],
+        ];
+
+        foreach ($schemas as $schema) {
+            if (isset($schema["oneOf"])) {
+                $schema = $this->buildSchemaUnion($schema["oneOf"]);
+            }
+
+            if (isset($schema["anyOf"])) {
+                $schema = $this->buildSchemaUnion($schema["anyOf"]);
+            }
+
+            if (isset($schema["required"])) {
+                $combined["required"] = array_unique(array_merge($combined["required"], $schema["required"]));
+            }
+
+            if (isset($schema["properties"])) {
+                foreach ($schema["properties"] as $name => $def) {
+                    $combined["properties"][$name] = $def;
+                }
+            }
+        }
+
+        return $combined;
+    }
+
     /**
      * @param GeneratorRequest $in
      * @param OutputInterface  $output
@@ -71,10 +130,20 @@ class SchemaToClass
                 }
             }
 
+            if (isset($definition["allOf"])) {
+                $propertyTypeName = $in->targetClass . strtoupper($key[0]) . substr($key, 1);
+                $combined = $this->buildSchemaIntersect($definition["allOf"]);
+
+                $this->schemaToClass($in->withSchema($combined)->withClass($propertyTypeName), $output, $writer);
+                $conversion = "\$obj->$key = $propertyTypeName::buildFromInput(\$input['$key']);";
+            }
+
             if ($t === "string") {
                 if (isset($definition["format"]) && $definition["format"] == "date-time") {
                     $conversion = "\$obj->$key = new \\DateTime(\$input['$key']);";
                 }
+            } else if ($t === "integer" || $t === "int") {
+                $conversion = "\$obj->$key = (int) \$input['$key'];";
             } else if ($t === "object" || isset($definition["properties"])) {
                 $this->schemaToClass($in->withSchema($definition)->withClass($propertyTypeName), $output, $writer);
                 $conversion = "\$obj->$key = $propertyTypeName::buildFromInput(\$input['$key']);";
@@ -181,6 +250,10 @@ class SchemaToClass
             return join("|", $types);
         }
 
+        if (isset($def["allOf"])) {
+            return $propertyTypeName;
+        }
+
         if ($t === "string") {
             if (isset($def["format"]) && $def["format"] == "date-time") {
                 return "\\DateTime";
@@ -191,7 +264,7 @@ class SchemaToClass
             return $propertyTypeName;
         } else if ($t === "array") {
             return $this->defToPHPType($def["items"], $propertyTypeName . "Item") . "[]";
-        } else if ($t === "integer") {
+        } else if ($t === "integer" || $t === "int") {
             return "int";
         } else if ($t === "number") {
             if (isset($def["format"]) && $def["format"] === "integer") {
