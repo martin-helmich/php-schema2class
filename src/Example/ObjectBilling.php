@@ -30,17 +30,77 @@ class ObjectBilling
     /**
      * @var string $vatID
      */
-    public $vatID = null;
+    private $vatID = null;
 
     /**
      * @var int|null $foo
      */
-    public $foo = null;
+    private $foo = null;
 
     /**
      * @var string|null $bar
      */
-    public $bar = null;
+    private $bar = null;
+
+    /**
+     * @return string
+     */
+    public function getVatID()
+    {
+        return $this->vatID;
+    }
+
+    /**
+     * @param string $vatID
+     * @return self
+     */
+    public function withVatID($vatID)
+    {
+        $clone = clone $this;
+        $clone->vatID = $vatID;
+
+        return $clone;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getFoo()
+    {
+        return $this->foo;
+    }
+
+    /**
+     * @param int|null $foo
+     * @return self
+     */
+    public function withFoo($foo)
+    {
+        $clone = clone $this;
+        $clone->foo = $foo;
+
+        return $clone;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getBar()
+    {
+        return $this->bar;
+    }
+
+    /**
+     * @param string|null $bar
+     * @return self
+     */
+    public function withBar($bar)
+    {
+        $clone = clone $this;
+        $clone->bar = $bar;
+
+        return $clone;
+    }
 
     /**
      * Builds a new instance from an input array
@@ -49,7 +109,7 @@ class ObjectBilling
      * @return ObjectBilling Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : \Helmich\JsonStructBuilder\Example\ObjectBilling
+    public static function buildFromInput(array $input)
     {
         static::validateInput($input);
 
@@ -73,7 +133,7 @@ class ObjectBilling
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, $return = false)
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema);
@@ -86,6 +146,10 @@ class ObjectBilling
         }
 
         return $validator->isValid();
+    }
+
+    public function __clone()
+    {
     }
 
 

@@ -9,6 +9,7 @@ class GeneratorRequest
     public $targetNamespace;
     public $targetClass;
     public $php5 = false;
+    public $noSetters = false;
 
     /**
      * GeneratorRequest constructor.

@@ -35,22 +35,102 @@ class SpecificationFilesItem
     /**
      * @var string $input
      */
-    public $input = null;
+    private $input = null;
 
     /**
      * @var string $className
      */
-    public $className = null;
+    private $className = null;
 
     /**
      * @var string $targetDirectory
      */
-    public $targetDirectory = null;
+    private $targetDirectory = null;
 
     /**
      * @var string|null $targetNamespace
      */
-    public $targetNamespace = null;
+    private $targetNamespace = null;
+
+    /**
+     * @return string
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    /**
+     * @param string $input
+     * @return self
+     */
+    public function withInput($input)
+    {
+        $clone = clone $this;
+        $clone->input = $input;
+
+        return $clone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
+
+    /**
+     * @param string $className
+     * @return self
+     */
+    public function withClassName($className)
+    {
+        $clone = clone $this;
+        $clone->className = $className;
+
+        return $clone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetDirectory()
+    {
+        return $this->targetDirectory;
+    }
+
+    /**
+     * @param string $targetDirectory
+     * @return self
+     */
+    public function withTargetDirectory($targetDirectory)
+    {
+        $clone = clone $this;
+        $clone->targetDirectory = $targetDirectory;
+
+        return $clone;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTargetNamespace()
+    {
+        return $this->targetNamespace;
+    }
+
+    /**
+     * @param string|null $targetNamespace
+     * @return self
+     */
+    public function withTargetNamespace($targetNamespace)
+    {
+        $clone = clone $this;
+        $clone->targetNamespace = $targetNamespace;
+
+        return $clone;
+    }
 
     /**
      * Builds a new instance from an input array
@@ -95,6 +175,10 @@ class SpecificationFilesItem
         }
 
         return $validator->isValid();
+    }
+
+    public function __clone()
+    {
     }
 
 

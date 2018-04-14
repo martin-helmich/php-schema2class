@@ -53,12 +53,52 @@ class Specification
     /**
      * @var int $targetPHPVersion
      */
-    public $targetPHPVersion = 7;
+    private $targetPHPVersion = 7;
 
     /**
      * @var SpecificationFilesItem[] $files
      */
-    public $files = null;
+    private $files = null;
+
+    /**
+     * @return int
+     */
+    public function getTargetPHPVersion()
+    {
+        return $this->targetPHPVersion;
+    }
+
+    /**
+     * @param int $targetPHPVersion
+     * @return self
+     */
+    public function withTargetPHPVersion($targetPHPVersion)
+    {
+        $clone = clone $this;
+        $clone->targetPHPVersion = $targetPHPVersion;
+
+        return $clone;
+    }
+
+    /**
+     * @return SpecificationFilesItem[]
+     */
+    public function getFiles()
+    {
+        return $this->files;
+    }
+
+    /**
+     * @param SpecificationFilesItem[] $files
+     * @return self
+     */
+    public function withFiles($files)
+    {
+        $clone = clone $this;
+        $clone->files = $files;
+
+        return $clone;
+    }
 
     /**
      * Builds a new instance from an input array
@@ -73,7 +113,7 @@ class Specification
 
         $obj = new static;
         if (isset($input['targetPHPVersion'])) {
-            $obj->targetPHPVersion = $input['targetPHPVersion'];
+            $obj->targetPHPVersion = (int) $input['targetPHPVersion'];
         }
         $obj->files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input["files"]);
 
@@ -101,6 +141,11 @@ class Specification
         }
 
         return $validator->isValid();
+    }
+
+    public function __clone()
+    {
+        $this->files = array_map(function($i) { return clone $i; }, $this->files);
     }
 
 

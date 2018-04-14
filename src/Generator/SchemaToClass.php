@@ -89,6 +89,8 @@ class SchemaToClass
 
         $properties = [$schemaProperty];
         $conversions = [];
+        $clones = [];
+        $methods = [];
 
         if (!isset($in->schema["properties"])) {
             throw new GeneratorException("cannot generate class for types other than 'object'");
@@ -97,14 +99,19 @@ class SchemaToClass
         foreach ($in->schema["properties"] as $key => $definition) {
             $t = isset($definition["type"]) ? $definition["type"] : "any";
 
+            $isObject = $t === "object" || isset($definition["properties"]);
+            $isComplex = $isObject || isset($definition["allOf"]) || isset($definition["oneOf"]) || isset($definition["anyOf"]);
+
+            $capitalizedName = strtoupper($key[0]) . substr($key, 1);
+
             $doc = new DocBlockGenerator();
 
-            $property = new PropertyGenerator($key, isset($definition["default"]) ? $definition["default"] : null, PropertyGenerator::FLAG_PUBLIC);
+            $property = new PropertyGenerator($key, isset($definition["default"]) ? $definition["default"] : null, PropertyGenerator::FLAG_PRIVATE);
             $property->setDocBlock($doc);
 
             $conversion = "\$obj->$key = \$input['$key'];";
 
-            $propertyTypeName = $in->targetClass . strtoupper($key[0]) . substr($key, 1);
+            $propertyTypeName = $in->targetClass . $capitalizedName;
 
             $phpType = $this->defToPHPType($definition, $propertyTypeName);
             $isRequired = isset($in->schema["required"]) && in_array($key, $in->schema["required"]);
@@ -121,44 +128,96 @@ class SchemaToClass
 
             if (isset($definition["oneOf"])) {
                 foreach ($definition["oneOf"] as $i => $subDef) {
-                    $propertyTypeName = $in->targetClass . strtoupper($key[0]) . substr($key, 1) . "Alternative" . ($i + 1);
+                    $propertyTypeName = $in->targetClass . $capitalizedName . "Alternative" . ($i + 1);
 
                     if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
                         $this->schemaToClass($in->withSchema($subDef)->withClass($propertyTypeName), $output, $writer);
                         $conversion .= "\nif ($propertyTypeName::validateInput(\$input['$key'], true)) { \$obj->$key = $propertyTypeName::buildFromInput(\$input['$key']); }";
                     }
                 }
+
+                $clones[] = "\$this->$key = clone \$this->$key;";
             }
 
             if (isset($definition["allOf"])) {
-                $propertyTypeName = $in->targetClass . strtoupper($key[0]) . substr($key, 1);
+                $propertyTypeName = $in->targetClass . $capitalizedName;
                 $combined = $this->buildSchemaIntersect($definition["allOf"]);
 
                 $this->schemaToClass($in->withSchema($combined)->withClass($propertyTypeName), $output, $writer);
                 $conversion = "\$obj->$key = $propertyTypeName::buildFromInput(\$input['$key']);";
+                $clones[] = "\$this->$key = clone \$this->$key;";
             }
 
             if ($t === "string") {
                 if (isset($definition["format"]) && $definition["format"] == "date-time") {
                     $conversion = "\$obj->$key = new \\DateTime(\$input['$key']);";
+                    $clones[] = "\$this->$key = clone \$this->$key;";
                 }
             } else if ($t === "integer" || $t === "int") {
                 $conversion = "\$obj->$key = (int) \$input['$key'];";
-            } else if ($t === "object" || isset($definition["properties"])) {
+            } else if ($isObject) {
                 $this->schemaToClass($in->withSchema($definition)->withClass($propertyTypeName), $output, $writer);
                 $conversion = "\$obj->$key = $propertyTypeName::buildFromInput(\$input['$key']);";
+                $clones[] = "\$this->$key = clone \$this->$key;";
             } else if ($t === "array") {
-                $propertyTypeName = $in->targetClass . strtoupper($key[0]) . substr($key, 1) . "Item";
+                $propertyTypeName = $in->targetClass . $capitalizedName . "Item";
 
                 if ((isset($definition["items"]["type"]) && $definition["items"]["type"] === "object") || isset($definition["items"]["properties"])) {
                     $this->schemaToClass($in->withSchema($definition["items"])->withClass($propertyTypeName), $output, $writer);
 
                     $conversion = "\$obj->$key = " . 'array_map(function($i) { return ' . $propertyTypeName . '::buildFromInput($i); }, $input["' . $key . '"]);';
+                    $clones[] = "\$this->$key = array_map(function(\$i) { return clone \$i; }, \$this->$key);";
                 }
             }
 
             if (!$isRequired) {
                 $conversion = "if (isset(\$input['$key'])) {\n    $conversion\n}";
+            }
+
+            $typeHint = $phpType;
+
+            if ($isComplex) {
+                $typeHint = $in->targetNamespace . "\\" . $typeHint;
+            }
+
+            $typeHint = preg_replace('/([a-zA-Z0-9_\\\\]+)\\[\\]/', 'array', $typeHint);
+            $typeHint = preg_replace('/^(.*)\\|null$/', '?$1', $typeHint);
+
+            if (strpos($typeHint, '|') !== false) {
+                $typeHint = null;
+            }
+
+            $getMethod = new MethodGenerator(
+                'get' . $capitalizedName,
+                [],
+                MethodGenerator::FLAG_PUBLIC,
+                "return \$this->$key;",
+                new DocBlockGenerator(null, null, [new ReturnTag($phpType)])
+            );
+
+            $setMethod = new MethodGenerator(
+                'with' . $capitalizedName,
+                [new ParameterGenerator($key, $in->php5 ? null : $typeHint)],
+                MethodGenerator::FLAG_PUBLIC,
+                "\$clone = clone \$this;\n\$clone->$key = \$$key;\n\nreturn \$clone;",
+                new DocBlockGenerator(null, null, [
+                    new ParamTag($key, $phpType),
+                    new ReturnTag("self"),
+                ])
+            );
+
+            if (!$in->php5) {
+                if ($typeHint) {
+                    $getMethod->setReturnType($typeHint);
+                }
+
+                $setMethod->setReturnType("self");
+            }
+
+            $methods[] = $getMethod;
+
+            if (!$in->noSetters) {
+                $methods[] = $setMethod;
             }
 
             $conversions[] = $conversion;
@@ -208,10 +267,21 @@ class SchemaToClass
             )
         );
 
+        $cloneMethod = new MethodGenerator(
+            '__clone',
+            [],
+            MethodGenerator::FLAG_PUBLIC,
+            join("\n", $clones)
+        );
+
         if (!$in->php5) {
             $buildMethod->setReturnType($in->targetNamespace . "\\" . $in->targetClass);
             $validateMethod->setReturnType("bool");
         }
+
+        $methods[] = $buildMethod;
+        $methods[] = $validateMethod;
+        $methods[] = $cloneMethod;
 
         $cls = new ClassGenerator(
             $in->targetClass,
@@ -220,7 +290,7 @@ class SchemaToClass
             null,
             [],
             $properties,
-            [$buildMethod, $validateMethod],
+            $methods,
             null
         );
 
@@ -228,7 +298,13 @@ class SchemaToClass
             "classes" => [$cls],
         ]);
 
-        $writer->writeFile($in->targetDirectory . '/' . $in->targetClass . '.php', $file->generate());
+        $content = $file->generate();
+
+        // Do some corrections because the Zend code generation library is stupid.
+        $content = preg_replace('/ : \\\\self/', ' : self', $content);
+        $content = preg_replace('/\\\\'.preg_quote($in->targetNamespace).'\\\\/', '', $content);
+
+        $writer->writeFile($in->targetDirectory . '/' . $in->targetClass . '.php', $content);
     }
 
     private function defToPHPType(array $def, $propertyTypeName = "")

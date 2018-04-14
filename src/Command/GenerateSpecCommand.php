@@ -73,10 +73,10 @@ class GenerateSpecCommand extends Command
             $writer = new DebugWriter($output);
         }
 
-        foreach ($specification->files as $file) {
-            $schemaFile = $file->input;
-            $targetNamespace = $file->targetNamespace;
-            $targetDirectory = $file->targetDirectory;
+        foreach ($specification->getFiles() as $file) {
+            $schemaFile = $file->getInput();
+            $targetNamespace = $file->getTargetNamespace();
+            $targetDirectory = $file->getTargetDirectory();
 
             $output->writeln("loading schema from <comment>$schemaFile</comment>");
             $schema = $this->loader->loadSchema($schemaFile);
@@ -88,8 +88,8 @@ class GenerateSpecCommand extends Command
 
             $output->writeln("using target namespace <comment>$targetNamespace</comment> in directory <comment>$targetDirectory</comment>");
 
-            $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $file->className);
-            $request->php5 = $specification->targetPHPVersion === 5;
+            $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $file->getClassName());
+            $request->php5 = $specification->getTargetPHPVersion() === 5;
 
             $this->s2c->schemaToClass($request, $output, $writer);
         }

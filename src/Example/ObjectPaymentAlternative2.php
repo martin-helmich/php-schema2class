@@ -31,12 +31,52 @@ class ObjectPaymentAlternative2
     /**
      * @var string $type
      */
-    public $type = null;
+    private $type = null;
 
     /**
      * @var string $accountNumber
      */
-    public $accountNumber = null;
+    private $accountNumber = null;
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function withType($type)
+    {
+        $clone = clone $this;
+        $clone->type = $type;
+
+        return $clone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccountNumber()
+    {
+        return $this->accountNumber;
+    }
+
+    /**
+     * @param string $accountNumber
+     * @return self
+     */
+    public function withAccountNumber($accountNumber)
+    {
+        $clone = clone $this;
+        $clone->accountNumber = $accountNumber;
+
+        return $clone;
+    }
 
     /**
      * Builds a new instance from an input array
@@ -45,7 +85,7 @@ class ObjectPaymentAlternative2
      * @return ObjectPaymentAlternative2 Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : \Helmich\JsonStructBuilder\Example\ObjectPaymentAlternative2
+    public static function buildFromInput(array $input)
     {
         static::validateInput($input);
 
@@ -64,7 +104,7 @@ class ObjectPaymentAlternative2
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, $return = false)
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema);
@@ -77,6 +117,10 @@ class ObjectPaymentAlternative2
         }
 
         return $validator->isValid();
+    }
+
+    public function __clone()
+    {
     }
 
 

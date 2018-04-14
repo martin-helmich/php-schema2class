@@ -21,7 +21,27 @@ class ObjectHobbiesItem
     /**
      * @var string|null $name
      */
-    public $name = null;
+    private $name = null;
+
+    /**
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string|null $name
+     * @return self
+     */
+    public function withName($name)
+    {
+        $clone = clone $this;
+        $clone->name = $name;
+
+        return $clone;
+    }
 
     /**
      * Builds a new instance from an input array
@@ -30,7 +50,7 @@ class ObjectHobbiesItem
      * @return ObjectHobbiesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : \Helmich\JsonStructBuilder\Example\ObjectHobbiesItem
+    public static function buildFromInput(array $input)
     {
         static::validateInput($input);
 
@@ -50,7 +70,7 @@ class ObjectHobbiesItem
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, $return = false)
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema);
@@ -63,6 +83,10 @@ class ObjectHobbiesItem
         }
 
         return $validator->isValid();
+    }
+
+    public function __clone()
+    {
     }
 
 

@@ -29,12 +29,52 @@ class ObjectAddress
     /**
      * @var string $city
      */
-    public $city = null;
+    private $city = null;
 
     /**
      * @var string $street
      */
-    public $street = null;
+    private $street = null;
+
+    /**
+     * @return string
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param string $city
+     * @return self
+     */
+    public function withCity($city)
+    {
+        $clone = clone $this;
+        $clone->city = $city;
+
+        return $clone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStreet()
+    {
+        return $this->street;
+    }
+
+    /**
+     * @param string $street
+     * @return self
+     */
+    public function withStreet($street)
+    {
+        $clone = clone $this;
+        $clone->street = $street;
+
+        return $clone;
+    }
 
     /**
      * Builds a new instance from an input array
@@ -43,7 +83,7 @@ class ObjectAddress
      * @return ObjectAddress Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : \Helmich\JsonStructBuilder\Example\ObjectAddress
+    public static function buildFromInput(array $input)
     {
         static::validateInput($input);
 
@@ -62,7 +102,7 @@ class ObjectAddress
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, $return = false)
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema);
@@ -75,6 +115,10 @@ class ObjectAddress
         }
 
         return $validator->isValid();
+    }
+
+    public function __clone()
+    {
     }
 
 
