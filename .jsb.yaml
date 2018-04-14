@@ -1,0 +1,5 @@
+targetPHPVersion: 5
+files:
+- input: src/Spec/Spec.yaml
+  className: Specification
+  targetDirectory: src/Spec

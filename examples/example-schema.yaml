@@ -1,0 +1,56 @@
+required:
+  - firstName
+  - lastName
+properties:
+  createdAt:
+    type: string
+    format: date-time
+  gender:
+    type: string
+    enum:
+      - male
+      - female
+  firstName:
+    type: string
+    minLength: 2
+  lastName:
+    type: string
+  email:
+    type: string
+    format: email
+  payment:
+    oneOf:
+      - required: [type]
+        properties:
+          type:
+            type: string
+            enum: [invoice]
+      - required: [type, accountNumber]
+        properties:
+          type:
+            type: string
+            enum: [debit]
+          accountNumber:
+            type: string
+      - type: string
+  address:
+    required:
+      - city
+      - street
+    properties:
+      city:
+        type: string
+        maxLength: 32
+      street:
+        type: string
+  tags:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  hobbies:
+    type: array
+    items:
+      properties:
+        name:
+          type: string
