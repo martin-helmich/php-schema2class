@@ -43,6 +43,41 @@ class PropertyCollection implements \Iterator
         return join("\n", $conv);
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasPropertyWithKey($key)
+    {
+        foreach ($this->properties as $p) {
+            if ($p->key() === $key) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return PropertyInterface[]
+     */
+    public function filterRequired()
+    {
+        return array_filter($this->properties, function($p) {
+            return !($p instanceof OptionalPropertyDecorator);
+        });
+    }
+
+    /**
+     * @return PropertyInterface[]
+     */
+    public function filterOptional()
+    {
+        return array_filter($this->properties, function($p) {
+            return $p instanceof OptionalPropertyDecorator;
+        });
+    }
+
     public function current()
     {
         return $this->properties[$this->current];

@@ -51,46 +51,29 @@ class Specification
     ];
 
     /**
-     * @var int $targetPHPVersion
+     * @var int|null
      */
     private $targetPHPVersion = 7;
 
     /**
-     * @var SpecificationFilesItem[] $files
+     * @var SpecificationFilesItem[]
      */
     private $files = null;
 
     /**
-     * @return int
+     * @param SpecificationFilesItem[] $files
+     */
+    public function __construct(array $files)
+    {
+        $this->files = $files;
+    }
+
+    /**
+     * @return int|null
      */
     public function getTargetPHPVersion()
     {
         return $this->targetPHPVersion;
-    }
-
-    /**
-     * @param int $targetPHPVersion
-     * @return self
-     */
-    public function withTargetPHPVersion($targetPHPVersion)
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($targetPHPVersion, [
-            'type' => 'integer',
-            'enum' => [
-                5,
-                7,
-            ],
-            'default' => 7,
-        ]);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->targetPHPVersion = $targetPHPVersion;
-
-        return $clone;
     }
 
     /**
@@ -102,40 +85,40 @@ class Specification
     }
 
     /**
+     * @param int $targetPHPVersion
+     * @return self
+     */
+    public function withTargetPHPVersion($targetPHPVersion)
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($targetPHPVersion, static::$schema['properties']['targetPHPVersion']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->targetPHPVersion = $targetPHPVersion;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutTargetPHPVersion()
+    {
+        $clone = clone $this;
+        unset($clone->targetPHPVersion);
+
+        return $clone;
+    }
+
+    /**
      * @param SpecificationFilesItem[] $files
      * @return self
      */
     public function withFiles(array $files)
     {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($files, [
-            'type' => 'array',
-            'items' => [
-                'required' => [
-                    'input',
-                    'className',
-                    'targetDirectory',
-                ],
-                'properties' => [
-                    'input' => [
-                        'type' => 'string',
-                    ],
-                    'className' => [
-                        'type' => 'string',
-                    ],
-                    'targetDirectory' => [
-                        'type' => 'string',
-                    ],
-                    'targetNamespace' => [
-                        'type' => 'string',
-                    ],
-                ],
-            ],
-        ]);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
         $clone = clone $this;
         $clone->files = $files;
 
@@ -153,13 +136,31 @@ class Specification
     {
         static::validateInput($input);
 
-        $obj = new static;
+        $targetPHPVersion = null;
         if (isset($input['targetPHPVersion'])) {
-            $obj->targetPHPVersion = (int) $input['targetPHPVersion'];
+            $targetPHPVersion = (int) $input['targetPHPVersion'];
         }
-        $obj->files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input["files"]);
+        $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
 
+        $obj = new static($files);
+        $obj->targetPHPVersion = $targetPHPVersion;
         return $obj;
+    }
+
+    /**
+     * Converts this object back to a simple array that can be JSON-serialized
+     *
+     * @return array Converted array
+     */
+    public function toJson()
+    {
+        $output = [];
+        if (isset($this->targetPHPVersion)) {
+            $output['targetPHPVersion'] = $this->targetPHPVersion;
+        }
+        $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
+
+        return $output;
     }
 
     /**
@@ -183,22 +184,6 @@ class Specification
         }
 
         return $validator->isValid();
-    }
-
-    /**
-     * Converts this object back to a simple array that can be JSON-serialized
-     *
-     * @return array Converted array
-     */
-    public function toJson()
-    {
-        $output = [];
-        if (isset($this->targetPHPVersion) && $this->targetPHPVersion !== null) {
-            $output['targetPHPVersion'] = $this->targetPHPVersion;
-        }
-        $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
-
-        return $output;
     }
 
     public function __clone()

@@ -80,10 +80,7 @@ class SchemaToClass
             $property->generateSubTypes($this);
         }
 
-        $methods[] = $gen->generateBuildMethod($propertiesFromSchema);
-        $methods[] = $gen->generateToJSONMethod($propertiesFromSchema);
-        $methods[] = $gen->generateValidateMethod($propertiesFromSchema);
-        $methods[] = $gen->generateCloneMethod($propertiesFromSchema);
+        $methods[] = $gen->generateConstructor($propertiesFromSchema);
 
         $properties = array_merge($properties, $gen->generateProperties($propertiesFromSchema));
         $methods = array_merge($methods, $gen->generateGetterMethods($propertiesFromSchema));
@@ -91,6 +88,11 @@ class SchemaToClass
         if (!$in->noSetters) {
             $methods = array_merge($methods, $gen->generateSetterMethods($propertiesFromSchema));
         }
+
+        $methods[] = $gen->generateBuildMethod($propertiesFromSchema);
+        $methods[] = $gen->generateToJSONMethod($propertiesFromSchema);
+        $methods[] = $gen->generateValidateMethod($propertiesFromSchema);
+        $methods[] = $gen->generateCloneMethod($propertiesFromSchema);
 
         $cls = new ClassGenerator(
             $in->targetClass,

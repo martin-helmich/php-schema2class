@@ -21,7 +21,7 @@ class IntersectProperty extends AbstractPropertyInterface
     {
         $key = $this->key;
 
-        return "\$obj->$key = {$this->subTypeName()}::buildFromInput(\$input['$key']);";
+        return "\$$key = {$this->subTypeName()}::buildFromInput(\$input['$key']);";
     }
 
     public function convertTypeToJSON($outputVarName = 'output')

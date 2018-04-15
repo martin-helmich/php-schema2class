@@ -50,7 +50,7 @@ class OptionalPropertyDecorator implements PropertyInterface
         $key = $this->key;
         $inner = $this->inner->convertJSONToType($inputVarName);
 
-        return "if (isset(\${$inputVarName}['$key'])) {\n" . $this->indentCode($inner,1) . "\n}";
+        return "\$$key = null;\nif (isset(\${$inputVarName}['$key'])) {\n" . $this->indentCode($inner,1) . "\n}";
     }
 
     /**

@@ -38,11 +38,11 @@ class UnionProperty extends AbstractPropertyInterface
             $propertyTypeName = $this->subTypeName($i);
 
             if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $conversions[] = ($i > 0 ? "else " : "") . "if ($propertyTypeName::validateInput(\$input['$key'], true)) {\n    \$obj->$key = $propertyTypeName::buildFromInput(\$input['$key']);\n}";
+                $conversions[] = ($i > 0 ? "else " : "") . "if ($propertyTypeName::validateInput(\$input['$key'], true)) {\n    \$$key = $propertyTypeName::buildFromInput(\$input['$key']);\n}";
             }
         }
 
-        $conversions[] = "else {\n    \$obj->$key = \${$inputVarName}['$key'];\n}";
+        $conversions[] = "else {\n    \$$key = \${$inputVarName}['$key'];\n}";
 
         return str_replace("}\nelse", "} else", join("\n", $conversions));
     }

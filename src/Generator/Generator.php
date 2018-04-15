@@ -40,7 +40,7 @@ class Generator
             $schema = $generator->schema();
             $prop = new PropertyGenerator(
                 $generator->key(),
-                isset($schema["default"]) ? new ValueGenerator($schema["default"]) : null,
+                isset($schema["default"]) ? $schema["default"] : null,
                 PropertyGenerator::FLAG_PRIVATE
             );
 
@@ -63,17 +63,41 @@ class Generator
     public function generateBuildMethod(PropertyCollection $properties)
     {
         $in = $this->ctx->request;
+
+        $required = $properties->filterRequired();
+        $optional = $properties->filterOptional();
+
+        $constructorParams = [];
+        $assignments = [];
+
+        foreach ($required as $r) {
+            $constructorParams[] = '$' . $r->key();
+        }
+
+        foreach ($optional as $o) {
+            $assignments[] = "\$obj->{$o->key()} = \${$o->key()};";
+        }
+
+        $inputVarName = 'input';
+        if ($properties->hasPropertyWithKey($inputVarName)) {
+            $i = 2;
+            do {
+                $inputVarName = 'input' . $i;
+            } while ($properties->hasPropertyWithKey($inputVarName));
+        }
+
         $method = new MethodGenerator(
             'buildFromInput',
-            [new ParameterGenerator("input", "array")],
+            [new ParameterGenerator($inputVarName, "array")],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
-            'static::validateInput($input);' . "\n\n" .
-            '$obj = new static;' . "\n" .
-            $properties->generateJSONToTypeConversionCode('input') . "\n\n" .
+            "static::validateInput(\$$inputVarName);\n\n" .
+            $properties->generateJSONToTypeConversionCode($inputVarName) . "\n\n" .
+            '$obj = new static(' . join(", ", $constructorParams) . ');' . "\n" .
+            join("\n", $assignments) . "\n" .
             'return $obj;',
             new DocBlockGenerator(
                 "Builds a new instance from an input array", null, [
-                    new ParamTag("input", ["array"], "Input data"),
+                    new ParamTag($inputVarName, ["array"], "Input data"),
                     new ReturnTag([$this->ctx->request->targetClass], "Created instance"),
                     new ThrowsTag("\\InvalidArgumentException"),
                 ]
@@ -310,5 +334,38 @@ return \$clone;",
         }
 
         return $unsetMethod;
+    }
+
+    public function generateConstructor(PropertyCollection $properties)
+    {
+        $params = [];
+        $tags = [];
+        $assignments = [];
+
+        $required = $properties->filterRequired();
+
+        foreach ($required as $r) {
+            $params[] = new ParameterGenerator(
+                $r->key(),
+                $r->typeHint($this->ctx->request->php5 ? 5 : 7)
+            );
+
+            $tags[] = new ParamTag(
+                $r->key(),
+                [$r->typeAnnotation()]
+            );
+
+            $assignments[] = "\$this->{$r->key()} = \${$r->key()};";
+        }
+
+        $method = new MethodGenerator(
+            "__construct",
+            $params,
+            MethodGenerator::FLAG_PUBLIC,
+            join("\n", $assignments),
+            new DocBlockGenerator("", "", $tags)
+        );
+
+        return $method;
     }
 }

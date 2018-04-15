@@ -20,7 +20,7 @@ class IntegerProperty extends AbstractPropertyInterface
     public function convertJSONToType($inputVarName = 'input')
     {
         $key = $this->key;
-        return "\$obj->$key = (int) \${$inputVarName}['$key'];";
+        return "\$$key = (int) \${$inputVarName}['$key'];";
     }
 
     public function typeAnnotation()

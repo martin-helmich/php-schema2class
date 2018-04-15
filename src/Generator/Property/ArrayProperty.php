@@ -22,7 +22,7 @@ class ArrayProperty extends AbstractPropertyInterface
         $key = $this->key;
 
         if ($this->isObjectArray()) {
-            return "\$obj->$key = " . 'array_map(function($i) { return ' . $this->subTypeName() . "::buildFromInput(\$i); }, \${$inputVarName}['$key']);";
+            return "\$$key = " . 'array_map(function($i) { return ' . $this->subTypeName() . "::buildFromInput(\$i); }, \${$inputVarName}['$key']);";
         }
 
         return parent::convertJSONToType($inputVarName);

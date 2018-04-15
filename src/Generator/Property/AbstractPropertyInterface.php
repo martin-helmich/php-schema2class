@@ -50,7 +50,7 @@ abstract class AbstractPropertyInterface implements PropertyInterface
     public function convertJSONToType($inputVarName = 'input')
     {
         $key = $this->key;
-        return "\$obj->$key = \${$inputVarName}['$key'];";
+        return "\$$key = \${$inputVarName}['$key'];";
     }
 
     public function convertTypeToJSON($outputVarName = 'output')

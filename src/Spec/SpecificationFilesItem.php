@@ -33,24 +33,36 @@ class SpecificationFilesItem
     ];
 
     /**
-     * @var string $input
+     * @var string
      */
     private $input = null;
 
     /**
-     * @var string $className
+     * @var string
      */
     private $className = null;
 
     /**
-     * @var string $targetDirectory
+     * @var string
      */
     private $targetDirectory = null;
 
     /**
-     * @var string|null $targetNamespace
+     * @var string|null
      */
     private $targetNamespace = null;
+
+    /**
+     * @param string $input
+     * @param string $className
+     * @param string $targetDirectory
+     */
+    public function __construct($input, $className, $targetDirectory)
+    {
+        $this->input = $input;
+        $this->className = $className;
+        $this->targetDirectory = $targetDirectory;
+    }
 
     /**
      * @return string
@@ -58,26 +70,6 @@ class SpecificationFilesItem
     public function getInput()
     {
         return $this->input;
-    }
-
-    /**
-     * @param string $input
-     * @return self
-     */
-    public function withInput($input)
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($input, [
-            'type' => 'string',
-        ]);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->input = $input;
-
-        return $clone;
     }
 
     /**
@@ -89,51 +81,11 @@ class SpecificationFilesItem
     }
 
     /**
-     * @param string $className
-     * @return self
-     */
-    public function withClassName($className)
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($className, [
-            'type' => 'string',
-        ]);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->className = $className;
-
-        return $clone;
-    }
-
-    /**
      * @return string
      */
     public function getTargetDirectory()
     {
         return $this->targetDirectory;
-    }
-
-    /**
-     * @param string $targetDirectory
-     * @return self
-     */
-    public function withTargetDirectory($targetDirectory)
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($targetDirectory, [
-            'type' => 'string',
-        ]);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->targetDirectory = $targetDirectory;
-
-        return $clone;
     }
 
     /**
@@ -145,15 +97,67 @@ class SpecificationFilesItem
     }
 
     /**
+     * @param string $input
+     * @return self
+     */
+    public function withInput($input)
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($input, static::$schema['properties']['input']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->input = $input;
+
+        return $clone;
+    }
+
+    /**
+     * @param string $className
+     * @return self
+     */
+    public function withClassName($className)
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($className, static::$schema['properties']['className']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->className = $className;
+
+        return $clone;
+    }
+
+    /**
+     * @param string $targetDirectory
+     * @return self
+     */
+    public function withTargetDirectory($targetDirectory)
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($targetDirectory, static::$schema['properties']['targetDirectory']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->targetDirectory = $targetDirectory;
+
+        return $clone;
+    }
+
+    /**
      * @param string $targetNamespace
      * @return self
      */
     public function withTargetNamespace($targetNamespace)
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($targetNamespace, [
-            'type' => 'string',
-        ]);
+        $validator->validate($targetNamespace, static::$schema['properties']['targetNamespace']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -165,25 +169,56 @@ class SpecificationFilesItem
     }
 
     /**
+     * @return self
+     */
+    public function withoutTargetNamespace()
+    {
+        $clone = clone $this;
+        unset($clone->targetNamespace);
+
+        return $clone;
+    }
+
+    /**
      * Builds a new instance from an input array
      *
-     * @param array $input Input data
+     * @param array $input2 Input data
      * @return SpecificationFilesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input)
+    public static function buildFromInput(array $input2)
     {
-        static::validateInput($input);
+        static::validateInput($input2);
 
-        $obj = new static;
-        $obj->input = $input['input'];
-        $obj->className = $input['className'];
-        $obj->targetDirectory = $input['targetDirectory'];
-        if (isset($input['targetNamespace'])) {
-            $obj->targetNamespace = $input['targetNamespace'];
+        $input = $input2['input'];
+        $className = $input2['className'];
+        $targetDirectory = $input2['targetDirectory'];
+        $targetNamespace = null;
+        if (isset($input2['targetNamespace'])) {
+            $targetNamespace = $input2['targetNamespace'];
         }
 
+        $obj = new static($input, $className, $targetDirectory);
+        $obj->targetNamespace = $targetNamespace;
         return $obj;
+    }
+
+    /**
+     * Converts this object back to a simple array that can be JSON-serialized
+     *
+     * @return array Converted array
+     */
+    public function toJson()
+    {
+        $output = [];
+        $output['input'] = $this->input;
+        $output['className'] = $this->className;
+        $output['targetDirectory'] = $this->targetDirectory;
+        if (isset($this->targetNamespace)) {
+            $output['targetNamespace'] = $this->targetNamespace;
+        }
+
+        return $output;
     }
 
     /**
@@ -207,24 +242,6 @@ class SpecificationFilesItem
         }
 
         return $validator->isValid();
-    }
-
-    /**
-     * Converts this object back to a simple array that can be JSON-serialized
-     *
-     * @return array Converted array
-     */
-    public function toJson()
-    {
-        $output = [];
-        $output['input'] = $this->input;
-        $output['className'] = $this->className;
-        $output['targetDirectory'] = $this->targetDirectory;
-        if (isset($this->targetNamespace) && $this->targetNamespace !== null) {
-            $output['targetNamespace'] = $this->targetNamespace;
-        }
-
-        return $output;
     }
 
     public function __clone()
