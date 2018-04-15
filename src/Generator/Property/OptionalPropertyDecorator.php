@@ -1,7 +1,7 @@
 <?php
-namespace Helmich\JsonStructBuilder\Generator\Property;
+namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\JsonStructBuilder\Generator\SchemaToClass;
+use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class OptionalPropertyDecorator implements PropertyInterface
 {

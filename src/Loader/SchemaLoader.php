@@ -1,5 +1,5 @@
 <?php
-namespace Helmich\JsonStructBuilder\Loader;
+namespace Helmich\Schema2Class\Loader;
 
 use Symfony\Component\Yaml\Yaml;
 

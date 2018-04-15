@@ -1,11 +1,11 @@
 <?php
 
-namespace Helmich\JsonStructBuilder\Generator;
+namespace Helmich\Schema2Class\Generator;
 
-use Helmich\JsonStructBuilder\Generator\Property\CodeFormatting;
-use Helmich\JsonStructBuilder\Generator\Property\OptionalPropertyDecorator;
-use Helmich\JsonStructBuilder\Generator\Property\PropertyCollection;
-use Helmich\JsonStructBuilder\Generator\Property\PropertyInterface;
+use Helmich\Schema2Class\Generator\Property\CodeFormatting;
+use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
+use Helmich\Schema2Class\Generator\Property\PropertyCollection;
+use Helmich\Schema2Class\Generator\Property\PropertyInterface;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlock\Tag\ThrowsTag;
@@ -14,7 +14,6 @@ use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
-use Zend\Code\Generator\ValueGenerator;
 
 class Generator
 {

@@ -1,7 +1,7 @@
 <?php
-namespace Helmich\JsonStructBuilder\Generator;
+namespace Helmich\Schema2Class\Generator;
 
-use Helmich\JsonStructBuilder\Writer\WriterInterface;
+use Helmich\Schema2Class\Writer\WriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GeneratorContext

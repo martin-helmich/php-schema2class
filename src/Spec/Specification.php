@@ -1,6 +1,6 @@
 <?php
 
-namespace Helmich\JsonStructBuilder\Spec;
+namespace Helmich\Schema2Class\Spec;
 
 class Specification
 {

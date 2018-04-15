@@ -1,8 +1,8 @@
 <?php
-namespace Helmich\JsonStructBuilder\Generator\Property;
+namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\JsonStructBuilder\Generator\GeneratorContext;
-use Helmich\JsonStructBuilder\Generator\SchemaToClass;
+use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\SchemaToClass;
 
 abstract class AbstractPropertyInterface implements PropertyInterface
 {

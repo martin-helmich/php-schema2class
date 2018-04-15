@@ -1,12 +1,12 @@
 <?php
-namespace Helmich\JsonStructBuilder\Command;
+namespace Helmich\Schema2Class\Command;
 
-use Helmich\JsonStructBuilder\Generator\GeneratorRequest;
-use Helmich\JsonStructBuilder\Generator\NamespaceInferrer;
-use Helmich\JsonStructBuilder\Generator\SchemaToClass;
-use Helmich\JsonStructBuilder\Loader\SchemaLoader;
-use Helmich\JsonStructBuilder\Writer\DebugWriter;
-use Helmich\JsonStructBuilder\Writer\FileWriter;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
+use Helmich\Schema2Class\Generator\NamespaceInferrer;
+use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Loader\SchemaLoader;
+use Helmich\Schema2Class\Writer\DebugWriter;
+use Helmich\Schema2Class\Writer\FileWriter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,8 +51,8 @@ class GenerateCommand extends Command
      * @param OutputInterface $output
      * @return void
      *
-     * @throws \Helmich\JsonStructBuilder\Loader\LoadingException
-     * @throws \Helmich\JsonStructBuilder\Generator\GeneratorException
+     * @throws \Helmich\Schema2Class\Loader\LoadingException
+     * @throws \Helmich\Schema2Class\Generator\GeneratorException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

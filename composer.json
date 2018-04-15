@@ -1,5 +1,5 @@
 {
-    "name": "helmich/json-struct-builder",
+    "name": "helmich/schema2class",
     "description": "Build PHP classes from JSON schema definitions",
     "type": "project",
     "license": "MIT",
@@ -16,11 +16,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Helmich\\JsonStructBuilder\\": "src/"
+            "Helmich\\Schema2Class\\": "src/"
         }
     },
     "bin": [
-        "cmd/jsb"
+        "cmd/s2c"
     ],
     "require-dev": {
         "justinrainbow/json-schema": "^5.2"

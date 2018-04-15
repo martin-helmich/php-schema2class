@@ -1,5 +1,5 @@
 <?php
-namespace Helmich\JsonStructBuilder\Generator;
+namespace Helmich\Schema2Class\Generator;
 
 class NamespaceInferrer
 {

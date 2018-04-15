@@ -1,5 +1,5 @@
 <?php
-namespace Helmich\JsonStructBuilder\Loader;
+namespace Helmich\Schema2Class\Loader;
 
 class LoadingException extends \Exception
 {

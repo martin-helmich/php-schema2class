@@ -1,7 +1,7 @@
 <?php
-namespace Helmich\JsonStructBuilder\Generator\Property;
+namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\JsonStructBuilder\Generator\SchemaToClass;
+use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class NestedObjectProperty extends AbstractPropertyInterface
 {
@@ -41,7 +41,7 @@ class NestedObjectProperty extends AbstractPropertyInterface
 
     /**
      * @param SchemaToClass    $generator
-     * @throws \Helmich\JsonStructBuilder\Generator\GeneratorException
+     * @throws \Helmich\Schema2Class\Generator\GeneratorException
      */
     public function generateSubTypes(SchemaToClass $generator)
     {

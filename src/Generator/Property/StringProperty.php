@@ -1,5 +1,5 @@
 <?php
-namespace Helmich\JsonStructBuilder\Generator\Property;
+namespace Helmich\Schema2Class\Generator\Property;
 
 class StringProperty extends AbstractPropertyInterface
 {

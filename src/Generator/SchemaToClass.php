@@ -1,18 +1,18 @@
 <?php
 
-namespace Helmich\JsonStructBuilder\Generator;
+namespace Helmich\Schema2Class\Generator;
 
-use Helmich\JsonStructBuilder\Generator\Property\ArrayProperty;
-use Helmich\JsonStructBuilder\Generator\Property\DateProperty;
-use Helmich\JsonStructBuilder\Generator\Property\IntegerProperty;
-use Helmich\JsonStructBuilder\Generator\Property\IntersectProperty;
-use Helmich\JsonStructBuilder\Generator\Property\MixedProperty;
-use Helmich\JsonStructBuilder\Generator\Property\NestedObjectProperty;
-use Helmich\JsonStructBuilder\Generator\Property\OptionalPropertyDecorator;
-use Helmich\JsonStructBuilder\Generator\Property\PropertyCollection;
-use Helmich\JsonStructBuilder\Generator\Property\StringProperty;
-use Helmich\JsonStructBuilder\Generator\Property\UnionProperty;
-use Helmich\JsonStructBuilder\Writer\WriterInterface;
+use Helmich\Schema2Class\Generator\Property\ArrayProperty;
+use Helmich\Schema2Class\Generator\Property\DateProperty;
+use Helmich\Schema2Class\Generator\Property\IntegerProperty;
+use Helmich\Schema2Class\Generator\Property\IntersectProperty;
+use Helmich\Schema2Class\Generator\Property\MixedProperty;
+use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
+use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
+use Helmich\Schema2Class\Generator\Property\PropertyCollection;
+use Helmich\Schema2Class\Generator\Property\StringProperty;
+use Helmich\Schema2Class\Generator\Property\UnionProperty;
+use Helmich\Schema2Class\Writer\WriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\VarTag;

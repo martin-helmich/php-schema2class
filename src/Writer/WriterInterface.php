@@ -1,5 +1,5 @@
 <?php
-namespace Helmich\JsonStructBuilder\Writer;
+namespace Helmich\Schema2Class\Writer;
 
 interface WriterInterface
 {
