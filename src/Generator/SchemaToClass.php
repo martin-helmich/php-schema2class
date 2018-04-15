@@ -15,7 +15,7 @@ use Helmich\Schema2Class\Generator\Property\UnionProperty;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\DocBlock\Tag\VarTag;
+use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\PropertyGenerator;
@@ -32,7 +32,11 @@ class SchemaToClass
     public function schemaToClass(GeneratorRequest $in, OutputInterface $output, WriterInterface $writer)
     {
         $schemaProperty = new PropertyGenerator("schema", $in->schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
-        $schemaProperty->setDocBlock(new DocBlockGenerator("Schema used to validate input for creating instances of this class", null, [new VarTag("schema", "array")]));
+        $schemaProperty->setDocBlock(new DocBlockGenerator(
+            "Schema used to validate input for creating instances of this class",
+            null,
+            [new GenericTag("var", "array")]
+        ));
 
         $properties = [$schemaProperty];
         $methods = [];

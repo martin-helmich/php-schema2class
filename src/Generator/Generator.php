@@ -6,10 +6,10 @@ use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
+use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlock\Tag\ThrowsTag;
-use Zend\Code\Generator\DocBlock\Tag\VarTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
@@ -46,7 +46,7 @@ class Generator
             $prop->setDocBlock(new DocBlockGenerator(
                 isset($schema["description"]) ? $schema["description"] : null,
                 null,
-                [new VarTag(null, $generator->typeAnnotation())]
+                [new GenericTag("var", $generator->typeAnnotation())]
             ));
 
             $propertyGenerators[] = $prop;
