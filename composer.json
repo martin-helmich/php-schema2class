@@ -19,10 +19,16 @@
             "Helmich\\Schema2Class\\": "src/"
         }
     },
+    "autoload-dev": {
+        "files": [
+            "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"
+        ]
+    },
     "bin": [
         "cmd/s2c"
     ],
     "require-dev": {
-        "justinrainbow/json-schema": "^5.2"
+        "justinrainbow/json-schema": "^5.2",
+        "phpunit/phpunit": "^7.1"
     }
 }

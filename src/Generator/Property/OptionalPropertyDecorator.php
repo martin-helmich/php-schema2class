@@ -115,7 +115,14 @@ class OptionalPropertyDecorator implements PropertyInterface
      */
     public function cloneProperty()
     {
-        return $this->inner->cloneProperty();
+        $key = $this->key();
+        $inner = $this->inner->cloneProperty();
+
+        if ($inner !== null) {
+            return "if (isset(\$this->$key)) {\n" . $this->indentCode($inner,1) . "\n}";
+        }
+
+        return $inner;
     }
 
     /**
