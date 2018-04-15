@@ -66,6 +66,14 @@ class SpecificationFilesItem
      */
     public function withInput($input)
     {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($input, [
+            'type' => 'string',
+        ]);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
         $clone = clone $this;
         $clone->input = $input;
 
@@ -86,6 +94,14 @@ class SpecificationFilesItem
      */
     public function withClassName($className)
     {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($className, [
+            'type' => 'string',
+        ]);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
         $clone = clone $this;
         $clone->className = $className;
 
@@ -106,6 +122,14 @@ class SpecificationFilesItem
      */
     public function withTargetDirectory($targetDirectory)
     {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($targetDirectory, [
+            'type' => 'string',
+        ]);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
         $clone = clone $this;
         $clone->targetDirectory = $targetDirectory;
 
@@ -121,11 +145,19 @@ class SpecificationFilesItem
     }
 
     /**
-     * @param string|null $targetNamespace
+     * @param string $targetNamespace
      * @return self
      */
     public function withTargetNamespace($targetNamespace)
     {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($targetNamespace, [
+            'type' => 'string',
+        ]);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
         $clone = clone $this;
         $clone->targetNamespace = $targetNamespace;
 
@@ -175,6 +207,24 @@ class SpecificationFilesItem
         }
 
         return $validator->isValid();
+    }
+
+    /**
+     * Converts this object back to a simple array that can be JSON-serialized
+     *
+     * @return array Converted array
+     */
+    public function toJson()
+    {
+        $output = [];
+        $output['input'] = $this->input;
+        $output['className'] = $this->className;
+        $output['targetDirectory'] = $this->targetDirectory;
+        if (isset($this->targetNamespace) && $this->targetNamespace !== null) {
+            $output['targetNamespace'] = $this->targetNamespace;
+        }
+
+        return $output;
     }
 
     public function __clone()

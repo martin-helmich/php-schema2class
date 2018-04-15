@@ -24,6 +24,8 @@ properties:
         properties:
           vatID:
             type: string
+          creditLevel:
+            type: integer
       - oneOf:
         - required: [foo]
           properties:
