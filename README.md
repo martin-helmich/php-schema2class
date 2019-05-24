@@ -166,7 +166,7 @@ Install using Composer:
 
 In many projects, you're going to want to keep an evolving JSON schema in sync with
 the generated PHP classes continuously. For this reason, S2C allows
-you to create a configuration file `.jsb.yaml` that stores the most common conversion
+you to create a configuration file `.s2c.yaml` that stores the most common conversion
 options:
 
 ```
@@ -176,5 +176,13 @@ files:
   className: Specification
   targetDirectory: src/Spec
 ```
+
+You can store your local configuration in this yaml file and start the generation process
+by calling
+
+    s2c generate:fromspec
+    
+This will scan for `.s2c.yaml` in the current directory and use it's parameters. If you need to have 
+different files for multiple schemas, you can provide a config file as a parameter.
 
 [jsonschema]: http://json-schema.org/
