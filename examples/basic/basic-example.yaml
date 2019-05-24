@@ -1,0 +1,18 @@
+required:
+  - givenName
+  - familyName
+properties:
+  givenName:
+    type: string
+  familyName:
+    type: string
+  hobbies:
+    type: array
+    items:
+      type: string
+  location:
+    properties:
+      country:
+        type: string
+      city:
+        type: string
