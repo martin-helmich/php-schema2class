@@ -21,7 +21,7 @@ class DateProperty extends AbstractPropertyInterface
     public function convertJSONToType($inputVarName = 'input')
     {
         $key = $this->key;
-        return "\$$key = new \\DateTime(\$input['$key']);";
+        return "\$$key = new \\DateTime(\${$inputVarName}['$key']);";
     }
 
     public function cloneProperty()

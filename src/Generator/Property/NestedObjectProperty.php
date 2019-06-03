@@ -22,7 +22,7 @@ class NestedObjectProperty extends AbstractPropertyInterface
     {
         $key = $this->key;
 
-        return "\$$key = {$this->subTypeName()}::buildFromInput(\$input['$key']);";
+        return "\$$key = {$this->subTypeName()}::buildFromInput(\${$inputVarName}['$key']);";
     }
 
     public function convertTypeToJSON($outputVarName = 'output')
