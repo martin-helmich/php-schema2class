@@ -47,11 +47,11 @@ class IntersectProperty extends AbstractPropertyInterface
         $propertyTypeName = $this->subTypeName();
         $combined = $this->buildSchemaIntersect($this->schema["allOf"]);
 
-        $req = $this->ctx->request
-            ->withSchema($combined)
-            ->withClass($propertyTypeName);
-
-        $generator->schemaToClass($req, $this->ctx->output, $this->ctx->writer);
+        $generator->schemaToClass(
+            $this->generatorRequest
+                ->withSchema($combined)
+                ->withClass($propertyTypeName)
+        );
     }
 
     public function typeAnnotation()
@@ -61,12 +61,12 @@ class IntersectProperty extends AbstractPropertyInterface
 
     public function typeHint($phpVersion)
     {
-        return "\\" . $this->ctx->request->targetNamespace . "\\" . $this->subTypeName();
+        return "\\" . $this->generatorRequest->getTargetNamespace() . "\\" . $this->subTypeName();
     }
 
     private function subTypeName()
     {
-        return $this->ctx->request->targetClass . $this->capitalizedName;
+        return $this->generatorRequest->getTargetClass() . $this->capitalizedName;
     }
 
     private function buildSchemaUnion(array $schemas)

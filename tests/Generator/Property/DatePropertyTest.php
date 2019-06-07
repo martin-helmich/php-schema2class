@@ -2,7 +2,7 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -15,6 +15,9 @@ class DatePropertyTest extends TestCase
      */
     private $underTest;
 
+    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    private $generatorRequest;
+
     public function testCanHandleSchema()
     {
         assertTrue(DateProperty::canHandleSchema(['type' => 'string', 'format' => 'date-time']));
@@ -25,9 +28,9 @@ class DatePropertyTest extends TestCase
     }
     protected function setUp()
     {
-        $this->generatorContext = $this->prophesize(GeneratorContext::class);
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
-        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorContext->reveal());
+        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()

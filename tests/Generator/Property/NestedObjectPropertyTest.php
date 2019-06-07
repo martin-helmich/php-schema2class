@@ -2,13 +2,9 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
-use Helmich\Schema2Class\Writer\WriterInterface;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class NestedObjectPropertyTest extends TestCase
 {
@@ -16,8 +12,8 @@ class NestedObjectPropertyTest extends TestCase
     /** @var NestedObjectProperty */
     private $underTest;
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy */
-    private $generatorContext;
+    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    private $generatorRequest;
 
     public function testCanHandleSchema()
     {
@@ -29,9 +25,9 @@ class NestedObjectPropertyTest extends TestCase
 
     protected function setUp()
     {
-        $this->generatorContext = $this->prophesize(GeneratorContext::class);
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
-        $this->underTest = new NestedObjectProperty($key, ['allOf' => []], $this->generatorContext->reveal());
+        $this->underTest = new NestedObjectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()
@@ -41,11 +37,9 @@ class NestedObjectPropertyTest extends TestCase
 
     public function testConvertJsonToType()
     {
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = new \stdClass();
-        $ctx->request->targetClass = 'Foo';
+        $this->generatorRequest->getTargetClass()->willReturn('Foo');
 
-        $underTest = new NestedObjectProperty('myPropertyName', ['allOf' => []], $ctx);
+        $underTest = new NestedObjectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
 
         $result = $underTest->convertJSONToType('variable');
 
@@ -77,12 +71,10 @@ EOCODE;
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = new \stdClass();
-        $ctx->request->targetClass = 'Foo';
-        $ctx->request->targetNamespace = 'BarNs';
+        $this->generatorRequest->getTargetClass()->willReturn('Foo');
+        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
 
-        $underTest = new NestedObjectProperty('myPropertyName',  ['allOf' => []], $ctx);
+        $underTest = new NestedObjectProperty('myPropertyName',  ['allOf' => []], $this->generatorRequest->reveal());
 
         assertSame('FooMyPropertyName', $underTest->typeAnnotation());
         assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(7));
@@ -91,24 +83,15 @@ EOCODE;
 
     public function testGenerateSubTypesWithSimpleArray()
     {
-        $generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $generatorRequest->withSchema(['allOf' => []])->shouldBeCalled()->willReturn($generatorRequest->reveal());
-        $generatorRequest->withClass('MyPropertyName')->shouldBeCalled()->willReturn($generatorRequest->reveal());
-
-        $consoleOutput = $this->prophesize(OutputInterface::class);
-        $writer = $this->prophesize(WriterInterface::class);
-
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = $generatorRequest->reveal();
-        $ctx->output = $consoleOutput->reveal();
-        $ctx->writer = $writer->reveal();
-
+        $this->generatorRequest->withSchema(['allOf' => []])->willReturn($this->generatorRequest->reveal());
+        $this->generatorRequest->withClass('MyPropertyName')->willReturn($this->generatorRequest->reveal());
+        $this->generatorRequest->getTargetClass()->willReturn('');
 
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
         $this->underTest->generateSubTypes($schemaToClass->reveal());
 
-        $schemaToClass->schemaToClass($generatorRequest->reveal(), $consoleOutput->reveal(), $writer->reveal())->shouldHaveBeenCalled();
+        $schemaToClass->schemaToClass($this->generatorRequest->reveal())->shouldHaveBeenCalled();
     }
 
 }

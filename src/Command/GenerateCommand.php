@@ -75,9 +75,11 @@ class GenerateCommand extends Command
             $writer = new DebugWriter($output);
         }
 
+        $this->s2c->setWriter($writer)->setOutput($output);
+
         $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $input->getOption("class"));
         $request->php5 = $input->getOption("php5");
 
-        $this->s2c->schemaToClass($request, $output, $writer);
+        $this->s2c->schemaToClass($request);
     }
 }

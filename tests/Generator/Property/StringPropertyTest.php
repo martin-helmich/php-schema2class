@@ -2,7 +2,7 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -10,15 +10,11 @@ use Prophecy\Argument;
 class StringPropertyTest extends TestCase
 {
 
-    /**
-     * @var GeneratorContext && \Prophecy\Prophecy\ObjectProphecy
-     */
-    private $generatorContext;
-
-    /**
-     * @var StringProperty
-     */
+    /** @var StringProperty */
     private $underTest;
+
+    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    private $generatorRequest;
 
     public function testCanHandleSchema()
     {
@@ -29,9 +25,9 @@ class StringPropertyTest extends TestCase
 
     protected function setUp()
     {
-        $this->generatorContext = $this->prophesize(GeneratorContext::class);
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myString';
-        $this->underTest = new StringProperty($key, ['type' => 'string'], $this->generatorContext->reveal());
+        $this->underTest = new StringProperty($key, ['type' => 'string'], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()

@@ -2,12 +2,9 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
-use Helmich\Schema2Class\Writer\WriterInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class UnionPropertyTest extends TestCase
 {
@@ -15,8 +12,8 @@ class UnionPropertyTest extends TestCase
     /** @var UnionProperty */
     private $underTest;
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy */
-    private $generatorContext;
+    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    private $generatorRequest;
 
     public function testCanHandleSchema()
     {
@@ -27,9 +24,9 @@ class UnionPropertyTest extends TestCase
 
     protected function setUp()
     {
-        $this->generatorContext = $this->prophesize(GeneratorContext::class);
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
-        $this->underTest = new UnionProperty($key, ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorContext->reveal());
+        $this->underTest = new UnionProperty($key, ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()
@@ -39,11 +36,9 @@ class UnionPropertyTest extends TestCase
 
     public function testConvertJsonToType()
     {
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = new \stdClass();
-        $ctx->request->targetClass = 'Foo';
+        $this->generatorRequest->getTargetClass()->willReturn('Foo');
 
-        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $ctx);
+        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest->reveal());
 
         $result = $underTest->convertJSONToType('variable');
 
@@ -62,11 +57,9 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = new \stdClass();
-        $ctx->request->targetClass = 'Foo';
+        $this->generatorRequest->getTargetClass()->willReturn('Foo');
 
-        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $ctx);
+        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest->reveal());
 
         $result = $underTest->convertTypeToJSON('variable');
 
@@ -92,11 +85,9 @@ EOCODE;
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = new \stdClass();
-        $ctx->request->targetClass = 'Foo';
+        $this->generatorRequest->getTargetClass()->willReturn('Foo');
 
-        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $ctx);
+        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest->reveal());
 
         assertSame('FooMyPropertyNameAlternative1|FooMyPropertyNameAlternative2', $underTest->typeAnnotation());
         assertSame(null, $underTest->typeHint(7));
@@ -126,34 +117,26 @@ EOCODE;
      */
     public function testGenerateSubTypes($schema)
     {
-        $generatorRequest = $this->prophesize(GeneratorRequest::class);
-
         if (isset($schema['oneOf'])) {
             $subschemas = $schema['oneOf'];
         } elseif (isset($schema['anyOf'])) {
             $subschemas = $schema['anyOf'];
         }
 
+        $this->generatorRequest->getTargetClass()->willReturn('');
+
         foreach ($subschemas as $i => $subschema) {
-            $generatorRequest->withSchema($subschema)->shouldBeCalled()->willReturn($generatorRequest->reveal());
-            $generatorRequest->withClass('MyPropertyNameAlternative'.($i+1))->shouldBeCalled()->willReturn($generatorRequest->reveal());
+            $this->generatorRequest->withSchema($subschema)->willReturn($this->generatorRequest->reveal());
+            $this->generatorRequest->withClass('MyPropertyNameAlternative'.($i+1))->willReturn($this->generatorRequest->reveal());
         }
 
-        $consoleOutput = $this->prophesize(OutputInterface::class);
-        $writer = $this->prophesize(WriterInterface::class);
-
-        $ctx = $this->generatorContext->reveal();
-        $ctx->request = $generatorRequest->reveal();
-        $ctx->output = $consoleOutput->reveal();
-        $ctx->writer = $writer->reveal();
-
-        $underTest = new UnionProperty('myPropertyName', $schema, $ctx);
+        $underTest = new UnionProperty('myPropertyName', $schema, $this->generatorRequest->reveal());
 
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
         $underTest->generateSubTypes($schemaToClass->reveal());
 
-        $schemaToClass->schemaToClass($generatorRequest->reveal(), $consoleOutput->reveal(), $writer->reveal())->shouldHaveBeenCalled();
+        $schemaToClass->schemaToClass($this->generatorRequest->reveal())->shouldHaveBeenCalled();
     }
 
 }

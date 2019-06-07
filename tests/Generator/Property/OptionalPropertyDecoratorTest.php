@@ -2,7 +2,6 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
 use PHPUnit\Framework\TestCase;
 
 class OptionalPropertyDecoratorTest extends TestCase

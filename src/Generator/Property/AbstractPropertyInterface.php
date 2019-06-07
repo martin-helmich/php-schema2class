@@ -1,7 +1,7 @@
 <?php
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
 abstract class AbstractPropertyInterface implements PropertyInterface
@@ -16,15 +16,15 @@ abstract class AbstractPropertyInterface implements PropertyInterface
     /** @var string */
     protected $capitalizedName;
 
-    /** @var GeneratorContext */
-    protected $ctx;
+    /** @var GeneratorRequest */
+    protected $generatorRequest;
 
-    public function __construct($key, array $schema, GeneratorContext $ctx)
+    public function __construct($key, array $schema, GeneratorRequest $generatorRequest)
     {
         $this->key = $key;
         $this->schema = $schema;
         $this->capitalizedName = strtoupper($this->key[0]) . substr($this->key, 1);
-        $this->ctx = $ctx;
+        $this->generatorRequest = $generatorRequest;
     }
 
     public function isComplex()

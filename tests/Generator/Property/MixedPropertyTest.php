@@ -2,7 +2,7 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -10,15 +10,12 @@ use Prophecy\Argument;
 class MixedPropertyTest extends TestCase
 {
 
-    /**
-     * @var MixedProperty
-     */
+    /** @var MixedProperty */
     private $underTest;
 
-    /**
-     * @var \Prophecy\Prophecy\ObjectProphecy
-     */
-    private $generatorContext;
+    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    private $generatorRequest;
+
 
     public function testCanHandleSchema()
     {
@@ -27,9 +24,9 @@ class MixedPropertyTest extends TestCase
 
     protected function setUp()
     {
-        $this->generatorContext = $this->prophesize(GeneratorContext::class);
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
-        $this->underTest = new MixedProperty($key, [], $this->generatorContext->reveal());
+        $this->underTest = new MixedProperty($key, [], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()
