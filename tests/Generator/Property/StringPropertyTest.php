@@ -3,8 +3,11 @@
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\SchemaToClass;
+use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
-class StringPropertyTest extends \PHPUnit\Framework\TestCase
+class StringPropertyTest extends TestCase
 {
 
     /**
@@ -62,4 +65,21 @@ EOCODE;
     {
         assertNull($this->underTest->cloneProperty());
     }
+
+    public function testGetAnnotationAndHint()
+    {
+        assertSame('string', $this->underTest->typeAnnotation());
+        assertSame('string', $this->underTest->typeHint(7));
+        assertSame(null, $this->underTest->typeHint(5));
+    }
+
+    public function testGenerateSubTypesWithSimpleArray()
+    {
+        $schemaToClass = $this->prophesize(SchemaToClass::class);
+
+        $this->underTest->generateSubTypes($schemaToClass->reveal());
+
+        $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
+    }
+
 }

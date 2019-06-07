@@ -3,7 +3,12 @@
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
+use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Writer\WriterInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ArrayPropertyTest extends TestCase
 {
@@ -121,6 +126,74 @@ EOCODE;
 $this->myPropertyName = array_map(function(FooMyPropertyNameItem $i) { return clone $i; }, $this->myPropertyName);
 EOCODE;
         assertSame($expected, $underTest->cloneProperty());
+    }
+
+    public function testGetAnnotationAndHintWithSimpleArray()
+    {
+        assertSame('array', $this->underTest->typeAnnotation());
+        assertSame('array', $this->underTest->typeHint(7));
+        assertSame('array', $this->underTest->typeHint(5));
+    }
+
+    public function testGetAnnotationWithSimpleItemsArray()
+    {
+        $ctx = $this->generatorContext->reveal();
+        $ctx->request = new \stdClass();
+        $ctx->request->targetClass = 'Foo';
+
+        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['type' => 'string']], $ctx);
+
+        assertSame('string[]', $underTest->typeAnnotation());
+        assertSame('array', $underTest->typeHint(7));
+        assertSame('array', $underTest->typeHint(5));
+
+    }
+
+    public function testGetAnnotationAndHintWithComplexArray()
+    {
+        $ctx = $this->generatorContext->reveal();
+        $ctx->request = new \stdClass();
+        $ctx->request->targetClass = 'Foo';
+
+        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $ctx);
+
+        assertSame('FooMyPropertyNameItem[]', $underTest->typeAnnotation());
+        assertSame('array', $underTest->typeHint(7));
+        assertSame('array', $underTest->typeHint(5));
+
+    }
+
+    public function testGenerateSubTypesWithSimpleArray()
+    {
+        $schemaToClass = $this->prophesize(SchemaToClass::class);
+
+        $this->underTest->generateSubTypes($schemaToClass->reveal());
+
+        $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
+    }
+
+    public function testGenerateSubTypesWithComplexArray()
+    {
+        $generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $generatorRequest->withSchema(['properties' => []])->shouldBeCalled()->willReturn($generatorRequest->reveal());
+        $generatorRequest->withClass('MyPropertyNameItem')->shouldBeCalled()->willReturn($generatorRequest->reveal());
+
+        $consoleOutput = $this->prophesize(OutputInterface::class);
+        $writer = $this->prophesize(WriterInterface::class);
+
+        $ctx = $this->generatorContext->reveal();
+        $ctx->request = $generatorRequest->reveal();
+        $ctx->output = $consoleOutput->reveal();
+        $ctx->writer = $writer->reveal();
+
+
+        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $ctx);
+
+        $schemaToClass = $this->prophesize(SchemaToClass::class);
+
+        $underTest->generateSubTypes($schemaToClass->reveal());
+
+        $schemaToClass->schemaToClass($generatorRequest->reveal(), $consoleOutput->reveal(), $writer->reveal())->shouldHaveBeenCalled();
     }
 
 }

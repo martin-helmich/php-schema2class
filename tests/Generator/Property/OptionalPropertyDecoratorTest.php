@@ -83,4 +83,20 @@ EOCODE;
         assertSame($expected, $this->underTest->cloneProperty());
     }
 
+    public function testGetAnnotationAndHintWithSimpleArray()
+    {
+        $this->innerProperty->typeAnnotation()->shouldBeCalled()->willReturn('Foo');
+        assertSame('Foo|null', $this->underTest->typeAnnotation());
+
+        $this->innerProperty->typeHint(7)->shouldBeCalled()->willReturn('Foo');
+        assertSame('?Foo', $this->underTest->typeHint(7));
+
+        $this->innerProperty->typeHint(5)->shouldBeCalled()->willReturn('Foo');
+        assertSame('Foo', $this->underTest->typeHint(5));
+
+        $this->innerProperty->typeHint(7)->shouldBeCalled()->willReturn(null);
+        assertSame(null, $this->underTest->typeHint(7));
+
+    }
+
 }

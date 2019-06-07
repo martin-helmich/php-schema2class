@@ -3,7 +3,9 @@
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\SchemaToClass;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 class DatePropertyTest extends TestCase
 {
@@ -61,6 +63,22 @@ EOCODE;
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
         assertSame($expected, $this->underTest->cloneProperty());
+    }
+
+    public function testGetAnnotationAndHintWithSimpleArray()
+    {
+        assertSame('\\DateTime', $this->underTest->typeAnnotation());
+        assertSame('\\DateTime', $this->underTest->typeHint(7));
+        assertSame('\\DateTime', $this->underTest->typeHint(5));
+    }
+
+    public function testGenerateSubTypesWithSimpleArray()
+    {
+        $schemaToClass = $this->prophesize(SchemaToClass::class);
+
+        $this->underTest->generateSubTypes($schemaToClass->reveal());
+
+        $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
     }
 
 }
