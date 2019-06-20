@@ -23,6 +23,11 @@ class DateProperty extends AbstractPropertyInterface
         $key = $this->key;
         return "\$$key = new \\DateTime(\$input['$key']);";
     }
+    
+    public function convertTypeToJSON($outputVarName = 'output') {
+        $key = $this->key;
+        return "\${$outputVarName}['$key'] = \$this->$key" . "->format(\\DateTime::ATOM);";
+    }
 
     public function cloneProperty()
     {
