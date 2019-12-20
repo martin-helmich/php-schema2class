@@ -21,6 +21,13 @@ class SchemaLoader
             throw new LoadingException($filename, "could not open file");
         }
 
-        return Yaml::parse($contents);
+        $path_parts = pathinfo($filename);
+        switch ($path_parts['extension']) {
+            case 'yml':
+            case 'yaml':
+                return Yaml::parse($contents);
+            case 'json':
+                return json_decode($contents, JSON_OBJECT_AS_ARRAY);
+        }
     }
 }
