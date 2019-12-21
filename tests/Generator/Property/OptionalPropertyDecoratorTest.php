@@ -13,16 +13,16 @@ class OptionalPropertyDecoratorTest extends TestCase
     /** @var \Prophecy\Prophecy\ObjectProphecy */
     private $innerProperty;
 
-    public function testCanHandleSchema()
-    {
-        assertFalse(OptionalPropertyDecorator::canHandleSchema([]));
-    }
-
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->innerProperty = $this->prophesize(PropertyInterface::class);
         $key = 'myPropertyName';
         $this->underTest = new OptionalPropertyDecorator($key, $this->innerProperty->reveal());
+    }
+
+    public function testCanHandleSchema()
+    {
+        assertFalse(OptionalPropertyDecorator::canHandleSchema([]));
     }
 
     public function testIsComplex()

@@ -15,18 +15,18 @@ class IntersectPropertyTest extends TestCase
     /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
     private $generatorRequest;
 
+    protected function setUp(): void
+    {
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $key = 'myPropertyName';
+        $this->underTest = new IntersectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
+    }
+
     public function testCanHandleSchema()
     {
         assertTrue(IntersectProperty::canHandleSchema(['allOf' => []]));
 
         assertFalse(IntersectProperty::canHandleSchema([]));
-    }
-
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new IntersectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()

@@ -16,17 +16,17 @@ class ArrayPropertyTest extends TestCase
     /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
     private $generatorRequest;
 
-    public function testCanHandleSchema()
-    {
-        assertTrue(ArrayProperty::canHandleSchema(['type' => 'array']));
-        assertFalse(ArrayProperty::canHandleSchema(['type' => 'foo']));
-    }
-
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
         $this->underTest = new ArrayProperty($key, ['type' => 'integer'], $this->generatorRequest->reveal());
+    }
+
+    public function testCanHandleSchema()
+    {
+        assertTrue(ArrayProperty::canHandleSchema(['type' => 'array']));
+        assertFalse(ArrayProperty::canHandleSchema(['type' => 'foo']));
     }
 
     public function testConvertJsonToTypeWithSimpleArray()

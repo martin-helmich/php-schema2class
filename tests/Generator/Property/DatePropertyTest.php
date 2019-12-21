@@ -18,6 +18,13 @@ class DatePropertyTest extends TestCase
     /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
     private $generatorRequest;
 
+    protected function setUp(): void
+    {
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $key = 'myPropertyName';
+        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest->reveal());
+    }
+    
     public function testCanHandleSchema()
     {
         assertTrue(DateProperty::canHandleSchema(['type' => 'string', 'format' => 'date-time']));
@@ -25,12 +32,6 @@ class DatePropertyTest extends TestCase
         assertFalse(DateProperty::canHandleSchema(['type' => 'string']));
         assertFalse(DateProperty::canHandleSchema(['type' => 'string', 'format' => 'foo']));
 
-    }
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()

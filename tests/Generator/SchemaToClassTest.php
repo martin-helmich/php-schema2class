@@ -12,7 +12,7 @@ class SchemaToClassTest extends \PHPUnit\Framework\TestCase
     /** @var SchemaToClass */
     private $underTest;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->underTest = new SchemaToClass();
     }

@@ -17,6 +17,12 @@ class IntegerPropertyTest extends TestCase
     /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
     private $generatorRequest;
 
+    protected function setUp(): void
+    {
+        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $key = 'myPropertyName';
+        $this->underTest = new IntegerProperty($key, ['type' => 'integer'], $this->generatorRequest->reveal());
+    }
 
     public function testCanHandleSchema()
     {
@@ -28,13 +34,6 @@ class IntegerPropertyTest extends TestCase
         assertFalse(IntegerProperty::canHandleSchema([]));
         assertFalse(IntegerProperty::canHandleSchema(['type' => 'foo']));
         assertFalse(IntegerProperty::canHandleSchema(['type' => 'number', 'format' => 'foo']));
-    }
-
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new IntegerProperty($key, ['type' => 'integer'], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()

@@ -14,7 +14,7 @@ class GeneratorRequestTest extends TestCase
     /** @var GeneratorRequest */
     private $underTest;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->underTest = new GeneratorRequest([], self::TARGET_DIR, self::TARGET_NAME_SPACE, self::TARGET_CLASS_NAME);
     }

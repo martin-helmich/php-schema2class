@@ -15,18 +15,17 @@ class UnionPropertyTest extends TestCase
     /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
     private $generatorRequest;
 
-    public function testCanHandleSchema()
-    {
-        assertTrue(UnionProperty::canHandleSchema(['anyOf' => []]));
-        assertTrue(UnionProperty::canHandleSchema(['oneOf' => []]));
-    }
-
-
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
         $this->underTest = new UnionProperty($key, ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest->reveal());
+    }
+
+    public function testCanHandleSchema()
+    {
+        assertTrue(UnionProperty::canHandleSchema(['anyOf' => []]));
+        assertTrue(UnionProperty::canHandleSchema(['oneOf' => []]));
     }
 
     public function testIsComplex()

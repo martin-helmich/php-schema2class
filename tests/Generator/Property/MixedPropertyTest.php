@@ -16,17 +16,16 @@ class MixedPropertyTest extends TestCase
     /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
     private $generatorRequest;
 
-
-    public function testCanHandleSchema()
-    {
-        assertTrue(MixedProperty::canHandleSchema([]));
-    }
-
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
         $key = 'myPropertyName';
         $this->underTest = new MixedProperty($key, [], $this->generatorRequest->reveal());
+    }
+
+    public function testCanHandleSchema()
+    {
+        assertTrue(MixedProperty::canHandleSchema([]));
     }
 
     public function testIsComplex()
