@@ -91,7 +91,8 @@ class GenerateSpecCommand extends Command
             $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $file->getClassName());
             $request->php5 = $specification->getTargetPHPVersion() === 5;
 
-            $this->s2c->schemaToClass($request, $output, $writer);
+            $this->s2c->setWriter($writer)->setOutput($output);
+            $this->s2c->schemaToClass($request);
         }
 
     }

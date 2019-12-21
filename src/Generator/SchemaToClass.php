@@ -23,15 +23,49 @@ use Zend\Code\Generator\PropertyGenerator;
 class SchemaToClass
 {
 
+    /** @var WriterInterface */
+    private $writer;
+
+    /** @var OutputInterface */
+    private $output;
+
     /**
-     * @param GeneratorRequest $in
+     * @param WriterInterface $writer
+     * @return $this
+     */
+    public function setWriter(WriterInterface $writer)
+    {
+        $this->writer = $writer;
+        return $this;
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @return $this
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * @param GeneratorRequest $generatorRequest
      * @param OutputInterface  $output
-     * @param WriterInterface  $writer
      * @throws GeneratorException
      */
-    public function schemaToClass(GeneratorRequest $in, OutputInterface $output, WriterInterface $writer)
+    public function schemaToClass(GeneratorRequest $generatorRequest)
     {
-        $schemaProperty = new PropertyGenerator("schema", $in->schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
+        if (!$this->writer instanceof WriterInterface) {
+            throw new \UnexpectedValueException('A file writer has not been set.');
+        }
+
+        if (!$this->output instanceof OutputInterface) {
+            throw new \UnexpectedValueException('A console output has not been set.');
+        }
+
+        $schema = $generatorRequest->getSchema();
+        $schemaProperty = new PropertyGenerator("schema", $schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
         $schemaProperty->setDocBlock(new DocBlockGenerator(
             "Schema used to validate input for creating instances of this class",
             null,
@@ -41,7 +75,7 @@ class SchemaToClass
         $properties = [$schemaProperty];
         $methods = [];
 
-        if (!isset($in->schema["properties"])) {
+        if (!isset($schema["properties"])) {
             throw new GeneratorException("cannot generate class for types other than 'object'");
         }
 
@@ -57,17 +91,14 @@ class SchemaToClass
             MixedProperty::class,
         ];
 
-        $ctx = new GeneratorContext($in, $output, $writer);
-        $gen = new Generator($ctx);
-
-        foreach ($in->schema["properties"] as $key => $definition) {
-            $isRequired = isset($in->schema["required"]) && in_array($key, $in->schema["required"]);
+        foreach ($schema["properties"] as $key => $definition) {
+            $isRequired = isset($schema["required"]) && in_array($key, $schema["required"]);
 
             foreach ($propertyTypes as $propertyType) {
                 if ($propertyType::canHandleSchema($definition)) {
-                    $output->writeln("building generator <info>$propertyType</info> for property <comment>$key</comment>");
+                    $this->output->writeln("building generator <info>$propertyType</info> for property <comment>$key</comment>");
 
-                    $property = new $propertyType($key, $definition, $ctx);
+                    $property = new $propertyType($key, $definition, $generatorRequest);
 
                     if (!$isRequired) {
                         $property = new OptionalPropertyDecorator($key, $property);
@@ -84,23 +115,22 @@ class SchemaToClass
             $property->generateSubTypes($this);
         }
 
-        $methods[] = $gen->generateConstructor($propertiesFromSchema);
+        $codeGenerator = new Generator($generatorRequest);
 
-        $properties = array_merge($properties, $gen->generateProperties($propertiesFromSchema));
-        $methods = array_merge($methods, $gen->generateGetterMethods($propertiesFromSchema));
+        $methods[] = $codeGenerator->generateConstructor($propertiesFromSchema);
 
-        if (!$in->noSetters) {
-            $methods = array_merge($methods, $gen->generateSetterMethods($propertiesFromSchema));
-        }
+        $properties = array_merge($properties, $codeGenerator->generateProperties($propertiesFromSchema));
+        $methods = array_merge($methods, $codeGenerator->generateGetterMethods($propertiesFromSchema));
+        $methods = array_merge($methods, $codeGenerator->generateSetterMethods($propertiesFromSchema));
 
-        $methods[] = $gen->generateBuildMethod($propertiesFromSchema);
-        $methods[] = $gen->generateToJSONMethod($propertiesFromSchema);
-        $methods[] = $gen->generateValidateMethod($propertiesFromSchema);
-        $methods[] = $gen->generateCloneMethod($propertiesFromSchema);
+        $methods[] = $codeGenerator->generateBuildMethod($propertiesFromSchema);
+        $methods[] = $codeGenerator->generateToJSONMethod($propertiesFromSchema);
+        $methods[] = $codeGenerator->generateValidateMethod($propertiesFromSchema);
+        $methods[] = $codeGenerator->generateCloneMethod($propertiesFromSchema);
 
         $cls = new ClassGenerator(
-            $in->targetClass,
-            $in->targetNamespace,
+            $generatorRequest->getTargetClass(),
+            $generatorRequest->getTargetNamespace(),
             null,
             null,
             [],
@@ -117,9 +147,9 @@ class SchemaToClass
 
         // Do some corrections because the Zend code generation library is stupid.
         $content = preg_replace('/ : \\\\self/', ' : self', $content);
-        $content = preg_replace('/\\\\'.preg_quote($in->targetNamespace).'\\\\/', '', $content);
+        $content = preg_replace('/\\\\'.preg_quote($generatorRequest->getTargetNamespace()).'\\\\/', '', $content);
 
-        $writer->writeFile($in->targetDirectory . '/' . $in->targetClass . '.php', $content);
+        $this->writer->writeFile($generatorRequest->getTargetDirectory() . '/' . $generatorRequest->getTargetClass() . '.php', $content);
     }
 
 }

@@ -60,13 +60,10 @@ class ArrayProperty extends AbstractPropertyInterface
     public function generateSubTypes(SchemaToClass $generator)
     {
         $def = $this->schema;
-        $ctx = $this->ctx;
 
         if ($this->isObjectArray()) {
             $generator->schemaToClass(
-                $ctx->request->withSchema($def["items"])->withClass($this->subTypeName()),
-                $ctx->output,
-                $ctx->writer
+                $this->generatorRequest->withSchema($def["items"])->withClass($this->subTypeName())
             );
         }
     }
@@ -92,7 +89,7 @@ class ArrayProperty extends AbstractPropertyInterface
 
     private function subTypeName()
     {
-        return $this->ctx->request->targetClass . $this->capitalizedName . 'Item';
+        return $this->generatorRequest->getTargetClass() . $this->capitalizedName . 'Item';
     }
 
     private function isObjectArray()

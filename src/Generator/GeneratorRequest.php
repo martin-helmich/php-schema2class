@@ -4,19 +4,28 @@ namespace Helmich\Schema2Class\Generator;
 
 class GeneratorRequest
 {
-    public $schema;
-    public $targetDirectory;
-    public $targetNamespace;
-    public $targetClass;
+    /** @var array */
+    private $schema;
+
+    /** @var string */
+    private $targetDirectory;
+
+    /** @var string */
+    private $targetNamespace;
+
+    /** @var string */
+    private $targetClass;
+
+    /** @var bool */
+    //@todo Refactor and make private
     public $php5 = false;
-    public $noSetters = false;
 
     /**
      * GeneratorRequest constructor.
-     * @param $schema
-     * @param $targetDirectory
-     * @param $targetNamespace
-     * @param $targetClass
+     * @param array $schema
+     * @param string $targetDirectory
+     * @param string $targetNamespace
+     * @param string $targetClass
      */
     public function __construct($schema, $targetDirectory, $targetNamespace, $targetClass)
     {
@@ -40,5 +49,54 @@ class GeneratorRequest
         $clone->targetClass = $targetClass;
 
         return $clone;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPhpTargetVersion()
+    {
+        return $this->php5 ? 5 : 7;
+    }
+
+    /**
+     * @param int $version
+     * @return bool
+     */
+    public function isPhp($version)
+    {
+        return $this->getPhpTargetVersion() === $version;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetDirectory()
+    {
+        return $this->targetDirectory;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetNamespace()
+    {
+        return $this->targetNamespace;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetClass()
+    {
+        return $this->targetClass;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSchema()
+    {
+        return $this->schema;
     }
 }

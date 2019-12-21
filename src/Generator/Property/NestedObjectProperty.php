@@ -22,7 +22,7 @@ class NestedObjectProperty extends AbstractPropertyInterface
     {
         $key = $this->key;
 
-        return "\$$key = {$this->subTypeName()}::buildFromInput(\$input['$key']);";
+        return "\$$key = {$this->subTypeName()}::buildFromInput(\${$inputVarName}['$key']);";
     }
 
     public function convertTypeToJSON($outputVarName = 'output')
@@ -45,11 +45,11 @@ class NestedObjectProperty extends AbstractPropertyInterface
      */
     public function generateSubTypes(SchemaToClass $generator)
     {
-        $req = $this->ctx->request
-            ->withSchema($this->schema)
-            ->withClass($this->subTypeName());
-
-        $generator->schemaToClass($req, $this->ctx->output, $this->ctx->writer);
+        $generator->schemaToClass(
+            $this->generatorRequest
+                ->withSchema($this->schema)
+                ->withClass($this->subTypeName())
+        );
     }
 
     public function typeAnnotation()
@@ -59,12 +59,12 @@ class NestedObjectProperty extends AbstractPropertyInterface
 
     public function typeHint($phpVersion)
     {
-        return "\\" . $this->ctx->request->targetNamespace . "\\" . $this->subTypeName();
+        return "\\" . $this->generatorRequest->getTargetNamespace() . "\\" . $this->subTypeName();
     }
 
     private function subTypeName()
     {
-        return $this->ctx->request->targetClass . $this->capitalizedName;
+        return $this->generatorRequest->getTargetClass() . $this->capitalizedName;
     }
 
 }

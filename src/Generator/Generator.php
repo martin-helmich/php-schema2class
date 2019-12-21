@@ -19,12 +19,12 @@ class Generator
 {
     use CodeFormatting;
 
-    /** @var GeneratorContext */
-    private $ctx;
+    /** @var GeneratorRequest */
+    private $generatorRequest;
 
-    public function __construct(GeneratorContext $ctx)
+    public function __construct(GeneratorRequest $generatorRequest)
     {
-        $this->ctx = $ctx;
+        $this->generatorRequest = $generatorRequest;
     }
 
     /**
@@ -35,10 +35,10 @@ class Generator
     {
         $propertyGenerators = [];
 
-        foreach ($properties as $generator) {
-            $schema = $generator->schema();
+        foreach ($properties as $property) {
+            $schema = $property->schema();
             $prop = new PropertyGenerator(
-                $generator->key(),
+                $property->key(),
                 isset($schema["default"]) ? $schema["default"] : null,
                 PropertyGenerator::FLAG_PRIVATE
             );
@@ -46,7 +46,7 @@ class Generator
             $prop->setDocBlock(new DocBlockGenerator(
                 isset($schema["description"]) ? $schema["description"] : null,
                 null,
-                [new GenericTag("var", $generator->typeAnnotation())]
+                [new GenericTag("var", $property->typeAnnotation())]
             ));
 
             $propertyGenerators[] = $prop;
@@ -61,20 +61,18 @@ class Generator
      */
     public function generateBuildMethod(PropertyCollection $properties)
     {
-        $in = $this->ctx->request;
-
-        $required = $properties->filterRequired();
-        $optional = $properties->filterOptional();
+        $requiredProperties = $properties->filterRequired();
+        $optionalProperties = $properties->filterOptional();
 
         $constructorParams = [];
         $assignments = [];
 
-        foreach ($required as $r) {
-            $constructorParams[] = '$' . $r->key();
+        foreach ($requiredProperties as $requiredProperty) {
+            $constructorParams[] = '$' . $requiredProperty->key();
         }
 
-        foreach ($optional as $o) {
-            $assignments[] = "\$obj->{$o->key()} = \${$o->key()};";
+        foreach ($optionalProperties as $optionalProperty) {
+            $assignments[] = "\$obj->{$optionalProperty->key()} = \${$optionalProperty->key()};";
         }
 
         $inputVarName = 'input';
@@ -97,14 +95,14 @@ class Generator
             new DocBlockGenerator(
                 "Builds a new instance from an input array", null, [
                     new ParamTag($inputVarName, ["array"], "Input data"),
-                    new ReturnTag([$this->ctx->request->targetClass], "Created instance"),
+                    new ReturnTag([$this->generatorRequest->getTargetClass()], "Created instance"),
                     new ThrowsTag("\\InvalidArgumentException"),
                 ]
             )
         );
 
-        if (!$in->php5) {
-            $method->setReturnType($in->targetNamespace . "\\" . $in->targetClass);
+        if (!$this->generatorRequest->isPhp(5)) {
+            $method->setReturnType($this->generatorRequest->getTargetNamespace() . "\\" . $this->generatorRequest->getTargetClass());
         }
 
         return $method;
@@ -116,7 +114,6 @@ class Generator
      */
     public function generateToJSONMethod(PropertyCollection $properties)
     {
-        $in = $this->ctx->request;
         $method = new MethodGenerator(
             'toJson',
             [],
@@ -131,7 +128,7 @@ class Generator
             )
         );
 
-        if (!$in->php5) {
+        if (!$this->generatorRequest->isPhp(5)) {
             $method->setReturnType("array");
         }
 
@@ -144,12 +141,11 @@ class Generator
      */
     public function generateValidateMethod(PropertyCollection $properties)
     {
-        $in = $this->ctx->request;
         $method = new MethodGenerator(
             'validateInput',
             [
-                new ParameterGenerator("input", $in->php5 ? null : "array"),
-                new ParameterGenerator("return", $in->php5 ? null : "bool", false),
+                new ParameterGenerator("input", $this->generatorRequest->isPhp(5) ? null : "array"),
+                new ParameterGenerator("return", $this->generatorRequest->isPhp(5) ? null : "bool", false),
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
@@ -171,7 +167,7 @@ class Generator
             )
         );
 
-        if (!$in->php5) {
+        if (!$this->generatorRequest->isPhp(5)) {
             $method->setReturnType("bool");
         }
 
@@ -186,8 +182,8 @@ class Generator
     {
         $clones = [];
 
-        foreach ($properties as $prop) {
-            $c = $prop->cloneProperty();
+        foreach ($properties as $property) {
+            $c = $property->cloneProperty();
             if ($c !== null) {
                 $clones[] = $c;
             }
@@ -209,8 +205,8 @@ class Generator
     {
         $methods = [];
 
-        foreach ($properties as $p) {
-            $methods[] = $this->generateGetterMethod($p);
+        foreach ($properties as $property) {
+            $methods[] = $this->generateGetterMethod($property);
         }
 
         return $methods;
@@ -234,7 +230,7 @@ class Generator
             new DocBlockGenerator(null, null, [new ReturnTag($annotatedType)])
         );
 
-        if (!$this->ctx->request->php5) {
+        if (!$this->generatorRequest->isPhp(5)) {
             $typeHint = $property->typeHint(7);
             if ($typeHint) {
                 $getMethod->setReturnType($typeHint);
@@ -252,11 +248,11 @@ class Generator
     {
         $methods = [];
 
-        foreach ($properties as $p) {
-            $methods[] = $this->generateSetterMethod($p);
+        foreach ($properties as $property) {
+            $methods[] = $this->generateSetterMethod($property);
 
-            if ($p instanceof OptionalPropertyDecorator) {
-                $methods[] = $this->generateUnsetterMethod($p);
+            if ($property instanceof OptionalPropertyDecorator) {
+                $methods[] = $this->generateUnsetterMethod($property);
             }
         }
 
@@ -271,7 +267,7 @@ class Generator
         $requiredProperty = ($property instanceof OptionalPropertyDecorator) ? $property->unwrap() : $property;
 
         $annotatedType = $requiredProperty->typeAnnotation();
-        $typeHint = $requiredProperty->typeHint($this->ctx->request->php5 ? 5 : 7);
+        $typeHint = $requiredProperty->typeHint($this->generatorRequest->getPhpTargetVersion());
 
         if ($property->isComplex()) {
             $setterValidation = "";
@@ -299,7 +295,7 @@ return \$clone;",
             ])
         );
 
-        if (!$this->ctx->request->php5) {
+        if (!$this->generatorRequest->isPhp(5)) {
             $setMethod->setReturnType("self");
         }
 
@@ -328,7 +324,7 @@ return \$clone;",
             ])
         );
 
-        if (!$this->ctx->request->php5) {
+        if (!$this->generatorRequest->isPhp(5)) {
             $unsetMethod->setReturnType("self");
         }
 
@@ -341,20 +337,20 @@ return \$clone;",
         $tags = [];
         $assignments = [];
 
-        $required = $properties->filterRequired();
+        $requiredProperties = $properties->filterRequired();
 
-        foreach ($required as $r) {
+        foreach ($requiredProperties as $requiredProperty) {
             $params[] = new ParameterGenerator(
-                $r->key(),
-                $r->typeHint($this->ctx->request->php5 ? 5 : 7)
+                $requiredProperty->key(),
+                $requiredProperty->typeHint($this->generatorRequest->getPhpTargetVersion())
             );
 
             $tags[] = new ParamTag(
-                $r->key(),
-                [$r->typeAnnotation()]
+                $requiredProperty->key(),
+                [$requiredProperty->typeAnnotation()]
             );
 
-            $assignments[] = "\$this->{$r->key()} = \${$r->key()};";
+            $assignments[] = "\$this->{$requiredProperty->key()} = \${$requiredProperty->key()};";
         }
 
         $method = new MethodGenerator(

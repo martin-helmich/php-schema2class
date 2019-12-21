@@ -2,6 +2,7 @@
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorContext;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class UnionProperty extends AbstractPropertyInterface
@@ -13,14 +14,14 @@ class UnionProperty extends AbstractPropertyInterface
         return isset($schema["oneOf"]) || isset($schema["anyOf"]);
     }
 
-    public function __construct($key, array $schema, GeneratorContext $ctx)
+    public function __construct($key, array $schema, GeneratorRequest $generatorRequest)
     {
         if (isset($schema["anyOf"])) {
             $schema["oneOf"] = $schema["anyOf"];
             unset($schema["anyOf"]);
         }
 
-        parent::__construct($key, $schema, $ctx);
+        parent::__construct($key, $schema, $generatorRequest);
     }
 
     public function isComplex()
@@ -38,7 +39,7 @@ class UnionProperty extends AbstractPropertyInterface
             $propertyTypeName = $this->subTypeName($i);
 
             if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $conversions[] = ($i > 0 ? "else " : "") . "if ($propertyTypeName::validateInput(\$input['$key'], true)) {\n    \$$key = $propertyTypeName::buildFromInput(\$input['$key']);\n}";
+                $conversions[] = ($i > 0 ? "else " : "") . "if ($propertyTypeName::validateInput(\${$inputVarName}['$key'], true)) {\n    \$$key = $propertyTypeName::buildFromInput(\${$inputVarName}['$key']);\n}";
             }
         }
 
@@ -57,7 +58,7 @@ class UnionProperty extends AbstractPropertyInterface
             $propertyTypeName = $this->subTypeName($i);
 
             if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $conversions[] = "if (\$this instanceof $propertyTypeName) {\n    \$output['$key'] = \$this->{$key}->toJson();\n}";
+                $conversions[] = "if (\$this instanceof $propertyTypeName) {\n    \${$outputVarName}['$key'] = \$this->{$key}->toJson();\n}";
             }
         }
 
@@ -83,11 +84,11 @@ class UnionProperty extends AbstractPropertyInterface
             $propertyTypeName = $this->subTypeName($i);
 
             if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $req = $this->ctx->request
-                    ->withSchema($subDef)
-                    ->withClass($propertyTypeName);
-
-                $generator->schemaToClass($req, $this->ctx->output, $this->ctx->writer);
+                $generator->schemaToClass(
+                    $this->generatorRequest
+                        ->withSchema($subDef)
+                        ->withClass($propertyTypeName)
+                );
             }
         }
     }
@@ -116,7 +117,7 @@ class UnionProperty extends AbstractPropertyInterface
 
     private function subTypeName($idx = 0)
     {
-        return $this->ctx->request->targetClass . $this->capitalizedName . "Alternative" . ($idx + 1);
+        return $this->generatorRequest->getTargetClass() . $this->capitalizedName . "Alternative" . ($idx + 1);
     }
 
 }
