@@ -8,47 +8,47 @@ class Specification
     /**
      * Schema used to validate input for creating instances of this class
      *
-     * @var array $schema
+     * @var array
      */
-    private static $schema = [
-        'required' => [
+    private static $schema = array(
+        'required' => array(
             'files',
-        ],
-        'properties' => [
-            'targetPHPVersion' => [
+        ),
+        'properties' => array(
+            'targetPHPVersion' => array(
                 'type' => 'integer',
-                'enum' => [
+                'enum' => array(
                     5,
                     7,
-                ],
+                ),
                 'default' => 7,
-            ],
-            'files' => [
+            ),
+            'files' => array(
                 'type' => 'array',
-                'items' => [
-                    'required' => [
+                'items' => array(
+                    'required' => array(
                         'input',
                         'className',
                         'targetDirectory',
-                    ],
-                    'properties' => [
-                        'input' => [
+                    ),
+                    'properties' => array(
+                        'input' => array(
                             'type' => 'string',
-                        ],
-                        'className' => [
+                        ),
+                        'className' => array(
                             'type' => 'string',
-                        ],
-                        'targetDirectory' => [
+                        ),
+                        'targetDirectory' => array(
                             'type' => 'string',
-                        ],
-                        'targetNamespace' => [
+                        ),
+                        'targetNamespace' => array(
                             'type' => 'string',
-                        ],
-                    ],
-                ],
-            ],
-        ],
-    ];
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    );
 
     /**
      * @var int|null
