@@ -48,7 +48,7 @@ abstract class AbstractProperty implements PropertyInterface
     {
         $key = $this->key;
         $keyS = var_export($key, true);
-        $map = $this->mapFromInput("\${$inputVarName}[{$keyS}]");
+        $map = $this->generateInputMappingExpr("\${$inputVarName}[{$keyS}]");
         return "\$$key = {$map};";
     }
 
@@ -56,7 +56,7 @@ abstract class AbstractProperty implements PropertyInterface
     {
         $key = $this->key;
         $keyStr = var_export($key, true);
-        $map = $this->mapToOutput("\$this->{$key}");
+        $map = $this->generateOutputMappingExpr("\$this->{$key}");
         return "\${$outputVarName}[{$keyStr}] = {$map};";
     }
 
@@ -65,17 +65,17 @@ abstract class AbstractProperty implements PropertyInterface
         return isset($this->schema[$key]) ? $this->schema[$key] : null;
     }
 
-    public function inputAssertion(string $expr): string
+    public function generateInputAssertionExpr(string $expr): string
     {
-        return $this->assertion($expr);
+        return $this->generateTypeAssertionExpr($expr);
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
         return $expr;
     }
 
-    public function mapToOutput(string $expr): string
+    public function generateOutputMappingExpr(string $expr): string
     {
         return $expr;
     }

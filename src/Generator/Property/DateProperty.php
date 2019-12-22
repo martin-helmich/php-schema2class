@@ -35,17 +35,17 @@ class DateProperty extends AbstractProperty
         return "\\DateTime";
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         return "${expr} instanceof \\DateTime";
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
         return "new \\DateTime({$expr})";
     }
 
-    public function mapToOutput(string $expr): string
+    public function generateOutputMappingExpr(string $expr): string
     {
         return "({$expr})->format(\\DateTime::ATOM)";
     }

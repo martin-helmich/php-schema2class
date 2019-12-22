@@ -50,22 +50,22 @@ class NestedObjectProperty extends AbstractProperty
         return "\\" . $this->generatorRequest->getTargetNamespace() . "\\" . $this->subTypeName();
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         return "{$expr} instanceof {$this->subTypeName()}";
     }
 
-    public function inputAssertion(string $expr): string
+    public function generateInputAssertionExpr(string $expr): string
     {
         return "{$this->subTypeName()}::validateInput({$expr}, true)";
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
         return "{$this->subTypeName()}::buildFromInput({$expr})";
     }
 
-    public function mapToOutput(string $expr): string
+    public function generateOutputMappingExpr(string $expr): string
     {
         return "({$expr})->toJson()";
     }

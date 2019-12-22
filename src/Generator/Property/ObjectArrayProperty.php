@@ -80,29 +80,29 @@ class ObjectArrayProperty extends AbstractProperty
         return "array";
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         $st = $this->subTypeName();
         return "is_array({$expr}) && count(array_filter({$expr}, function({$st} \$item) {return \$item instanceof {$st};})) === count({$expr})";
     }
 
-    public function inputAssertion(string $expr): string
+    public function generateInputAssertionExpr(string $expr): string
     {
         $st = $this->subTypeName();
         return "is_array({$expr}) && count(array_filter({$expr}, function({$st} \$item) {return {$st}::validateInput(\$item, true)};})) === count({$expr})";
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
         $st = $this->subTypeName();
-        $sm = $this->itemType->mapFromInput('$i');
+        $sm = $this->itemType->generateInputMappingExpr('$i');
         return "array_map(function(\$i) { return {$sm}; }, {$expr})";
     }
 
-    public function mapToOutput(string $expr): string
+    public function generateOutputMappingExpr(string $expr): string
     {
         $st = $this->subTypeName();
-        $sm = $this->itemType->mapToOutput('$i');
+        $sm = $this->itemType->generateOutputMappingExpr('$i');
         return "array_map(function($st \$i) { return {$sm} }, {$expr});";
     }
 

@@ -61,25 +61,25 @@ interface PropertyInterface
      * @param string $expr
      * @return string
      */
-    public function assertion(string $expr): string;
+    public function generateTypeAssertionExpr(string $expr): string;
 
     /**
      * @param string $expr
      * @return string
      */
-    public function inputAssertion(string $expr): string;
+    public function generateInputAssertionExpr(string $expr): string;
 
     /**
      * @param string $expr
      * @return string
      */
-    public function mapFromInput(string $expr): string;
+    public function generateInputMappingExpr(string $expr): string;
 
     /**
      * @param string $expr
      * @return string
      */
-    public function mapToOutput(string $expr): string;
+    public function generateOutputMappingExpr(string $expr): string;
 
     /**
      * @return string|null

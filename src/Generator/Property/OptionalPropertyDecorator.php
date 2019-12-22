@@ -149,25 +149,25 @@ class OptionalPropertyDecorator implements PropertyInterface
         return $this->inner;
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
-        return "(({$expr}) === null) || ({$this->inner->assertion($expr)})";
+        return "(({$expr}) === null) || ({$this->inner->generateTypeAssertionExpr($expr)})";
     }
 
-    public function inputAssertion(string $expr): string
+    public function generateInputAssertionExpr(string $expr): string
     {
-        return "(({$expr}) === null) || ({$this->inner->inputAssertion($expr)})";
+        return "(({$expr}) === null) || ({$this->inner->generateInputAssertionExpr($expr)})";
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
-        $inner = $this->inner->mapFromInput($expr);
+        $inner = $this->inner->generateInputMappingExpr($expr);
         return "({$expr} !== null) ? ({$inner}) : null";
     }
 
-    public function mapToOutput(string $expr): string
+    public function generateOutputMappingExpr(string $expr): string
     {
-        $inner = $this->inner->mapToOutput($expr);
+        $inner = $this->inner->generateOutputMappingExpr($expr);
         return "({$expr} !== null) ? ({$inner}) : null";
     }
 

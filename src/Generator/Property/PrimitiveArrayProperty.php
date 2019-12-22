@@ -53,7 +53,7 @@ class PrimitiveArrayProperty extends AbstractProperty
         return "array";
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         return "is_array({$expr})";
     }

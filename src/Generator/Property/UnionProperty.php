@@ -51,9 +51,9 @@ class UnionProperty extends AbstractProperty
         $conversions = ["\$$key = \${$inputVarName}[{$keyStr}];" => ["discriminators" => [], "fallback" => true]];
 
         foreach ($this->subProperties as $i => $subProp) {
-            $mapping       = $subProp->mapFromInput("\${$inputVarName}[{$keyStr}]");
+            $mapping       = $subProp->generateInputMappingExpr("\${$inputVarName}[{$keyStr}]");
             $assignment    = "\$$key = {$mapping};";
-            $discriminator = $subProp->inputAssertion("\${$inputVarName}[{$keyStr}]");
+            $discriminator = $subProp->generateInputAssertionExpr("\${$inputVarName}[{$keyStr}]");
 
             if (!isset($conversions[$assignment])) {
                 $conversions[$assignment] = ["discriminators" => [], "fallback" => false];
@@ -92,9 +92,9 @@ class UnionProperty extends AbstractProperty
         $conversions = [];
 
         foreach ($this->subProperties as $subProperty) {
-            $mapping       = $subProperty->mapToOutput("\$this->{$key}");
+            $mapping       = $subProperty->generateOutputMappingExpr("\$this->{$key}");
             $assignment    = "\${$outputVarName}[{$keyStr}] = {$mapping};";
-            $discriminator = $subProperty->assertion("\$this->{$key}");
+            $discriminator = $subProperty->generateTypeAssertionExpr("\$this->{$key}");
 
             if (!isset($conversions[$assignment])) {
                 $conversions[$assignment] = ["discriminators" => []];
@@ -164,48 +164,48 @@ class UnionProperty extends AbstractProperty
         return null;
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         $subAssertions = [];
 
         foreach ($this->subProperties as $prop) {
-            $subAssertions[] = $prop->assertion($expr);
+            $subAssertions[] = $prop->generateTypeAssertionExpr($expr);
         }
 
         return "(" . join(") || (", $subAssertions) . ")";
     }
 
-    public function inputAssertion(string $expr): string
+    public function generateInputAssertionExpr(string $expr): string
     {
         $subAssertions = [];
 
         foreach ($this->subProperties as $prop) {
-            $subAssertions[] = $prop->inputAssertion($expr);
+            $subAssertions[] = $prop->generateInputAssertionExpr($expr);
         }
 
         return "(" . join(") || (", $subAssertions) . ")";
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
         $out = "null";
 
         foreach ($this->subProperties as $i => $subProperty) {
-            $assert = $subProperty->inputAssertion($expr);
-            $map    = $subProperty->mapFromInput($expr);
+            $assert = $subProperty->generateInputAssertionExpr($expr);
+            $map    = $subProperty->generateInputMappingExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
         }
 
         return $out;
     }
 
-    public function mapToOutput(string $expr): string
+    public function generateOutputMappingExpr(string $expr): string
     {
         $out = "null";
 
         foreach ($this->subProperties as $i => $subProperty) {
-            $assert = $subProperty->assertion($expr);
-            $map    = $subProperty->mapToOutput($expr);
+            $assert = $subProperty->generateTypeAssertionExpr($expr);
+            $map    = $subProperty->generateOutputMappingExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
         }
 

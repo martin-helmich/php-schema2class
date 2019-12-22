@@ -31,7 +31,7 @@ class StringProperty extends AbstractProperty
         return "string";
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         return "is_string({$expr})";
     }

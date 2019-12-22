@@ -34,12 +34,12 @@ class IntegerProperty extends AbstractProperty
         return "int";
     }
 
-    public function assertion(string $expr): string
+    public function generateTypeAssertionExpr(string $expr): string
     {
         return "is_int({$expr})";
     }
 
-    public function mapFromInput(string $expr): string
+    public function generateInputMappingExpr(string $expr): string
     {
         return "(int)({$expr})";
     }
