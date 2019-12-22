@@ -64,7 +64,7 @@ EOCODE;
 
         $expected = <<<'EOCODE'
 if (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) || ($this->myPropertyName instanceof FooMyPropertyNameAlternative2)) {
-    $variable['myPropertyName'] = $this->myPropertyName->toJson();
+    $variable['myPropertyName'] = ($this->myPropertyName)->toJson();
 }
 EOCODE;
 

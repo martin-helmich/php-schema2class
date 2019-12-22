@@ -20,13 +20,6 @@ class NestedObjectProperty extends AbstractProperty
         return true;
     }
 
-    public function convertTypeToJSON(string $outputVarName = 'output'): string
-    {
-        $key = $this->key;
-
-        return "\${$outputVarName}['$key'] = \$this->{$key}->toJson();";
-    }
-
     public function cloneProperty(): string
     {
         $key = $this->key;
@@ -70,6 +63,11 @@ class NestedObjectProperty extends AbstractProperty
     public function mapFromInput(string $expr): string
     {
         return "{$this->subTypeName()}::buildFromInput({$expr})";
+    }
+
+    public function mapToOutput(string $expr): string
+    {
+        return "({$expr})->toJson()";
     }
 
     private function subTypeName(): string

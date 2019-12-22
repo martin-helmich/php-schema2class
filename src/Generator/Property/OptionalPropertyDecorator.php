@@ -165,5 +165,10 @@ class OptionalPropertyDecorator implements PropertyInterface
         return "({$expr} !== null) ? ({$inner}) : null";
     }
 
+    public function mapToOutput(string $expr): string
+    {
+        $inner = $this->inner->mapToOutput($expr);
+        return "({$expr} !== null) ? ({$inner}) : null";
+    }
 
 }

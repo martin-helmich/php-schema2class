@@ -51,7 +51,7 @@ EOCODE;
         $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-$variable['myPropertyName'] = $this->myPropertyName->format(\DateTime::ATOM);
+$variable['myPropertyName'] = ($this->myPropertyName)->format(\DateTime::ATOM);
 EOCODE;
 
         assertSame($expected, $result);

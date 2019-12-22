@@ -52,7 +52,7 @@ EOCODE;
         $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-$variable['myPropertyName'] = $this->myPropertyName->toJson();
+$variable['myPropertyName'] = ($this->myPropertyName)->toJson();
 EOCODE;
 
         assertSame($expected, $result);

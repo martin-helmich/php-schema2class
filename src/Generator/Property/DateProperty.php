@@ -19,18 +19,6 @@ class DateProperty extends AbstractProperty
         return true;
     }
 
-    public function convertJSONToType(string $inputVarName = 'input'): string
-    {
-        $key = $this->key;
-        return "\$$key = new \\DateTime(\${$inputVarName}['$key']);";
-    }
-    
-    public function convertTypeToJSON(string $outputVarName = 'output'): string
-    {
-        $key = $this->key;
-        return "\${$outputVarName}['$key'] = \$this->$key" . "->format(\\DateTime::ATOM);";
-    }
-
     public function cloneProperty(): string
     {
         $key = $this->key;
@@ -57,5 +45,9 @@ class DateProperty extends AbstractProperty
         return "new \\DateTime({$expr})";
     }
 
+    public function mapToOutput(string $expr): string
+    {
+        return "({$expr})->format(\\DateTime::ATOM)";
+    }
 
 }

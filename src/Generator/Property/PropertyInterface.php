@@ -76,6 +76,12 @@ interface PropertyInterface
     public function mapFromInput(string $expr): string;
 
     /**
+     * @param string $expr
+     * @return string
+     */
+    public function mapToOutput(string $expr): string;
+
+    /**
      * @return string|null
      */
     public function cloneProperty();

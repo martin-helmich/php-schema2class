@@ -55,7 +55,9 @@ abstract class AbstractProperty implements PropertyInterface
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
         $key = $this->key;
-        return "\${$outputVarName}['$key'] = \$this->$key;";
+        $keyStr = var_export($key, true);
+        $map = $this->mapToOutput("\$this->{$key}");
+        return "\${$outputVarName}[{$keyStr}] = {$map};";
     }
 
     protected function getOrNull(string $key)
@@ -69,6 +71,11 @@ abstract class AbstractProperty implements PropertyInterface
     }
 
     public function mapFromInput(string $expr): string
+    {
+        return $expr;
+    }
+
+    public function mapToOutput(string $expr): string
     {
         return $expr;
     }

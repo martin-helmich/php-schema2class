@@ -99,6 +99,13 @@ class ObjectArrayProperty extends AbstractProperty
         return "array_map(function(\$i) { return {$sm}; }, {$expr})";
     }
 
+    public function mapToOutput(string $expr): string
+    {
+        $st = $this->subTypeName();
+        $sm = $this->itemType->mapToOutput('$i');
+        return "array_map(function($st \$i) { return {$sm} }, {$expr});";
+    }
+
     private function subTypeName(): string
     {
         return $this->generatorRequest->getTargetClass() . $this->capitalizedName . 'Item';
