@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorContext;
@@ -9,12 +10,7 @@ class UnionProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
-    {
-        return isset($schema["oneOf"]) || isset($schema["anyOf"]);
-    }
-
-    public function __construct($key, array $schema, GeneratorRequest $generatorRequest)
+    public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
         if (isset($schema["anyOf"])) {
             $schema["oneOf"] = $schema["anyOf"];
@@ -24,12 +20,17 @@ class UnionProperty extends AbstractPropertyInterface
         parent::__construct($key, $schema, $generatorRequest);
     }
 
-    public function isComplex()
+    public static function canHandleSchema(array $schema): bool
+    {
+        return isset($schema["oneOf"]) || isset($schema["anyOf"]);
+    }
+
+    public function isComplex(): bool
     {
         return true;
     }
 
-    public function convertJSONToType($inputVarName = 'input')
+    public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $conversions = [];
         $def = $this->schema;
@@ -48,7 +49,7 @@ class UnionProperty extends AbstractPropertyInterface
         return str_replace("}\nelse", "} else", join("\n", $conversions));
     }
 
-    public function convertTypeToJSON($outputVarName = 'output')
+    public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
         $conversions = [];
         $def = $this->schema;
@@ -65,7 +66,7 @@ class UnionProperty extends AbstractPropertyInterface
         return join("\n", $conversions);
     }
 
-    public function cloneProperty()
+    public function cloneProperty(): string
     {
         $key = $this->key;
 
@@ -76,7 +77,7 @@ class UnionProperty extends AbstractPropertyInterface
      * @param SchemaToClass    $generator
      * @throws \Helmich\Schema2Class\Generator\GeneratorException
      */
-    public function generateSubTypes(SchemaToClass $generator)
+    public function generateSubTypes(SchemaToClass $generator): void
     {
         $def = $this->schema;
 
@@ -93,7 +94,7 @@ class UnionProperty extends AbstractPropertyInterface
         }
     }
 
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         $types = [];
         $def = $this->schema;
@@ -110,12 +111,12 @@ class UnionProperty extends AbstractPropertyInterface
         return join("|", $types);
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(int $phpVersion)
     {
         return null;
     }
 
-    private function subTypeName($idx = 0)
+    private function subTypeName(int $idx = 0): string
     {
         return $this->generatorRequest->getTargetClass() . $this->capitalizedName . "Alternative" . ($idx + 1);
     }

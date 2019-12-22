@@ -1,23 +1,25 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class ArrayProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         return isset($schema["type"]) && $schema["type"] === "array";
     }
 
-    public function isComplex()
+    public function isComplex(): bool
     {
         return $this->isObjectArray();
     }
 
-    public function convertJSONToType($inputVarName = 'input')
+    public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $key = $this->key;
 
@@ -28,7 +30,7 @@ class ArrayProperty extends AbstractPropertyInterface
         return parent::convertJSONToType($inputVarName);
     }
 
-    public function convertTypeToJSON($outputVarName = 'output')
+    public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
         $key = $this->key;
         $st = $this->subTypeName();
@@ -40,7 +42,7 @@ class ArrayProperty extends AbstractPropertyInterface
         return parent::convertTypeToJSON($outputVarName);
     }
 
-    public function cloneProperty()
+    public function cloneProperty(): string
     {
         $key = $this->key;
         $st = $this->subTypeName();
@@ -55,9 +57,9 @@ class ArrayProperty extends AbstractPropertyInterface
 
     /**
      * @param SchemaToClass    $generator
-     * @throws \Helmich\Schema2Class\Generator\GeneratorException
+     * @throws GeneratorException
      */
-    public function generateSubTypes(SchemaToClass $generator)
+    public function generateSubTypes(SchemaToClass $generator): void
     {
         $def = $this->schema;
 
@@ -68,31 +70,31 @@ class ArrayProperty extends AbstractPropertyInterface
         }
     }
 
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         if ($this->isObjectArray()) {
             return $this->subTypeName() . "[]";
         }
 
         if (isset($this->schema["items"])) {
-            list ($annot, $hint) = $this->phpPrimitiveForSchemaType($this->schema["items"]);
+            [$annot, $hint] = $this->phpPrimitiveForSchemaType($this->schema["items"]);
             return $annot . "[]";
         }
 
         return "array";
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(int $phpVersion): string
     {
         return "array";
     }
 
-    private function subTypeName()
+    private function subTypeName(): string
     {
         return $this->generatorRequest->getTargetClass() . $this->capitalizedName . 'Item';
     }
 
-    private function isObjectArray()
+    private function isObjectArray(): bool
     {
         return
             (isset($this->schema["items"]["type"]) && $this->schema["items"]["type"] === "object")

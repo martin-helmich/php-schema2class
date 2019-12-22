@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Command;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
@@ -36,7 +37,7 @@ class GenerateSpecCommand extends Command
         $this->s2c = $s2c;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName("generate:fromspec");
         $this->setDescription("Generate PHP classes from a StructBuilder specification file");
@@ -53,7 +54,7 @@ class GenerateSpecCommand extends Command
      * @throws \Helmich\Schema2Class\Loader\LoadingException
      * @throws \Helmich\Schema2Class\Generator\GeneratorException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $specFile = $input->getArgument("specfile");
         if (!$specFile) {

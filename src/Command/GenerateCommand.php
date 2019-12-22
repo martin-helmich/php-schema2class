@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Command;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
@@ -33,7 +34,7 @@ class GenerateCommand extends Command
         $this->s2c = $s2c;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName("generate:fromschema");
         $this->setDescription("Generate PHP classes from a JSON schema");
@@ -54,7 +55,7 @@ class GenerateCommand extends Command
      * @throws \Helmich\Schema2Class\Loader\LoadingException
      * @throws \Helmich\Schema2Class\Generator\GeneratorException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $schemaFile = $input->getArgument("schema");
         $targetDirectory = $input->getArgument("target-dir");

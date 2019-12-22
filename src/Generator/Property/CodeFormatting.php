@@ -1,9 +1,10 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 trait CodeFormatting
 {
-    protected function indentCode($code, $by = 1)
+    protected function indentCode(string $code, int $by = 1): string
     {
         $indent = str_repeat("    ", $by);
         $lines = explode("\n", $code);
@@ -14,7 +15,7 @@ trait CodeFormatting
         return join("\n", $lines);
     }
 
-    protected function capitalize($str)
+    protected function capitalize(string $str): string
     {
         return strtoupper($str[0]) . substr($str, 1);
     }

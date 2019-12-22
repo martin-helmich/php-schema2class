@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Loader;
 
 use Symfony\Component\Yaml\Yaml;
@@ -10,7 +11,7 @@ class SchemaLoader
      * @return array
      * @throws LoadingException
      */
-    public function loadSchema($filename)
+    public function loadSchema(string $filename): array
     {
         if (!file_exists($filename)) {
             throw new LoadingException($filename, "file does not exist");

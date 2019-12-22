@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
 class NamespaceInferrer
@@ -8,7 +9,7 @@ class NamespaceInferrer
      * @return string
      * @throws GeneratorException
      */
-    public function inferNamespaceFromTargetDirectory($directory)
+    public function inferNamespaceFromTargetDirectory(string $directory): string
     {
         $startsWith = function($string, $prefix) {
             return substr($string, 0, strlen($prefix)) === $prefix;
@@ -50,7 +51,7 @@ class NamespaceInferrer
      * @return array
      * @throws GeneratorException
      */
-    private function getComposerJSONForDirectory($directory)
+    private function getComposerJSONForDirectory(string $directory): array
     {
         $initialDirectory = $directory;
 

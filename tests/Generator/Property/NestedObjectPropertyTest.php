@@ -1,10 +1,13 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 class NestedObjectPropertyTest extends TestCase
 {
@@ -17,9 +20,9 @@ class NestedObjectPropertyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
         $key = 'myPropertyName';
-        $this->underTest = new NestedObjectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
+        $this->underTest = new NestedObjectProperty($key, ['allOf' => []], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
@@ -37,9 +40,7 @@ class NestedObjectPropertyTest extends TestCase
 
     public function testConvertJsonToType()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-
-        $underTest = new NestedObjectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new NestedObjectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         $result = $underTest->convertJSONToType('variable');
 
@@ -71,10 +72,7 @@ EOCODE;
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
-
-        $underTest = new NestedObjectProperty('myPropertyName',  ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new NestedObjectProperty('myPropertyName',  ['allOf' => []], $this->generatorRequest);
 
         assertSame('FooMyPropertyName', $underTest->typeAnnotation());
         assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(7));
@@ -83,15 +81,13 @@ EOCODE;
 
     public function testGenerateSubTypesWithSimpleArray()
     {
-        $this->generatorRequest->withSchema(['allOf' => []])->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->withClass('MyPropertyName')->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->getTargetClass()->willReturn('');
-
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
         $this->underTest->generateSubTypes($schemaToClass->reveal());
 
-        $schemaToClass->schemaToClass($this->generatorRequest->reveal())->shouldHaveBeenCalled();
+        $schemaToClass->schemaToClass(Argument::that(function(GeneratorRequest $subReq) {
+            return Assert::equalTo(['allOf' => []])->evaluate($subReq->getSchema());
+        }))->shouldHaveBeenCalled();
     }
 
 }

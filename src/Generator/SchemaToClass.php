@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
@@ -33,7 +34,7 @@ class SchemaToClass
      * @param WriterInterface $writer
      * @return $this
      */
-    public function setWriter(WriterInterface $writer)
+    public function setWriter(WriterInterface $writer): self
     {
         $this->writer = $writer;
         return $this;
@@ -43,7 +44,7 @@ class SchemaToClass
      * @param OutputInterface $output
      * @return $this
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): self
     {
         $this->output = $output;
         return $this;
@@ -54,7 +55,7 @@ class SchemaToClass
      * @param OutputInterface  $output
      * @throws GeneratorException
      */
-    public function schemaToClass(GeneratorRequest $generatorRequest)
+    public function schemaToClass(GeneratorRequest $generatorRequest): void
     {
         if (!$this->writer instanceof WriterInterface) {
             throw new \UnexpectedValueException('A file writer has not been set.');

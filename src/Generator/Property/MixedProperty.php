@@ -1,21 +1,22 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 class MixedProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         return true;
     }
 
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         return "mixed";
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(int $phpVersion)
     {
         return null;
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 class PropertyCollection implements \Iterator
@@ -8,7 +9,7 @@ class PropertyCollection implements \Iterator
 
     private $current = 0;
 
-    public function add(PropertyInterface $propertyGenerator)
+    public function add(PropertyInterface $propertyGenerator): void
     {
         $this->properties[] = $propertyGenerator;
     }
@@ -17,7 +18,7 @@ class PropertyCollection implements \Iterator
      * @param string $inputVarName
      * @return string
      */
-    public function generateJSONToTypeConversionCode($inputVarName = 'input')
+    public function generateJSONToTypeConversionCode(string $inputVarName = 'input'): string
     {
         $conv = [];
 
@@ -32,7 +33,7 @@ class PropertyCollection implements \Iterator
      * @param string $outputVarName
      * @return string
      */
-    public function generateTypeToJSONConversionCode($outputVarName = 'output')
+    public function generateTypeToJSONConversionCode(string $outputVarName = 'output'): string
     {
         $conv = [];
 
@@ -47,7 +48,7 @@ class PropertyCollection implements \Iterator
      * @param string $key
      * @return bool
      */
-    public function hasPropertyWithKey($key)
+    public function hasPropertyWithKey(string $key): bool
     {
         foreach ($this->properties as $p) {
             if ($p->key() === $key) {
@@ -61,7 +62,7 @@ class PropertyCollection implements \Iterator
     /**
      * @return PropertyInterface[]
      */
-    public function filterRequired()
+    public function filterRequired(): array
     {
         return array_filter($this->properties, function($p) {
             return !($p instanceof OptionalPropertyDecorator);
@@ -71,14 +72,14 @@ class PropertyCollection implements \Iterator
     /**
      * @return PropertyInterface[]
      */
-    public function filterOptional()
+    public function filterOptional(): array
     {
         return array_filter($this->properties, function($p) {
             return $p instanceof OptionalPropertyDecorator;
         });
     }
 
-    public function current()
+    public function current(): PropertyInterface
     {
         return $this->properties[$this->current];
     }

@@ -1,6 +1,6 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
-
 
 class GeneratorRequest
 {
@@ -27,7 +27,7 @@ class GeneratorRequest
      * @param string $targetNamespace
      * @param string $targetClass
      */
-    public function __construct($schema, $targetDirectory, $targetNamespace, $targetClass)
+    public function __construct(array $schema, string $targetDirectory, string $targetNamespace, string $targetClass)
     {
         $this->schema = $schema;
         $this->targetDirectory = $targetDirectory;
@@ -35,7 +35,7 @@ class GeneratorRequest
         $this->targetClass = $targetClass;
     }
 
-    public function withSchema(array $schema)
+    public function withSchema(array $schema): self
     {
         $clone = clone $this;
         $clone->schema = $schema;
@@ -43,7 +43,7 @@ class GeneratorRequest
         return $clone;
     }
 
-    public function withClass($targetClass)
+    public function withClass($targetClass): self
     {
         $clone = clone $this;
         $clone->targetClass = $targetClass;
@@ -54,7 +54,7 @@ class GeneratorRequest
     /**
      * @return int
      */
-    public function getPhpTargetVersion()
+    public function getPhpTargetVersion(): int
     {
         return $this->php5 ? 5 : 7;
     }
@@ -63,7 +63,7 @@ class GeneratorRequest
      * @param int $version
      * @return bool
      */
-    public function isPhp($version)
+    public function isPhp(int $version): bool
     {
         return $this->getPhpTargetVersion() === $version;
     }
@@ -71,7 +71,7 @@ class GeneratorRequest
     /**
      * @return string
      */
-    public function getTargetDirectory()
+    public function getTargetDirectory(): string
     {
         return $this->targetDirectory;
     }
@@ -79,7 +79,7 @@ class GeneratorRequest
     /**
      * @return string
      */
-    public function getTargetNamespace()
+    public function getTargetNamespace(): string
     {
         return $this->targetNamespace;
     }
@@ -87,7 +87,7 @@ class GeneratorRequest
     /**
      * @return string
      */
-    public function getTargetClass()
+    public function getTargetClass(): string
     {
         return $this->targetClass;
     }
@@ -95,7 +95,7 @@ class GeneratorRequest
     /**
      * @return array
      */
-    public function getSchema()
+    public function getSchema(): array
     {
         return $this->schema;
     }

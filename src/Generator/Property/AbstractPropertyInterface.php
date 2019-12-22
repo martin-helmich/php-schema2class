@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
@@ -19,7 +20,7 @@ abstract class AbstractPropertyInterface implements PropertyInterface
     /** @var GeneratorRequest */
     protected $generatorRequest;
 
-    public function __construct($key, array $schema, GeneratorRequest $generatorRequest)
+    public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
         $this->key = $key;
         $this->schema = $schema;
@@ -27,17 +28,17 @@ abstract class AbstractPropertyInterface implements PropertyInterface
         $this->generatorRequest = $generatorRequest;
     }
 
-    public function isComplex()
+    public function isComplex(): bool
     {
         return false;
     }
 
-    public function schema()
+    public function schema(): array
     {
         return $this->schema;
     }
 
-    public function key()
+    public function key(): string
     {
         return $this->key;
     }
@@ -47,24 +48,24 @@ abstract class AbstractPropertyInterface implements PropertyInterface
         return null;
     }
 
-    public function convertJSONToType($inputVarName = 'input')
+    public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $key = $this->key;
         return "\$$key = \${$inputVarName}['$key'];";
     }
 
-    public function convertTypeToJSON($outputVarName = 'output')
+    public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
         $key = $this->key;
         return "\${$outputVarName}['$key'] = \$this->$key;";
     }
 
-    protected function getOrNull($key)
+    protected function getOrNull(string $key)
     {
         return isset($this->schema[$key]) ? $this->schema[$key] : null;
     }
 
-    public function generateSubTypes(SchemaToClass $generator)
+    public function generateSubTypes(SchemaToClass $generator): void
     {
     }
 

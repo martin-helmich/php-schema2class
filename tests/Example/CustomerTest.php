@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Example;
 
 use Helmich\Schema2Class\Example\Customer;

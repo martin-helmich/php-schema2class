@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
@@ -13,14 +14,14 @@ class MixedPropertyTest extends TestCase
     /** @var MixedProperty */
     private $underTest;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    /** @var GeneratorRequest */
     private $generatorRequest;
 
     protected function setUp(): void
     {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
         $key = 'myPropertyName';
-        $this->underTest = new MixedProperty($key, [], $this->generatorRequest->reveal());
+        $this->underTest = new MixedProperty($key, [], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()

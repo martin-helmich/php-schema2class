@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
@@ -14,14 +15,14 @@ class IntegerPropertyTest extends TestCase
     /** @var IntegerProperty */
     private $underTest;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    /** @var GeneratorRequest */
     private $generatorRequest;
 
     protected function setUp(): void
     {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $this->generatorRequest = new GeneratorRequest([], "", "", "Foo");
         $key = 'myPropertyName';
-        $this->underTest = new IntegerProperty($key, ['type' => 'integer'], $this->generatorRequest->reveal());
+        $this->underTest = new IntegerProperty($key, ['type' => 'integer'], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()

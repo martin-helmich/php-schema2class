@@ -1,11 +1,12 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 class DateProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         return isset($schema["type"])
             && isset($schema["format"])
@@ -13,34 +14,35 @@ class DateProperty extends AbstractPropertyInterface
             && $schema["format"] === "date-time";
     }
 
-    public function isComplex()
+    public function isComplex(): bool
     {
         return true;
     }
 
-    public function convertJSONToType($inputVarName = 'input')
+    public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $key = $this->key;
         return "\$$key = new \\DateTime(\${$inputVarName}['$key']);";
     }
     
-    public function convertTypeToJSON($outputVarName = 'output') {
+    public function convertTypeToJSON(string $outputVarName = 'output'): string
+    {
         $key = $this->key;
         return "\${$outputVarName}['$key'] = \$this->$key" . "->format(\\DateTime::ATOM);";
     }
 
-    public function cloneProperty()
+    public function cloneProperty(): string
     {
         $key = $this->key;
         return "\$this->$key = clone \$this->$key;";
     }
 
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         return "\\DateTime";
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(int $phpVersion): string
     {
         return "\\DateTime";
     }

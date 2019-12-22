@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
@@ -31,7 +32,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return PropertyGenerator[]
      */
-    public function generateProperties(PropertyCollection $properties)
+    public function generateProperties(PropertyCollection $properties): array
     {
         $propertyGenerators = [];
 
@@ -59,7 +60,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateBuildMethod(PropertyCollection $properties)
+    public function generateBuildMethod(PropertyCollection $properties): MethodGenerator
     {
         $requiredProperties = $properties->filterRequired();
         $optionalProperties = $properties->filterOptional();
@@ -112,7 +113,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateToJSONMethod(PropertyCollection $properties)
+    public function generateToJSONMethod(PropertyCollection $properties): MethodGenerator
     {
         $method = new MethodGenerator(
             'toJson',
@@ -139,7 +140,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateValidateMethod(PropertyCollection $properties)
+    public function generateValidateMethod(PropertyCollection $properties): MethodGenerator
     {
         $method = new MethodGenerator(
             'validateInput',
@@ -178,7 +179,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateCloneMethod(PropertyCollection $properties)
+    public function generateCloneMethod(PropertyCollection $properties): MethodGenerator
     {
         $clones = [];
 
@@ -201,7 +202,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator[]
      */
-    public function generateGetterMethods(PropertyCollection $properties)
+    public function generateGetterMethods(PropertyCollection $properties): array
     {
         $methods = [];
 
@@ -216,7 +217,7 @@ class Generator
      * @param PropertyInterface $property
      * @return MethodGenerator
      */
-    public function generateGetterMethod(PropertyInterface $property)
+    public function generateGetterMethod(PropertyInterface $property): MethodGenerator
     {
         $key = $property->key();
         $capitalizedName = $this->capitalize($key);
@@ -244,7 +245,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator[]
      */
-    public function generateSetterMethods(PropertyCollection $properties)
+    public function generateSetterMethods(PropertyCollection $properties): array
     {
         $methods = [];
 
@@ -259,7 +260,7 @@ class Generator
         return $methods;
     }
 
-    public function generateSetterMethod(PropertyInterface $property)
+    public function generateSetterMethod(PropertyInterface $property): MethodGenerator
     {
         $key = $property->key();
         $capitalizedName = $this->capitalize($key);
@@ -306,7 +307,7 @@ return \$clone;",
      * @param PropertyInterface $property
      * @return MethodGenerator
      */
-    public function generateUnsetterMethod(PropertyInterface $property)
+    public function generateUnsetterMethod(PropertyInterface $property): MethodGenerator
     {
         $key = $property->key();
         $capitalizedName = $this->capitalize($key);
@@ -331,7 +332,7 @@ return \$clone;",
         return $unsetMethod;
     }
 
-    public function generateConstructor(PropertyCollection $properties)
+    public function generateConstructor(PropertyCollection $properties): MethodGenerator
     {
         $params = [];
         $tags = [];

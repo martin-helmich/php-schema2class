@@ -1,11 +1,12 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 class IntegerProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         if (!isset($schema["type"])) {
             return false;
@@ -17,18 +18,18 @@ class IntegerProperty extends AbstractPropertyInterface
         ;
     }
 
-    public function convertJSONToType($inputVarName = 'input')
+    public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $key = $this->key;
         return "\$$key = (int) \${$inputVarName}['$key'];";
     }
 
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         return "int";
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(int $phpVersion)
     {
         if ($phpVersion === 5) {
             return null;

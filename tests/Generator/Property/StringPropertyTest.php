@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
@@ -13,14 +14,14 @@ class StringPropertyTest extends TestCase
     /** @var StringProperty */
     private $underTest;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    /** @var GeneratorRequest */
     private $generatorRequest;
 
     protected function setUp(): void
     {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
         $key = 'myString';
-        $this->underTest = new StringProperty($key, ['type' => 'string'], $this->generatorRequest->reveal());
+        $this->underTest = new StringProperty($key, ['type' => 'string'], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()

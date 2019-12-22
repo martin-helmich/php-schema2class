@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
@@ -15,16 +16,16 @@ class DatePropertyTest extends TestCase
      */
     private $underTest;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    /** @var GeneratorRequest */
     private $generatorRequest;
 
     protected function setUp(): void
     {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $this->generatorRequest = new GeneratorRequest([], "", "", "Foo");
         $key = 'myPropertyName';
-        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest->reveal());
+        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest);
     }
-    
+
     public function testCanHandleSchema()
     {
         assertTrue(DateProperty::canHandleSchema(['type' => 'string', 'format' => 'date-time']));

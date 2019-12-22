@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\SchemaToClass;
@@ -18,7 +19,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param                   $key
      * @param PropertyInterface $inner
      */
-    public function __construct($key, PropertyInterface $inner)
+    public function __construct(string $key, PropertyInterface $inner)
     {
         $this->key = $key;
         $this->inner = $inner;
@@ -27,7 +28,7 @@ class OptionalPropertyDecorator implements PropertyInterface
     /**
      * @return bool
      */
-    public function isComplex()
+    public function isComplex(): bool
     {
         return $this->inner->isComplex();
     }
@@ -36,7 +37,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param array $schema
      * @return bool
      */
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         return false;
     }
@@ -45,7 +46,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param string $inputVarName
      * @return string
      */
-    public function convertJSONToType($inputVarName = 'input')
+    public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $key = $this->key;
         $inner = $this->inner->convertJSONToType($inputVarName);
@@ -57,7 +58,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param string $outputVarName
      * @return string
      */
-    public function convertTypeToJSON($outputVarName = 'output')
+    public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
         $key = $this->key;
         $inner = $this->inner->convertTypeToJSON($outputVarName);
@@ -69,7 +70,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param SchemaToClass $generator
      * @return void
      */
-    public function generateSubTypes(SchemaToClass $generator)
+    public function generateSubTypes(SchemaToClass $generator): void
     {
         $this->inner->generateSubTypes($generator);
     }
@@ -77,7 +78,7 @@ class OptionalPropertyDecorator implements PropertyInterface
     /**
      * @return string
      */
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         $inner = $this->inner->typeAnnotation();
         if (strpos($inner, "|null") === false) {
@@ -91,7 +92,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param $phpVersion
      * @return string|null
      */
-    public function typeHint($phpVersion)
+    public function typeHint(int $phpVersion)
     {
         $inner = $this->inner->typeHint($phpVersion);
 
@@ -128,15 +129,15 @@ class OptionalPropertyDecorator implements PropertyInterface
     /**
      * @return array
      */
-    public function schema()
+    public function schema(): array
     {
         return $this->inner->schema();
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function key()
+    public function key(): string
     {
         return $this->inner->key();
     }
@@ -144,7 +145,7 @@ class OptionalPropertyDecorator implements PropertyInterface
     /**
      * @return PropertyInterface
      */
-    public function unwrap()
+    public function unwrap(): PropertyInterface
     {
         return $this->inner;
     }

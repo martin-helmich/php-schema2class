@@ -1,10 +1,13 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 class IntersectPropertyTest extends TestCase
 {
@@ -12,14 +15,14 @@ class IntersectPropertyTest extends TestCase
     /** @var IntersectProperty */
     private $underTest;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
+    /** @var GeneratorRequest */
     private $generatorRequest;
 
     protected function setUp(): void
     {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
         $key = 'myPropertyName';
-        $this->underTest = new IntersectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
+        $this->underTest = new IntersectProperty($key, ['allOf' => []], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
@@ -36,9 +39,7 @@ class IntersectPropertyTest extends TestCase
 
     public function testConvertJsonToType()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-
-        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         $result = $underTest->convertJSONToType('variable');
 
@@ -70,10 +71,10 @@ EOCODE;
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
+//        $this->generatorRequest->getTargetClass()->willReturn('Foo');
+//        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
 
-        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         assertSame('FooMyPropertyName', $underTest->typeAnnotation());
         assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(7));
@@ -125,17 +126,14 @@ EOCODE;
      */
     public function testGenerateSubTypes($schema, $subschema)
     {
-
-        $this->generatorRequest->withSchema($subschema)->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->withClass('MyPropertyName')->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->getTargetClass()->willReturn('');
-
-        $underTest = new IntersectProperty('myPropertyName', $schema, $this->generatorRequest->reveal());
+        $underTest = new IntersectProperty('myPropertyName', $schema, $this->generatorRequest);
 
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
         $underTest->generateSubTypes($schemaToClass->reveal());
 
-        $schemaToClass->schemaToClass($this->generatorRequest->reveal())->shouldHaveBeenCalled();
+        $schemaToClass->schemaToClass(Argument::that(function(GeneratorRequest $subReq) use ($subschema) {
+            return Assert::equalTo($subschema)->evaluate($subReq->getSchema());
+        }))->shouldHaveBeenCalled();
     }
 }
