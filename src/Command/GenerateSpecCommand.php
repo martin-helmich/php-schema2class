@@ -47,13 +47,14 @@ class GenerateSpecCommand extends Command
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
-     * @return void
+     * @return int
      *
      * @throws LoadingException
      * @throws GeneratorException
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var string|null $specFile */
         $specFile = $input->getArgument("specfile");
         if (!$specFile) {
             $specFile = getcwd() . "/.s2c.yaml";
@@ -73,7 +74,9 @@ class GenerateSpecCommand extends Command
         }
 
         $targetPHPVersion = $specification->getTargetPHPVersion();
-        if (is_int($targetPHPVersion)) {
+        if ($targetPHPVersion === null) {
+            $targetPHPVersion = "7.4.0";
+        } else if (is_int($targetPHPVersion)) {
             $targetPHPVersion = $targetPHPVersion === 5 ? "5.6.0" : "7.4.0";
         }
 
@@ -98,5 +101,6 @@ class GenerateSpecCommand extends Command
             $this->s2c->schemaToClass($request);
         }
 
+        return 0;
     }
 }

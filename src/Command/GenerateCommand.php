@@ -50,16 +50,23 @@ class GenerateCommand extends Command
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
-     * @return void
+     * @return int
      *
      * @throws LoadingException
      * @throws GeneratorException
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var string $schemaFile */
         $schemaFile = $input->getArgument("schema");
+        /** @var string $targetDirectory */
         $targetDirectory = $input->getArgument("target-dir");
+        /** @var string $targetNamespace */
         $targetNamespace = $input->getOption("target-namespace");
+        /** @var string $class */
+        $class = $input->getOption("class");
+        /** @var string $targetPHPVersion */
+        $targetPHPVersion = $input->getOption("target-php");
 
         $output->writeln("loading schema from <comment>$schemaFile</comment>");
         $schema = $this->loader->loadSchema($schemaFile);
@@ -78,11 +85,12 @@ class GenerateCommand extends Command
 
         $this->s2c->setWriter($writer)->setOutput($output);
 
-        $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $input->getOption("class"), $input->getOption("target-php"));
+        $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $class, $targetPHPVersion);
         if ($input->getOption("php5")) {
             $request = $request->withPHPVersion("5.6.0");
         }
 
         $this->s2c->schemaToClass($request);
+        return 0;
     }
 }

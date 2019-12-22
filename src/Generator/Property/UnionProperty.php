@@ -4,11 +4,15 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorContext;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
+use Helmich\Schema2Class\Generator\PropertyBuilder;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class UnionProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
+
+    /** @var PropertyInterface[] */
+    private array $subProperties;
 
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
@@ -16,6 +20,13 @@ class UnionProperty extends AbstractPropertyInterface
             $schema["oneOf"] = $schema["anyOf"];
             unset($schema["anyOf"]);
         }
+
+        $subSchemas = $schema["oneOf"];
+
+        $this->subProperties = array_map(function(int $idx) use ($generatorRequest, $key, $subSchemas): PropertyInterface {
+            $subSchema = $subSchemas[$idx];
+            return PropertyBuilder::buildPropertyFromSchema($generatorRequest, "{$key}Alternative${idx}", $subSchema, true);
+        }, array_keys($schema["oneOf"]));
 
         parent::__construct($key, $schema, $generatorRequest);
     }
@@ -171,6 +182,17 @@ class UnionProperty extends AbstractPropertyInterface
     public function typeHint(string $phpVersion)
     {
         return null;
+    }
+
+    public function assertion(string $expr): string
+    {
+        $subAssertions = [];
+
+        foreach($this->subProperties as $prop) {
+            $subAssertions[] = $prop->assertion($expr);
+        }
+
+        return "(" . join(") || (", $subAssertions) . ")";
     }
 
     private function subTypeName(int $idx = 0): string

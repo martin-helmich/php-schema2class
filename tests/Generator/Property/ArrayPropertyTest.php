@@ -11,25 +11,25 @@ use Prophecy\Argument;
 class ArrayPropertyTest extends TestCase
 {
 
-    private ArrayProperty $property;
+    private PrimitiveArrayProperty $property;
 
     private GeneratorRequest $generatorRequest;
 
     protected function setUp(): void
     {
         $this->generatorRequest = new GeneratorRequest([], "", "", "Foo");
-        $this->property = new ArrayProperty('myPropertyName', ['type' => 'integer'], $this->generatorRequest);
+        $this->property = new PrimitiveArrayProperty('myPropertyName', ['type' => 'integer'], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
     {
-        assertTrue(ArrayProperty::canHandleSchema(['type' => 'array']));
-        assertFalse(ArrayProperty::canHandleSchema(['type' => 'foo']));
+        assertTrue(PrimitiveArrayProperty::canHandleSchema(['type' => 'array']));
+        assertFalse(PrimitiveArrayProperty::canHandleSchema(['type' => 'foo']));
     }
 
     public function testConvertJsonToTypeWithSimpleArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array'], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array'], $this->generatorRequest);
 
         assertFalse($underTest->isComplex());
 
@@ -44,7 +44,7 @@ EOCODE;
 
     public function testConvertJsonToTypeWithComplexArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
 
         assertTrue($underTest->isComplex());
 
@@ -59,7 +59,7 @@ EOCODE;
 
     public function testConvertTypeToJsonWithSimpleArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array'], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array'], $this->generatorRequest);
 
         $result = $underTest->convertTypeToJSON('variable');
 
@@ -72,7 +72,7 @@ EOCODE;
 
     public function testConvertTypeToJsonWithComplexArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
 
         $result = $underTest->convertTypeToJSON('variable');
 
@@ -85,7 +85,7 @@ EOCODE;
 
     public function testClonePropertyWithSimpleArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array'], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array'], $this->generatorRequest);
 
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
@@ -95,7 +95,7 @@ EOCODE;
 
     public function testClonePropertyWithComplexArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
 
         $expected = <<<'EOCODE'
 $this->myPropertyName = array_map(function(FooMyPropertyNameItem $i) { return clone $i; }, $this->myPropertyName);
@@ -112,7 +112,7 @@ EOCODE;
 
     public function testGetAnnotationWithSimpleItemsArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['type' => 'string']], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['type' => 'string']], $this->generatorRequest);
 
         assertSame('string[]', $underTest->typeAnnotation());
         assertSame('array', $underTest->typeHint("7.2.0"));
@@ -122,7 +122,7 @@ EOCODE;
 
     public function testGetAnnotationAndHintWithComplexArray()
     {
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
 
         assertSame('FooMyPropertyNameItem[]', $underTest->typeAnnotation());
         assertSame('array', $underTest->typeHint("7.2.0"));
@@ -142,7 +142,7 @@ EOCODE;
     public function testGenerateSubTypesWithComplexArray()
     {
         $arrayProperties = ['properties' => []];
-        $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => $arrayProperties], $this->generatorRequest);
+        $underTest = new PrimitiveArrayProperty('myPropertyName', ['type' => 'array', 'items' => $arrayProperties], $this->generatorRequest);
 
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 

@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 
 class IntegerProperty extends AbstractPropertyInterface
@@ -39,6 +38,11 @@ class IntegerProperty extends AbstractPropertyInterface
         }
 
         return "int";
+    }
+
+    public function assertion(string $expr): string
+    {
+        return "is_int({$expr})";
     }
 
 }

@@ -66,6 +66,11 @@ class IntersectProperty extends AbstractPropertyInterface
         return "\\" . $this->generatorRequest->getTargetNamespace() . "\\" . $this->subTypeName();
     }
 
+    public function assertion(string $expr): string
+    {
+        return "{$expr} instanceof {$this->subTypeName()}";
+    }
+
     private function subTypeName(): string
     {
         return $this->generatorRequest->getTargetClass() . $this->capitalizedName;

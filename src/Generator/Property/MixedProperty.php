@@ -21,4 +21,9 @@ class MixedProperty extends AbstractPropertyInterface
         return null;
     }
 
+    public function assertion(string $expr): string
+    {
+        return "true";
+    }
+
 }

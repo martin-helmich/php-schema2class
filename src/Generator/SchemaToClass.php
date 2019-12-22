@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
-use Helmich\Schema2Class\Generator\Property\ArrayProperty;
+use Helmich\Schema2Class\Generator\Property\PrimitiveArrayProperty;
 use Helmich\Schema2Class\Generator\Property\DateProperty;
 use Helmich\Schema2Class\Generator\Property\IntegerProperty;
 use Helmich\Schema2Class\Generator\Property\IntersectProperty;
@@ -83,35 +83,12 @@ class SchemaToClass
         }
 
         $propertiesFromSchema = new PropertyCollection();
-        $propertyTypes = [
-            IntersectProperty::class,
-            UnionProperty::class,
-            DateProperty::class,
-            StringProperty::class,
-            ArrayProperty::class,
-            IntegerProperty::class,
-            NestedObjectProperty::class,
-            MixedProperty::class,
-        ];
 
         foreach ($schema["properties"] as $key => $definition) {
             $isRequired = isset($schema["required"]) && in_array($key, $schema["required"]);
 
-            foreach ($propertyTypes as $propertyType) {
-                if ($propertyType::canHandleSchema($definition)) {
-                    $this->output->writeln("building generator <info>$propertyType</info> for property <comment>$key</comment>");
-
-                    $property = new $propertyType($key, $definition, $generatorRequest);
-
-                    if (!$isRequired) {
-                        $property = new OptionalPropertyDecorator($key, $property);
-                    }
-
-                    $propertiesFromSchema->add($property);
-
-                    continue 2;
-                }
-            }
+            $property = PropertyBuilder::buildPropertyFromSchema($generatorRequest, $key, $definition, $isRequired);
+            $propertiesFromSchema->add($property);
         }
 
         foreach ($propertiesFromSchema as $property) {

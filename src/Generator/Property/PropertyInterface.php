@@ -58,6 +58,12 @@ interface PropertyInterface
     public function typeHint(string $phpVersion);
 
     /**
+     * @param string $expr
+     * @return string
+     */
+    public function assertion(string $expr): string;
+
+    /**
      * @return string|null
      */
     public function cloneProperty();

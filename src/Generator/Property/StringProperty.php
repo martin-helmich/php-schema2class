@@ -31,4 +31,9 @@ class StringProperty extends AbstractPropertyInterface
         return "string";
     }
 
+    public function assertion(string $expr): string
+    {
+        return "is_string({$expr})";
+    }
+
 }

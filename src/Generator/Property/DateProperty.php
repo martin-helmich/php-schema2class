@@ -47,4 +47,9 @@ class DateProperty extends AbstractPropertyInterface
         return "\\DateTime";
     }
 
+    public function assertion(string $expr): string
+    {
+        return "${expr} instanceof \\DateTime";
+    }
+
 }

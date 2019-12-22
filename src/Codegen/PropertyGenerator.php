@@ -3,6 +3,7 @@ namespace Helmich\Schema2Class\Codegen;
 
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\Exception;
+use Zend\Code\Generator\PropertyGenerator as ZendPropertyGenerator;
 use Zend\Code\Generator\PropertyValueGenerator;
 use Zend\Code\Reflection\PropertyReflection;
 use function sprintf;
@@ -12,20 +13,22 @@ use function strtolower;
 /**
  * Forked from Zend\Code\Generator\PropertyGenerator (http://github.com/zendframework/zf2, copyright Zend Technologies,
  * BSD licensed) since that implementation does not support the new PHP 7.4 property type hints.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
-class PropertyGenerator extends \Zend\Code\Generator\PropertyGenerator
+class PropertyGenerator extends ZendPropertyGenerator
 {
     const FLAG_CONSTANT = 0x08;
 
     /**
      * @var bool
      */
-    protected $isConst;
+    protected $isConst = false;
 
     /**
-     * @var PropertyValueGenerator
+     * @var PropertyValueGenerator|null
      */
-    protected $defaultValue;
+    protected $defaultValue = null;
 
     /**
      * @var bool
@@ -43,39 +46,12 @@ class PropertyGenerator extends \Zend\Code\Generator\PropertyGenerator
      */
     public static function fromReflection(PropertyReflection $reflectionProperty)
     {
-        $property = new static();
-
-        $property->setName($reflectionProperty->getName());
-
-        $allDefaultProperties = $reflectionProperty->getDeclaringClass()->getDefaultProperties();
-
-        $defaultValue = $allDefaultProperties[$reflectionProperty->getName()];
-        $property->setDefaultValue($defaultValue);
-        if ($defaultValue === null) {
-            $property->omitDefaultValue = true;
-        }
-
-        if ($reflectionProperty->getDocComment() != '') {
-            $property->setDocBlock(DocBlockGenerator::fromReflection($reflectionProperty->getDocBlock()));
-        }
-
-        if ($reflectionProperty->isStatic()) {
-            $property->setStatic(true);
-        }
+        /** @var PropertyGenerator $property */
+        $property = ZendPropertyGenerator::fromReflection($reflectionProperty);
 
         if ($reflectionProperty->hasType()) {
             $property->setTypeHint($reflectionProperty->getType() . "");
         }
-
-        if ($reflectionProperty->isPrivate()) {
-            $property->setVisibility(self::VISIBILITY_PRIVATE);
-        } elseif ($reflectionProperty->isProtected()) {
-            $property->setVisibility(self::VISIBILITY_PROTECTED);
-        } else {
-            $property->setVisibility(self::VISIBILITY_PUBLIC);
-        }
-
-        $property->setSourceDirty(false);
 
         return $property;
     }
@@ -153,6 +129,7 @@ class PropertyGenerator extends \Zend\Code\Generator\PropertyGenerator
         if (null !== $name) {
             $this->setName($name);
         }
+
         if (null !== $defaultValue) {
             $this->setDefaultValue($defaultValue);
         }
@@ -214,7 +191,8 @@ class PropertyGenerator extends \Zend\Code\Generator\PropertyGenerator
     }
 
     /**
-     * @return PropertyValueGenerator
+     * @return PropertyValueGenerator|null
+     * @psalm-suppress ImplementedReturnTypeMismatch Impossible to fix -- the annotations from the parent lib are just garbage
      */
     public function getDefaultValue(): ?PropertyValueGenerator
     {
