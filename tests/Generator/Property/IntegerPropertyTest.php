@@ -44,7 +44,7 @@ class IntegerPropertyTest extends TestCase
         $result = $this->property->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
-$myPropertyName = (int) $variable['myPropertyName'];
+$myPropertyName = (int)($variable['myPropertyName']);
 EOCODE;
 
         assertSame($expected, $result);

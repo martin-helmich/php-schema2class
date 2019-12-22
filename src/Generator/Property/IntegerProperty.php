@@ -4,7 +4,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Composer\Semver\Semver;
 
-class IntegerProperty extends AbstractPropertyInterface
+class IntegerProperty extends AbstractProperty
 {
     use TypeConvert;
 
@@ -18,12 +18,6 @@ class IntegerProperty extends AbstractPropertyInterface
             || (isset($schema["format"]) && $schema["type"] === "number" && $schema["format"] === "integer")
             || (isset($schema["format"]) && $schema["type"] === "number" && $schema["format"] === "int")
         ;
-    }
-
-    public function convertJSONToType(string $inputVarName = 'input'): string
-    {
-        $key = $this->key;
-        return "\$$key = (int) \${$inputVarName}['$key'];";
     }
 
     public function typeAnnotation(): string
@@ -43,6 +37,11 @@ class IntegerProperty extends AbstractPropertyInterface
     public function assertion(string $expr): string
     {
         return "is_int({$expr})";
+    }
+
+    public function mapFromInput(string $expr): string
+    {
+        return "(int)({$expr})";
     }
 
 }

@@ -4,7 +4,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Composer\Semver\Semver;
 
-class StringProperty extends AbstractPropertyInterface
+class StringProperty extends AbstractProperty
 {
     use TypeConvert;
 

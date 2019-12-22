@@ -7,7 +7,7 @@ use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\PropertyBuilder;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
-class UnionProperty extends AbstractPropertyInterface
+class UnionProperty extends AbstractProperty
 {
     use TypeConvert;
 
@@ -25,7 +25,7 @@ class UnionProperty extends AbstractPropertyInterface
 
         $this->subProperties = array_map(function(int $idx) use ($generatorRequest, $key, $subSchemas): PropertyInterface {
             $subSchema = $subSchemas[$idx];
-            return PropertyBuilder::buildPropertyFromSchema($generatorRequest, "{$key}Alternative${idx}", $subSchema, true);
+            return PropertyBuilder::buildPropertyFromSchema($generatorRequest, "{$key}Alternative" . ($idx + 1), $subSchema, true);
         }, array_keys($schema["oneOf"]));
 
         parent::__construct($key, $schema, $generatorRequest);
@@ -45,24 +45,26 @@ class UnionProperty extends AbstractPropertyInterface
     {
         $def = $this->schema;
         $key = $this->key;
+        $keyStr = var_export($key, true);
 
-        $conversions = ["\$$key = \${$inputVarName}['$key'];" => ["discriminators" => [], "fallback" => true]];
+        $conversions = ["\$$key = \${$inputVarName}[{$keyStr}];" => ["discriminators" => [], "fallback" => true]];
 
-        foreach ($def["oneOf"] as $i => $subDef) {
+        foreach($this->subProperties as $i => $subProp) {
             $propertyTypeName = $this->subTypeName($i);
-            $assignment = "\$$key = \${$inputVarName}['$key'];";
-            $discriminator = "true";
+            $mapping = $subProp->mapFromInput("\${$inputVarName}[{$keyStr}]");
+            $assignment = "\$$key = {$mapping};";
+            $discriminator = $subProp->inputAssertion("\${$inputVarName}[{$keyStr}]");
 
-            if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $assignment = "\$$key = $propertyTypeName::buildFromInput(\${$inputVarName}['$key']);";
-                $discriminator = "$propertyTypeName::validateInput(\${$inputVarName}['$key'], true)";
-            } else if ($subDef["type"] === "array") {
-                // TODO
-            } else if ($subDef["type"] === "int" || $subDef["type"] === "integer") {
-                $discriminator = "is_int(\${$inputVarName}['$key'])";
-            } else if ($subDef["type"] === "string") {
-                $discriminator = "is_string(\${$inputVarName}['$key'])";
-            }
+//            if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
+//                $assignment = "\$$key = $propertyTypeName::buildFromInput(\${$inputVarName}['$key']);";
+////                $discriminator = "$propertyTypeName::validateInput(\${$inputVarName}['$key'], true)";
+//            } else if ($subDef["type"] === "array") {
+//                // TODO
+//            } else if ($subDef["type"] === "int" || $subDef["type"] === "integer") {
+////                $discriminator = "is_int(\${$inputVarName}['$key'])";
+//            } else if ($subDef["type"] === "string") {
+////                $discriminator = "is_string(\${$inputVarName}['$key'])";
+//            }
 
             if (!isset($conversions[$assignment])) {
                 $conversions[$assignment] = ["discriminators" => [], "fallback" => false];
@@ -193,6 +195,30 @@ class UnionProperty extends AbstractPropertyInterface
         }
 
         return "(" . join(") || (", $subAssertions) . ")";
+    }
+
+    public function inputAssertion(string $expr): string
+    {
+        $subAssertions = [];
+
+        foreach($this->subProperties as $prop) {
+            $subAssertions[] = $prop->inputAssertion($expr);
+        }
+
+        return "(" . join(") || (", $subAssertions) . ")";
+    }
+
+    public function mapFromInput(string $expr): string
+    {
+        $out = "null";
+
+        foreach ($this->subProperties as $i => $subProperty) {
+            $assert = $subProperty->inputAssertion($expr);
+            $map = $subProperty->mapFromInput($expr);
+            $out = "({$assert}) ? ({$map}) : ({$out})";
+        }
+
+        return $out;
     }
 
     private function subTypeName(int $idx = 0): string

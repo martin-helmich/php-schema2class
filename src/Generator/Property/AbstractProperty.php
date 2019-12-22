@@ -5,7 +5,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
-abstract class AbstractPropertyInterface implements PropertyInterface
+abstract class AbstractProperty implements PropertyInterface
 {
 
     protected string $key;
@@ -47,7 +47,9 @@ abstract class AbstractPropertyInterface implements PropertyInterface
     public function convertJSONToType(string $inputVarName = 'input'): string
     {
         $key = $this->key;
-        return "\$$key = \${$inputVarName}['$key'];";
+        $keyS = var_export($key, true);
+        $map = $this->mapFromInput("\${$inputVarName}[{$keyS}]");
+        return "\$$key = {$map};";
     }
 
     public function convertTypeToJSON(string $outputVarName = 'output'): string
@@ -59,6 +61,16 @@ abstract class AbstractPropertyInterface implements PropertyInterface
     protected function getOrNull(string $key)
     {
         return isset($this->schema[$key]) ? $this->schema[$key] : null;
+    }
+
+    public function inputAssertion(string $expr): string
+    {
+        return $this->assertion($expr);
+    }
+
+    public function mapFromInput(string $expr): string
+    {
+        return $expr;
     }
 
     public function generateSubTypes(SchemaToClass $generator): void

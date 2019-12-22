@@ -2,10 +2,9 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
-class PrimitiveArrayProperty extends AbstractPropertyInterface
+class PrimitiveArrayProperty extends AbstractProperty
 {
     use TypeConvert;
 

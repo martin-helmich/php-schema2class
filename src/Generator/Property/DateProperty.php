@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-class DateProperty extends AbstractPropertyInterface
+class DateProperty extends AbstractProperty
 {
     use TypeConvert;
 
@@ -51,5 +51,11 @@ class DateProperty extends AbstractPropertyInterface
     {
         return "${expr} instanceof \\DateTime";
     }
+
+    public function mapFromInput(string $expr): string
+    {
+        return "new \\DateTime({$expr})";
+    }
+
 
 }

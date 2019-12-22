@@ -151,7 +151,19 @@ class OptionalPropertyDecorator implements PropertyInterface
 
     public function assertion(string $expr): string
     {
-        return "({$this->inner->assertion($expr)}) || ({$expr}) === null";
+        return "(({$expr}) === null) || ({$this->inner->assertion($expr)})";
     }
+
+    public function inputAssertion(string $expr): string
+    {
+        return "(({$expr}) === null) || ({$this->inner->inputAssertion($expr)})";
+    }
+
+    public function mapFromInput(string $expr): string
+    {
+        $inner = $this->inner->mapFromInput($expr);
+        return "({$expr} !== null) ? ({$inner}) : null";
+    }
+
 
 }

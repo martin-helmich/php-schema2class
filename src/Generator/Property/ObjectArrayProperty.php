@@ -3,11 +3,28 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorException;
+use Helmich\Schema2Class\Generator\GeneratorRequest;
+use Helmich\Schema2Class\Generator\PropertyBuilder;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
-class ObjectArrayProperty extends AbstractPropertyInterface
+class ObjectArrayProperty extends AbstractProperty
 {
     use TypeConvert;
+
+    private PropertyInterface $itemType;
+
+    /**
+     * ObjectArrayProperty constructor.
+     * @param string           $key
+     * @param array            $schema
+     * @param GeneratorRequest $generatorRequest
+     */
+    public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
+    {
+        $this->itemType = PropertyBuilder::buildPropertyFromSchema($generatorRequest, $key . "Item", $schema["items"], true);
+        parent::__construct($key, $schema, $generatorRequest);
+    }
+
 
     public static function canHandleSchema(array $schema): bool
     {
@@ -22,12 +39,6 @@ class ObjectArrayProperty extends AbstractPropertyInterface
     public function isComplex(): bool
     {
         return true;
-    }
-
-    public function convertJSONToType(string $inputVarName = 'input'): string
-    {
-        $key = $this->key;
-        return "\$$key = " . 'array_map(function($i) { return ' . $this->subTypeName() . "::buildFromInput(\$i); }, \${$inputVarName}['$key']);";
     }
 
     public function convertTypeToJSON(string $outputVarName = 'output'): string
@@ -73,6 +84,19 @@ class ObjectArrayProperty extends AbstractPropertyInterface
     {
         $st = $this->subTypeName();
         return "is_array({$expr}) && count(array_filter({$expr}, function({$st} \$item) {return \$item instanceof {$st};})) === count({$expr})";
+    }
+
+    public function inputAssertion(string $expr): string
+    {
+        $st = $this->subTypeName();
+        return "is_array({$expr}) && count(array_filter({$expr}, function({$st} \$item) {return {$st}::validateInput(\$item, true)};})) === count({$expr})";
+    }
+
+    public function mapFromInput(string $expr): string
+    {
+        $st = $this->subTypeName();
+        $sm = $this->itemType->mapFromInput('$i');
+        return "array_map(function(\$i) { return {$sm}; }, {$expr})";
     }
 
     private function subTypeName(): string

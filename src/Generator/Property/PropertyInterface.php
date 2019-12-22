@@ -64,6 +64,18 @@ interface PropertyInterface
     public function assertion(string $expr): string;
 
     /**
+     * @param string $expr
+     * @return string
+     */
+    public function inputAssertion(string $expr): string;
+
+    /**
+     * @param string $expr
+     * @return string
+     */
+    public function mapFromInput(string $expr): string;
+
+    /**
      * @return string|null
      */
     public function cloneProperty();

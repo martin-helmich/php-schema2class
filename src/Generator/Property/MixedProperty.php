@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-class MixedProperty extends AbstractPropertyInterface
+class MixedProperty extends AbstractProperty
 {
     use TypeConvert;
 

@@ -5,7 +5,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
-class IntersectProperty extends AbstractPropertyInterface
+class IntersectProperty extends AbstractProperty
 {
     use TypeConvert;
 
@@ -17,13 +17,6 @@ class IntersectProperty extends AbstractPropertyInterface
     public function isComplex(): bool
     {
         return true;
-    }
-
-    public function convertJSONToType(string $inputVarName = 'input'): string
-    {
-        $key = $this->key;
-
-        return "\$$key = {$this->subTypeName()}::buildFromInput(\${$inputVarName}['$key']);";
     }
 
     public function convertTypeToJSON(string $outputVarName = 'output'): string
@@ -69,6 +62,16 @@ class IntersectProperty extends AbstractPropertyInterface
     public function assertion(string $expr): string
     {
         return "{$expr} instanceof {$this->subTypeName()}";
+    }
+
+    public function inputAssertion(string $expr): string
+    {
+        return "{$this->subTypeName()}::validateInput({$expr}, true)";
+    }
+
+    public function mapFromInput(string $expr): string
+    {
+        return "{$this->subTypeName()}::buildFromInput({$expr})";
     }
 
     private function subTypeName(): string
