@@ -7,6 +7,7 @@ use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zend\Code\DeclareStatement;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlockGenerator;
@@ -85,9 +86,9 @@ class SchemaToClass
             null
         );
 
-        $file = new FileGenerator([
-            "classes" => [$cls],
-        ]);
+        $file = new FileGenerator();
+        $file->setClasses([$cls]);
+        $file->setDeclares([DeclareStatement::strictTypes(1)]);
 
         $content = $file->generate();
 

@@ -74,7 +74,7 @@ EOCODE;
     public function testCloneProperty()
     {
         $expected = <<<'EOCODE'
-$this->myPropertyName = clone $this->myPropertyName;
+$this->myPropertyName = ($this->myPropertyName instanceof FooMyPropertyNameAlternative2) ? (clone $this->myPropertyName) : (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) ? (clone $this->myPropertyName) : (null));
 EOCODE;
         assertSame($expected, $this->property->cloneProperty());
     }
