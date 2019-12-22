@@ -19,12 +19,6 @@ class DateProperty extends AbstractProperty
         return true;
     }
 
-    public function cloneProperty(): string
-    {
-        $key = $this->key;
-        return "\$this->$key = clone \$this->$key;";
-    }
-
     public function typeAnnotation(): string
     {
         return "\\DateTime";
@@ -48,6 +42,11 @@ class DateProperty extends AbstractProperty
     public function generateOutputMappingExpr(string $expr): string
     {
         return "({$expr})->format(\\DateTime::ATOM)";
+    }
+
+    public function generateCloneExpr(string $expr): string
+    {
+        return "clone {$expr}";
     }
 
 }

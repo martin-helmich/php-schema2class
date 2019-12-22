@@ -114,13 +114,6 @@ class UnionProperty extends AbstractProperty
         return str_replace("}\nelse", "} else", join("\n", $branches));
     }
 
-    public function cloneProperty(): string
-    {
-        $key = $this->key;
-
-        return "\$this->$key = clone \$this->$key;";
-    }
-
     /**
      * @param SchemaToClass $generator
      * @throws GeneratorException
@@ -206,6 +199,19 @@ class UnionProperty extends AbstractProperty
         foreach ($this->subProperties as $i => $subProperty) {
             $assert = $subProperty->generateTypeAssertionExpr($expr);
             $map    = $subProperty->generateOutputMappingExpr($expr);
+            $out    = "({$assert}) ? ({$map}) : ({$out})";
+        }
+
+        return $out;
+    }
+
+    public function generateCloneExpr(string $expr): string
+    {
+        $out = "null";
+
+        foreach ($this->subProperties as $i => $subProperty) {
+            $assert = $subProperty->generateTypeAssertionExpr($expr);
+            $map    = $subProperty->generateCloneExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
         }
 

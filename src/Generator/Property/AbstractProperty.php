@@ -39,8 +39,19 @@ abstract class AbstractProperty implements PropertyInterface
         return $this->key;
     }
 
+    /**
+     * @return string|null
+     */
     public function cloneProperty()
     {
+        $key = $this->key;
+        $expr = "\$this->{$key}";
+        $exprClone = $this->generateCloneExpr($expr);
+
+        if ($expr !== $exprClone) {
+            return "\$this->$key = {$exprClone};";
+        }
+
         return null;
     }
 
@@ -76,6 +87,11 @@ abstract class AbstractProperty implements PropertyInterface
     }
 
     public function generateOutputMappingExpr(string $expr): string
+    {
+        return $expr;
+    }
+
+    public function generateCloneExpr(string $expr): string
     {
         return $expr;
     }

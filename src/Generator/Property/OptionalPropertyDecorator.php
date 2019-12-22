@@ -171,4 +171,9 @@ class OptionalPropertyDecorator implements PropertyInterface
         return "({$expr} !== null) ? ({$inner}) : null";
     }
 
+    public function generateCloneExpr(string $expr): string
+    {
+        return "isset({$expr}) ? (clone {$expr}) : null";
+    }
+
 }

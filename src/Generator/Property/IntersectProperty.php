@@ -19,13 +19,6 @@ class IntersectProperty extends AbstractProperty
         return true;
     }
 
-    public function cloneProperty(): string
-    {
-        $key = $this->key;
-
-        return "\$this->$key = clone \$this->$key;";
-    }
-
     /**
      * @param SchemaToClass    $generator
      * @throws GeneratorException
@@ -70,6 +63,11 @@ class IntersectProperty extends AbstractProperty
     public function generateOutputMappingExpr(string $expr): string
     {
         return "({$expr})->toJson()";
+    }
+
+    public function generateCloneExpr(string $expr): string
+    {
+        return "clone {$expr}";
     }
 
     private function subTypeName(): string

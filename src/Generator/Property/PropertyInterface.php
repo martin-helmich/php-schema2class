@@ -82,6 +82,12 @@ interface PropertyInterface
     public function generateOutputMappingExpr(string $expr): string;
 
     /**
+     * @param string $expr
+     * @return string
+     */
+    public function generateCloneExpr(string $expr): string;
+
+    /**
      * @return string|null
      */
     public function cloneProperty();

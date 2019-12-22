@@ -49,14 +49,6 @@ class ObjectArrayProperty extends AbstractProperty
         return "\${$outputVarName}['$key'] = array_map(function($st \$i) { return \$i->toJson(); }, \$this->$key);";
     }
 
-    public function cloneProperty(): string
-    {
-        $key = $this->key;
-        $st = $this->subTypeName();
-
-        return "\$this->$key = array_map(function($st \$i) { return clone \$i; }, \$this->$key);";
-    }
-
     /**
      * @param SchemaToClass    $generator
      * @throws GeneratorException
@@ -104,6 +96,12 @@ class ObjectArrayProperty extends AbstractProperty
         $st = $this->subTypeName();
         $sm = $this->itemType->generateOutputMappingExpr('$i');
         return "array_map(function($st \$i) { return {$sm} }, {$expr});";
+    }
+
+    public function generateCloneExpr(string $expr): string
+    {
+        $st = $this->subTypeName();
+        return "array_map(function({$st} \$i) { return clone \$i; }, {$expr});";
     }
 
     private function subTypeName(): string

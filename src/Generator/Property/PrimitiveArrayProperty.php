@@ -24,13 +24,6 @@ class PrimitiveArrayProperty extends AbstractProperty
         return false;
     }
 
-    public function cloneProperty(): string
-    {
-        $key = $this->key;
-
-        return "\$this->$key = clone \$this->$key;";
-    }
-
     /**
      * @param SchemaToClass    $generator
      */
