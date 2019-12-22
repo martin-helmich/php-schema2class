@@ -4,19 +4,9 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
-use Helmich\Schema2Class\Generator\Property\PrimitiveArrayProperty;
-use Helmich\Schema2Class\Generator\Property\DateProperty;
-use Helmich\Schema2Class\Generator\Property\IntegerProperty;
-use Helmich\Schema2Class\Generator\Property\IntersectProperty;
-use Helmich\Schema2Class\Generator\Property\MixedProperty;
-use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
-use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
-use Helmich\Schema2Class\Generator\Property\StringProperty;
-use Helmich\Schema2Class\Generator\Property\UnionProperty;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use UnexpectedValueException;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlockGenerator;
@@ -24,29 +14,13 @@ use Zend\Code\Generator\FileGenerator;
 
 class SchemaToClass
 {
-
     private WriterInterface $writer;
-
     private OutputInterface $output;
 
-    /**
-     * @param WriterInterface $writer
-     * @return $this
-     */
-    public function setWriter(WriterInterface $writer): self
+    public function __construct(WriterInterface $writer, OutputInterface $output)
     {
         $this->writer = $writer;
-        return $this;
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @return $this
-     */
-    public function setOutput(OutputInterface $output): self
-    {
         $this->output = $output;
-        return $this;
     }
 
     /**
@@ -55,14 +29,6 @@ class SchemaToClass
      */
     public function schemaToClass(GeneratorRequest $generatorRequest): void
     {
-        if (!$this->writer instanceof WriterInterface) {
-            throw new UnexpectedValueException('A file writer has not been set.');
-        }
-
-        if (!$this->output instanceof OutputInterface) {
-            throw new UnexpectedValueException('A console output has not been set.');
-        }
-
         $schema = $generatorRequest->getSchema();
         $schemaProperty = new PropertyGenerator("schema", $schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
         $schemaProperty->setDocBlock(new DocBlockGenerator(

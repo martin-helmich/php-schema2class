@@ -71,11 +71,6 @@ abstract class AbstractProperty implements PropertyInterface
         return "\${$outputVarName}[{$keyStr}] = {$map};";
     }
 
-    protected function getOrNull(string $key)
-    {
-        return isset($this->schema[$key]) ? $this->schema[$key] : null;
-    }
-
     public function generateInputAssertionExpr(string $expr): string
     {
         return $this->generateTypeAssertionExpr($expr);

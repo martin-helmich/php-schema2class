@@ -15,12 +15,12 @@ $app = new \Symfony\Component\Console\Application("jsb", "dev-master");
 $app->add(new \Helmich\Schema2Class\Command\GenerateCommand(
     new \Helmich\Schema2Class\Loader\SchemaLoader(),
     new \Helmich\Schema2Class\Generator\NamespaceInferrer(),
-    new \Helmich\Schema2Class\Generator\SchemaToClass()
+    new \Helmich\Schema2Class\Generator\SchemaToClassFactory()
 ));
 $app->add(new \Helmich\Schema2Class\Command\GenerateSpecCommand(
     new \Helmich\Schema2Class\Loader\SchemaLoader(),
     new \Helmich\Schema2Class\Generator\NamespaceInferrer(),
-    new \Helmich\Schema2Class\Generator\SchemaToClass()
+    new \Helmich\Schema2Class\Generator\SchemaToClassFactory()
 ));
 
 $app->run();

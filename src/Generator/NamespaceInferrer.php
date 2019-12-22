@@ -11,11 +11,11 @@ class NamespaceInferrer
      */
     public function inferNamespaceFromTargetDirectory(string $directory): string
     {
-        $startsWith = function($string, $prefix) {
+        $startsWith = function(string $string, string $prefix): bool {
             return substr($string, 0, strlen($prefix)) === $prefix;
         };
 
-        $stripPrefix = function($string, $prefix, $additional = 0) {
+        $stripPrefix = function(string $string, string $prefix, int $additional = 0): string {
             return substr($string, strlen($prefix) + $additional);
         };
 

@@ -50,7 +50,7 @@ class SpecificationFilesItem
     /**
      * @var string|null
      */
-    private ?string $targetNamespace;
+    private ?string $targetNamespace = null;
 
     /**
      * @param string $input
@@ -235,7 +235,7 @@ class SpecificationFilesItem
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {
-            $errors = array_map(function($e) {
+            $errors = array_map(function(array $e): string {
                 return $e["property"] . ": " . $e["message"];
             }, $validator->getErrors());
             throw new \InvalidArgumentException(join(", ", $errors));

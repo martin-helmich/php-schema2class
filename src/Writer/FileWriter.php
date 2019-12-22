@@ -13,7 +13,7 @@ class FileWriter implements WriterInterface
         $this->output = $output;
     }
 
-    public function writeFile($filename, $contents)
+    public function writeFile(string $filename, string $contents): void
     {
         $dirname = dirname($filename);
 

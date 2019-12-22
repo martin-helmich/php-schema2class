@@ -6,6 +6,7 @@ use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\NamespaceInferrer;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Generator\SchemaToClassFactory;
 use Helmich\Schema2Class\Loader\LoadingException;
 use Helmich\Schema2Class\Loader\SchemaLoader;
 use Helmich\Schema2Class\Writer\DebugWriter;
@@ -22,9 +23,9 @@ class GenerateCommand extends Command
 
     private NamespaceInferrer $namespaceInferrer;
 
-    private SchemaToClass $s2c;
+    private SchemaToClassFactory $s2c;
 
-    public function __construct(SchemaLoader $loader, NamespaceInferrer $namespaceInferrer, SchemaToClass $s2c)
+    public function __construct(SchemaLoader $loader, NamespaceInferrer $namespaceInferrer, SchemaToClassFactory $s2c)
     {
         parent::__construct();
 
@@ -83,14 +84,12 @@ class GenerateCommand extends Command
             $writer = new DebugWriter($output);
         }
 
-        $this->s2c->setWriter($writer)->setOutput($output);
-
         $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $class, $targetPHPVersion);
         if ($input->getOption("php5")) {
             $request = $request->withPHPVersion("5.6.0");
         }
 
-        $this->s2c->schemaToClass($request);
+        $this->s2c->build($writer, $output)->schemaToClass($request);
         return 0;
     }
 }

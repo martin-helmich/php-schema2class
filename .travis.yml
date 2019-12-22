@@ -1,11 +1,9 @@
 language: php
 php:
-  - "7.2"
-  - "7.3"
   - "7.4"
 install:
   - composer install --prefer-dist
 script:
-  - if [ ${TRAVIS_PHP_VERSION:0:3} == "5.6" ] ; then cmd/s2c --php5 --class=Customer generate:fromschema tests/example.yaml src/Example ; fi
-  - if [ ${TRAVIS_PHP_VERSION:0:1} == "7" ] ; then cmd/s2c --class=Customer generate:fromschema tests/example.yaml src/Example ; fi
+  - cmd/s2c --class=Customer generate:fromschema tests/example.yaml src/Example
+  - vendor/bin/psalm
   - vendor/bin/phpunit --testdox

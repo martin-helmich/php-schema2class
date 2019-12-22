@@ -4,5 +4,5 @@ namespace Helmich\Schema2Class\Writer;
 
 interface WriterInterface
 {
-    public function writeFile($filename, $contents);
+    public function writeFile(string $filename, string $contents): void;
 }

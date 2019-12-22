@@ -42,6 +42,7 @@ class PropertyBuilder
     {
         foreach (static::$propertyTypes as $propertyType) {
             if ($propertyType::canHandleSchema($definition)) {
+                /** @var PropertyInterface $property */
                 $property = new $propertyType($name, $definition, $req);
 
                 if (!$isRequired) {

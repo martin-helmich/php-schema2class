@@ -41,7 +41,7 @@ class GeneratorRequest
         return $clone;
     }
 
-    public function withClass($targetClass): self
+    public function withClass(string $targetClass): self
     {
         $clone = clone $this;
         $clone->targetClass = $targetClass;

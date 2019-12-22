@@ -54,7 +54,7 @@ class Generator
                 $prop->setTypeHint($typeHint);
             }
 
-            if ($prop->getDefaultValue() === null) {
+            if (!$properties->isOptional($property)) {
                 $prop->omitDefaultValue(true);
             }
 
@@ -160,7 +160,9 @@ class Generator
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
             '$validator->validate($input, static::$schema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
-            '    $errors = array_map(function($e) {' . "\n" .
+            ($this->generatorRequest->isAtLeastPHP("7.0") ?
+                '    $errors = array_map(function(array $e): string {' . "\n" :
+                '    $errors = array_map(function($e) {' . "\n")  .
             '        return $e["property"] . ": " . $e["message"];' . "\n" .
             '    }, $validator->getErrors());' . "\n" .
             '    throw new \\InvalidArgumentException(join(", ", $errors));' . "\n" .
@@ -303,7 +305,7 @@ if (!\$validator->isValid()) {
 
 return \$clone;",
             new DocBlockGenerator(null, null, [
-                new ParamTag($key, str_replace("|null", "", $annotatedType)),
+                new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
                 new ReturnTag("self"),
             ])
         );

@@ -22,13 +22,15 @@ class SchemaLoader
             throw new LoadingException($filename, "could not open file");
         }
 
-        $path_parts = pathinfo($filename);
-        switch ($path_parts['extension']) {
+        $pathParts = pathinfo($filename);
+        switch ($pathParts['extension']) {
             case 'yml':
             case 'yaml':
                 return Yaml::parse($contents);
             case 'json':
-                return json_decode($contents, JSON_OBJECT_AS_ARRAY);
+                return json_decode($contents, true);
         }
+
+        throw new LoadingException($filename, "unsupported file type: {$pathParts["extension"]}");
     }
 }

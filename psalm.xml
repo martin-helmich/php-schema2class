@@ -2,6 +2,7 @@
 <psalm
     totallyTyped="false"
     resolveFromConfigFile="true"
+    allowStringToStandInForClass="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -38,13 +39,28 @@
 
         <PropertyNotSetInConstructor errorLevel="info" />
         <MissingConstructor errorLevel="info" />
-        <MissingClosureParamType errorLevel="info" />
+        <MissingClosureParamType errorLevel="info">
+            <errorLevel type="suppress">
+                <directory name="src/Example"/>
+                <directory name="src/Spec"/>
+            </errorLevel>
+        </MissingClosureParamType>
         <MissingParamType errorLevel="info" />
 
         <RedundantCondition errorLevel="info" />
 
-        <DocblockTypeContradiction errorLevel="info" />
-        <RedundantConditionGivenDocblockType errorLevel="info" />
+        <DocblockTypeContradiction errorLevel="info">
+            <errorLevel type="suppress">
+                <directory name="src/Example"/>
+                <directory name="src/Spec"/>
+            </errorLevel>
+        </DocblockTypeContradiction>
+        <RedundantConditionGivenDocblockType errorLevel="info">
+            <errorLevel type="suppress">
+                <directory name="src/Example"/>
+                <directory name="src/Spec"/>
+            </errorLevel>
+        </RedundantConditionGivenDocblockType>
 
         <UnresolvableInclude errorLevel="info" />
 

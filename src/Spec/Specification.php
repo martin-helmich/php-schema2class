@@ -60,7 +60,7 @@ class Specification
     /**
      * @var int|string|null
      */
-    private $targetPHPVersion;
+    private $targetPHPVersion = null;
 
     /**
      * @var SpecificationFilesItem[]
@@ -139,7 +139,11 @@ class Specification
 
         $targetPHPVersion = null;
         if (isset($input['targetPHPVersion'])) {
-            $targetPHPVersion = $input['targetPHPVersion'];
+            if ((is_int($input['targetPHPVersion']))) {
+                $targetPHPVersion = (int)($input['targetPHPVersion']);
+            } else {
+                $targetPHPVersion = $input['targetPHPVersion'];
+            }
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
 
@@ -180,7 +184,7 @@ class Specification
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {
-            $errors = array_map(function($e) {
+            $errors = array_map(function(array $e): string {
                 return $e["property"] . ": " . $e["message"];
             }, $validator->getErrors());
             throw new \InvalidArgumentException(join(", ", $errors));
@@ -192,9 +196,9 @@ class Specification
     public function __clone()
     {
         if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = clone $this->targetPHPVersion;
+            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : (null));
         }
-        $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
+        $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);;
     }
 
 
