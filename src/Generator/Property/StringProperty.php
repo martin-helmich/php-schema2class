@@ -17,6 +17,7 @@ class StringProperty extends AbstractPropertyInterface
     }
 
     /**
+     * @param int $phpVersion
      * @return string|null
      */
     public function typeHint(int $phpVersion)

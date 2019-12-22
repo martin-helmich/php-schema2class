@@ -8,17 +8,13 @@ use Helmich\Schema2Class\Generator\SchemaToClass;
 abstract class AbstractPropertyInterface implements PropertyInterface
 {
 
-    /** @var string */
-    protected $key;
+    protected string $key;
 
-    /** @var array */
-    protected $schema;
+    protected array $schema;
 
-    /** @var string */
-    protected $capitalizedName;
+    protected string $capitalizedName;
 
-    /** @var GeneratorRequest */
-    protected $generatorRequest;
+    protected GeneratorRequest $generatorRequest;
 
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {

@@ -6,8 +6,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class FileWriter implements WriterInterface
 {
-    /** @var OutputInterface */
-    private $output;
+    private OutputInterface $output;
 
     public function __construct(OutputInterface $output)
     {

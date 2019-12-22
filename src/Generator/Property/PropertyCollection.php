@@ -5,9 +5,9 @@ namespace Helmich\Schema2Class\Generator\Property;
 class PropertyCollection implements \Iterator
 {
     /** @var PropertyInterface[] */
-    private $properties = [];
+    private array $properties = [];
 
-    private $current = 0;
+    private int $current = 0;
 
     public function add(PropertyInterface $propertyGenerator): void
     {

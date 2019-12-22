@@ -20,8 +20,7 @@ class Generator
 {
     use CodeFormatting;
 
-    /** @var GeneratorRequest */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
     public function __construct(GeneratorRequest $generatorRequest)
     {

@@ -24,11 +24,9 @@ use Zend\Code\Generator\PropertyGenerator;
 class SchemaToClass
 {
 
-    /** @var WriterInterface */
-    private $writer;
+    private WriterInterface $writer;
 
-    /** @var OutputInterface */
-    private $output;
+    private OutputInterface $output;
 
     /**
      * @param WriterInterface $writer
@@ -52,7 +50,6 @@ class SchemaToClass
 
     /**
      * @param GeneratorRequest $generatorRequest
-     * @param OutputInterface  $output
      * @throws GeneratorException
      */
     public function schemaToClass(GeneratorRequest $generatorRequest): void

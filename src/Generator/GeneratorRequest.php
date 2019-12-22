@@ -4,21 +4,16 @@ namespace Helmich\Schema2Class\Generator;
 
 class GeneratorRequest
 {
-    /** @var array */
-    private $schema;
+    private array $schema;
 
-    /** @var string */
-    private $targetDirectory;
+    private string $targetDirectory;
 
-    /** @var string */
-    private $targetNamespace;
+    private string $targetNamespace;
 
-    /** @var string */
-    private $targetClass;
+    private string $targetClass;
 
-    /** @var bool */
     //@todo Refactor and make private
-    public $php5 = false;
+    public bool $php5 = false;
 
     /**
      * GeneratorRequest constructor.

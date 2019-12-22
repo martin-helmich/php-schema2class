@@ -8,11 +8,9 @@ class OptionalPropertyDecorator implements PropertyInterface
 {
     use CodeFormatting;
 
-    /** @var string */
-    private $key;
+    private string $key;
 
-    /** @var PropertyInterface */
-    private $inner;
+    private PropertyInterface $inner;
 
     /**
      * OptionalPropertyDecorator constructor.

@@ -2,9 +2,11 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Command;
 
+use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\NamespaceInferrer;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Loader\LoadingException;
 use Helmich\Schema2Class\Loader\SchemaLoader;
 use Helmich\Schema2Class\Writer\DebugWriter;
 use Helmich\Schema2Class\Writer\FileWriter;
@@ -16,14 +18,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCommand extends Command
 {
-    /** @var SchemaLoader */
-    private $loader;
+    private SchemaLoader $loader;
 
-    /** @var NamespaceInferrer */
-    private $namespaceInferrer;
+    private NamespaceInferrer $namespaceInferrer;
 
-    /** @var SchemaToClass */
-    private $s2c;
+    private SchemaToClass $s2c;
 
     public function __construct(SchemaLoader $loader, NamespaceInferrer $namespaceInferrer, SchemaToClass $s2c)
     {
@@ -52,8 +51,8 @@ class GenerateCommand extends Command
      * @param OutputInterface $output
      * @return void
      *
-     * @throws \Helmich\Schema2Class\Loader\LoadingException
-     * @throws \Helmich\Schema2Class\Generator\GeneratorException
+     * @throws LoadingException
+     * @throws GeneratorException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
