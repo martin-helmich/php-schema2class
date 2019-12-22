@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Composer\Semver\Semver;
+
 class StringProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
@@ -17,12 +19,12 @@ class StringProperty extends AbstractPropertyInterface
     }
 
     /**
-     * @param int $phpVersion
+     * @param string $phpVersion
      * @return string|null
      */
-    public function typeHint(int $phpVersion)
+    public function typeHint(string $phpVersion)
     {
-        if ($phpVersion === 5) {
+        if (Semver::satisfies($phpVersion, "<7.0")) {
             return null;
         }
 

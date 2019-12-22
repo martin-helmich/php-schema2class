@@ -20,21 +20,19 @@ class SchemaToClassTest extends \PHPUnit\Framework\TestCase
 
     public function testSchemaToClass()
     {
-        $generatorRequest = $this->prophesize(GeneratorRequest::class);
+        $generatorRequest = new GeneratorRequest(
+            ['properties' => ['foo' => ['type' => 'string']]],
+            __DIR__,
+            'Ns',
+            'Foo',
+            '7.2',
+        );
         $consoleOutput = $this->prophesize(ConsoleOutputInterface::class);
         $writer = $this->prophesize(WriterInterface::class);
-
-        $generatorRequest->getSchema()->shouldBeCalled()->willReturn(['properties' => ['foo' => ['type' => 'string']]]);
-        $generatorRequest->isPhp(7)->willReturn(true);
-        $generatorRequest->isPhp(5)->willReturn(false);
-        $generatorRequest->getPhpTargetVersion()->willReturn(7);
-        $generatorRequest->getTargetClass()->willReturn('Foo');
-        $generatorRequest->getTargetNamespace()->willReturn('Ns');
-        $generatorRequest->getTargetDirectory()->willReturn(__DIR__);
 
         assertSame($this->underTest, $this->underTest->setOutput($consoleOutput->reveal()));
         assertSame($this->underTest, $this->underTest->setWriter($writer->reveal()));
 
-        $this->underTest->schemaToClass($generatorRequest->reveal());
+        $this->underTest->schemaToClass($generatorRequest);
     }
 }

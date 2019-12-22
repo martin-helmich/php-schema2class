@@ -41,8 +41,9 @@ class GenerateCommand extends Command
         $this->addArgument("schema", InputArgument::REQUIRED, "JSON schema file to read");
         $this->addArgument("target-dir", InputArgument::REQUIRED, "Target directory");
         $this->addOption("target-namespace", null, InputOption::VALUE_REQUIRED, "Target namespace (will try to determine automatically from composer.json if omitted)");
+        $this->addOption("target-php", "p", InputOption::VALUE_REQUIRED, "Target PHP version");
         $this->addOption("dry-run", null, InputOption::VALUE_NONE, "Print output to console instead of writing to files");
-        $this->addOption("php5", '5', InputOption::VALUE_NONE, "Generate PHP5-compatible code");
+        $this->addOption("php5", '5', InputOption::VALUE_NONE, "Generate PHP5-compatible code (DEPRECATED: Use --target-php instead)");
         $this->addOption("class", "c", InputOption::VALUE_REQUIRED, "Target class name", "Object");
     }
 
@@ -77,8 +78,10 @@ class GenerateCommand extends Command
 
         $this->s2c->setWriter($writer)->setOutput($output);
 
-        $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $input->getOption("class"));
-        $request->php5 = $input->getOption("php5");
+        $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $input->getOption("class"), $input->getOption("target-php"));
+        if ($input->getOption("php5")) {
+            $request = $request->withPHPVersion("5.6.0");
+        }
 
         $this->s2c->schemaToClass($request);
     }

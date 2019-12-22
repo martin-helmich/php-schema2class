@@ -32,38 +32,95 @@ class UnionProperty extends AbstractPropertyInterface
 
     public function convertJSONToType(string $inputVarName = 'input'): string
     {
-        $conversions = [];
         $def = $this->schema;
         $key = $this->key;
 
+        $conversions = ["\$$key = \${$inputVarName}['$key'];" => ["discriminators" => [], "fallback" => true]];
+
         foreach ($def["oneOf"] as $i => $subDef) {
             $propertyTypeName = $this->subTypeName($i);
+            $assignment = "\$$key = \${$inputVarName}['$key'];";
+            $discriminator = "true";
 
             if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $conversions[] = ($i > 0 ? "else " : "") . "if ($propertyTypeName::validateInput(\${$inputVarName}['$key'], true)) {\n    \$$key = $propertyTypeName::buildFromInput(\${$inputVarName}['$key']);\n}";
+                $assignment = "\$$key = $propertyTypeName::buildFromInput(\${$inputVarName}['$key']);";
+                $discriminator = "$propertyTypeName::validateInput(\${$inputVarName}['$key'], true)";
+            } else if ($subDef["type"] === "array") {
+                // TODO
+            } else if ($subDef["type"] === "int" || $subDef["type"] === "integer") {
+                $discriminator = "is_int(\${$inputVarName}['$key'])";
+            } else if ($subDef["type"] === "string") {
+                $discriminator = "is_string(\${$inputVarName}['$key'])";
+            }
+
+            if (!isset($conversions[$assignment])) {
+                $conversions[$assignment] = ["discriminators" => [], "fallback" => false];
+            }
+
+            $conversions[$assignment]["discriminators"][] = $discriminator;
+        }
+
+        $ifs = 0;
+        $branches = [];
+        $fallback = null;
+        foreach ($conversions as $assignment => $conversion) {
+            if ($conversion["fallback"]) {
+                $fallback = $assignment;
+                continue;
+            }
+            $condition = "(" . join(") || (", $conversion["discriminators"]) . ")";
+            $branches[] = ($ifs++ > 0 ? "else " : "") . "if ($condition) {\n    $assignment\n}";
+        }
+
+        if ($fallback) {
+            if (count($branches) > 0) {
+                $branches[] = "else {\n    $fallback\n}";
+            } else {
+                $branches[] = $fallback;
             }
         }
 
-        $conversions[] = "else {\n    \$$key = \${$inputVarName}['$key'];\n}";
-
-        return str_replace("}\nelse", "} else", join("\n", $conversions));
+        return str_replace("}\nelse", "} else", join("\n", $branches));
     }
 
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
-        $conversions = [];
         $def = $this->schema;
         $key = $this->key;
+        $conversions = [];
 
         foreach ($def["oneOf"] as $i => $subDef) {
             $propertyTypeName = $this->subTypeName($i);
+            $assignment = "\${$outputVarName}['$key'] = \$this->{$key};";
+            $discriminator = "true";
 
             if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $conversions[] = "if (\$this instanceof $propertyTypeName) {\n    \${$outputVarName}['$key'] = \$this->{$key}->toJson();\n}";
+                $assignment = "\${$outputVarName}['$key'] = \$this->{$key}->toJson();";
+                $discriminator = "\$this->{$key} instanceof ${propertyTypeName}";
+            } else if ($subDef["type"] === "array") {
+                // TODO
+            } else if ($subDef["type"] === "int" || $subDef["type"] === "integer") {
+                $discriminator = "is_int(\$this->{$key})";
+            } else if ($subDef["type"] === "string") {
+                $discriminator = "is_string(\$this->{$key})";
             }
+
+            if (!isset($conversions[$assignment])) {
+                $conversions[$assignment] = ["discriminators" => []];
+            }
+
+            $conversions[$assignment]["discriminators"][] = $discriminator;
         }
 
-        return join("\n", $conversions);
+        $ifs = 0;
+        $branches = [];
+        $fallback = null;
+        foreach ($conversions as $assignment => $conversion) {
+            $condition = "(" . join(") || (", $conversion["discriminators"]) . ")";
+            $branches[] = ($ifs++ > 0 ? "else " : "") . "if ($condition) {\n    $assignment\n}";
+        }
+
+        return str_replace("}\nelse", "} else", join("\n", $branches));
     }
 
     public function cloneProperty(): string
@@ -111,7 +168,7 @@ class UnionProperty extends AbstractPropertyInterface
         return join("|", $types);
     }
 
-    public function typeHint(int $phpVersion)
+    public function typeHint(string $phpVersion)
     {
         return null;
     }

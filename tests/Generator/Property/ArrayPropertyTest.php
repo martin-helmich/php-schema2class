@@ -11,17 +11,14 @@ use Prophecy\Argument;
 class ArrayPropertyTest extends TestCase
 {
 
-    /** @var ArrayProperty */
-    private $underTest;
+    private ArrayProperty $property;
 
-    /** @var GeneratorRequest */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
     protected function setUp(): void
     {
         $this->generatorRequest = new GeneratorRequest([], "", "", "Foo");
-        $key = 'myPropertyName';
-        $this->underTest = new ArrayProperty($key, ['type' => 'integer'], $this->generatorRequest);
+        $this->property = new ArrayProperty('myPropertyName', ['type' => 'integer'], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
@@ -108,9 +105,9 @@ EOCODE;
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        assertSame('array', $this->underTest->typeAnnotation());
-        assertSame('array', $this->underTest->typeHint(7));
-        assertSame('array', $this->underTest->typeHint(5));
+        assertSame('array', $this->property->typeAnnotation());
+        assertSame('array', $this->property->typeHint("7.2.0"));
+        assertSame('array', $this->property->typeHint("5.6.0"));
     }
 
     public function testGetAnnotationWithSimpleItemsArray()
@@ -118,8 +115,8 @@ EOCODE;
         $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['type' => 'string']], $this->generatorRequest);
 
         assertSame('string[]', $underTest->typeAnnotation());
-        assertSame('array', $underTest->typeHint(7));
-        assertSame('array', $underTest->typeHint(5));
+        assertSame('array', $underTest->typeHint("7.2.0"));
+        assertSame('array', $underTest->typeHint("5.6.0"));
 
     }
 
@@ -128,8 +125,8 @@ EOCODE;
         $underTest = new ArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
 
         assertSame('FooMyPropertyNameItem[]', $underTest->typeAnnotation());
-        assertSame('array', $underTest->typeHint(7));
-        assertSame('array', $underTest->typeHint(5));
+        assertSame('array', $underTest->typeHint("7.2.0"));
+        assertSame('array', $underTest->typeHint("5.6.0"));
 
     }
 
@@ -137,7 +134,7 @@ EOCODE;
     {
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
-        $this->underTest->generateSubTypes($schemaToClass->reveal());
+        $this->property->generateSubTypes($schemaToClass->reveal());
 
         $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
     }

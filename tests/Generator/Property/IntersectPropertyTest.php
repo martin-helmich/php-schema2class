@@ -12,17 +12,14 @@ use Prophecy\Argument;
 class IntersectPropertyTest extends TestCase
 {
 
-    /** @var IntersectProperty */
-    private $underTest;
+    private IntersectProperty $property;
 
-    /** @var GeneratorRequest */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
     protected function setUp(): void
     {
         $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
-        $key = 'myPropertyName';
-        $this->underTest = new IntersectProperty($key, ['allOf' => []], $this->generatorRequest);
+        $this->property = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
@@ -34,7 +31,7 @@ class IntersectPropertyTest extends TestCase
 
     public function testIsComplex()
     {
-        assertTrue($this->underTest->isComplex());
+        assertTrue($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
@@ -52,7 +49,7 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
 $variable['myPropertyName'] = $this->myPropertyName->toJson();
@@ -66,19 +63,16 @@ EOCODE;
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-//        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-//        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
-
         $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         assertSame('FooMyPropertyName', $underTest->typeAnnotation());
-        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(7));
-        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(5));
+        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint("7.2.0"));
+        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint("5.6.0"));
     }
 
 

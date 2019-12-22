@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
@@ -14,7 +15,6 @@ use Zend\Code\Generator\DocBlock\Tag\ThrowsTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyGenerator;
 
 class Generator
 {
@@ -48,6 +48,15 @@ class Generator
                 null,
                 [new GenericTag("var", $property->typeAnnotation())]
             ));
+
+            $typeHint = $property->typeHint($this->generatorRequest->getPHPTargetVersion());
+            if ($this->generatorRequest->isAtLeastPHP("7.4") && $typeHint) {
+                $prop->setTypeHint($typeHint);
+            }
+
+            if ($prop->getDefaultValue() === null) {
+                $prop->omitDefaultValue(true);
+            }
 
             $propertyGenerators[] = $prop;
         }
@@ -230,10 +239,14 @@ class Generator
             new DocBlockGenerator(null, null, [new ReturnTag($annotatedType)])
         );
 
-        if (!$this->generatorRequest->isPhp(5)) {
-            $typeHint = $property->typeHint(7);
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
+            $typeHint = $property->typeHint($this->generatorRequest->getPHPTargetVersion());
             if ($typeHint) {
                 $getMethod->setReturnType($typeHint);
+
+                if ($typeHint[0] === '?') {
+                    $getMethod->setBody("return isset(\$this->${key}) ? \$this->${key} : null;");
+                }
             }
         }
 
@@ -267,7 +280,7 @@ class Generator
         $requiredProperty = ($property instanceof OptionalPropertyDecorator) ? $property->unwrap() : $property;
 
         $annotatedType = $requiredProperty->typeAnnotation();
-        $typeHint = $requiredProperty->typeHint($this->generatorRequest->getPhpTargetVersion());
+        $typeHint = $requiredProperty->typeHint($this->generatorRequest->getPHPTargetVersion());
 
         if ($property->isComplex()) {
             $setterValidation = "";
@@ -295,7 +308,7 @@ return \$clone;",
             ])
         );
 
-        if (!$this->generatorRequest->isPhp(5)) {
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
             $setMethod->setReturnType("self");
         }
 
@@ -324,7 +337,7 @@ return \$clone;",
             ])
         );
 
-        if (!$this->generatorRequest->isPhp(5)) {
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
             $unsetMethod->setReturnType("self");
         }
 
@@ -342,7 +355,7 @@ return \$clone;",
         foreach ($requiredProperties as $requiredProperty) {
             $params[] = new ParameterGenerator(
                 $requiredProperty->key(),
-                $requiredProperty->typeHint($this->generatorRequest->getPhpTargetVersion())
+                $requiredProperty->typeHint($this->generatorRequest->getPHPTargetVersion())
             );
 
             $tags[] = new ParamTag(

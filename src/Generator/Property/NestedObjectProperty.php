@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class NestedObjectProperty extends AbstractPropertyInterface
@@ -42,7 +43,7 @@ class NestedObjectProperty extends AbstractPropertyInterface
 
     /**
      * @param SchemaToClass    $generator
-     * @throws \Helmich\Schema2Class\Generator\GeneratorException
+     * @throws GeneratorException
      */
     public function generateSubTypes(SchemaToClass $generator): void
     {
@@ -58,7 +59,7 @@ class NestedObjectProperty extends AbstractPropertyInterface
         return $this->subTypeName();
     }
 
-    public function typeHint(int $phpVersion): string
+    public function typeHint(string $phpVersion): string
     {
         return "\\" . $this->generatorRequest->getTargetNamespace() . "\\" . $this->subTypeName();
     }

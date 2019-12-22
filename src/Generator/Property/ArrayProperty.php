@@ -84,7 +84,7 @@ class ArrayProperty extends AbstractPropertyInterface
         return "array";
     }
 
-    public function typeHint(int $phpVersion): string
+    public function typeHint(string $phpVersion): string
     {
         return "array";
     }

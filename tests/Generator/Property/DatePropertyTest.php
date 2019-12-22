@@ -11,19 +11,14 @@ use Prophecy\Argument;
 class DatePropertyTest extends TestCase
 {
 
-    /**
-     * @var DateProperty
-     */
-    private $underTest;
+    private DateProperty $property;
 
-    /** @var GeneratorRequest */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
     protected function setUp(): void
     {
         $this->generatorRequest = new GeneratorRequest([], "", "", "Foo");
-        $key = 'myPropertyName';
-        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest);
+        $this->property = new DateProperty('myPropertyName', ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
@@ -37,12 +32,12 @@ class DatePropertyTest extends TestCase
 
     public function testIsComplex()
     {
-        assertTrue($this->underTest->isComplex());
+        assertTrue($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
     {
-        $result = $this->underTest->convertJSONToType('variable');
+        $result = $this->property->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
 $myPropertyName = new \DateTime($variable['myPropertyName']);
@@ -53,7 +48,7 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
 $variable['myPropertyName'] = $this->myPropertyName->format(\DateTime::ATOM);
@@ -67,21 +62,21 @@ EOCODE;
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        assertSame('\\DateTime', $this->underTest->typeAnnotation());
-        assertSame('\\DateTime', $this->underTest->typeHint(7));
-        assertSame('\\DateTime', $this->underTest->typeHint(5));
+        assertSame('\\DateTime', $this->property->typeAnnotation());
+        assertSame('\\DateTime', $this->property->typeHint("7.2.0"));
+        assertSame('\\DateTime', $this->property->typeHint("5.6.0"));
     }
 
     public function testGenerateSubTypesWithSimpleArray()
     {
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
-        $this->underTest->generateSubTypes($schemaToClass->reveal());
+        $this->property->generateSubTypes($schemaToClass->reveal());
 
         $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
     }

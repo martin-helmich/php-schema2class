@@ -16,7 +16,7 @@ class MixedProperty extends AbstractPropertyInterface
         return "mixed";
     }
 
-    public function typeHint(int $phpVersion)
+    public function typeHint(string $phpVersion)
     {
         return null;
     }

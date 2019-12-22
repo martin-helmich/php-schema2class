@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
 class OptionalPropertyDecorator implements PropertyInterface
@@ -90,11 +91,11 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param $phpVersion
      * @return string|null
      */
-    public function typeHint(int $phpVersion)
+    public function typeHint(string $phpVersion)
     {
         $inner = $this->inner->typeHint($phpVersion);
 
-        if ($phpVersion === 5) {
+        if (Semver::satisfies($phpVersion, "<7.0")) {
             return $inner;
         }
 
@@ -102,7 +103,7 @@ class OptionalPropertyDecorator implements PropertyInterface
             return $inner;
         }
 
-        if (strpos($inner, "?") !== 0) {
+        if (Semver::satisfies($phpVersion, ">=7.1.0") && strpos($inner, "?") !== 0) {
             $inner = "?" . $inner;
         }
 

@@ -12,16 +12,14 @@ use Prophecy\Argument;
 class UnionPropertyTest extends TestCase
 {
 
-    /** @var UnionProperty */
-    private $underTest;
+    private UnionProperty $property;
 
-    /** @var GeneratorRequest */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
     protected function setUp(): void
     {
         $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
-        $this->underTest = new UnionProperty(
+        $this->property = new UnionProperty(
             'myPropertyName',
             ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]],
             $this->generatorRequest
@@ -36,7 +34,7 @@ class UnionPropertyTest extends TestCase
 
     public function testIsComplex()
     {
-        assertTrue($this->underTest->isComplex());
+        assertTrue($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
@@ -46,9 +44,9 @@ class UnionPropertyTest extends TestCase
         $result = $underTest->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
-if (FooMyPropertyNameAlternative1::validateInput($variable['myPropertyName'], true)) {
+if ((FooMyPropertyNameAlternative1::validateInput($variable['myPropertyName'], true))) {
     $myPropertyName = FooMyPropertyNameAlternative1::buildFromInput($variable['myPropertyName']);
-} else if (FooMyPropertyNameAlternative2::validateInput($variable['myPropertyName'], true)) {
+} else if ((FooMyPropertyNameAlternative2::validateInput($variable['myPropertyName'], true))) {
     $myPropertyName = FooMyPropertyNameAlternative2::buildFromInput($variable['myPropertyName']);
 } else {
     $myPropertyName = $variable['myPropertyName'];
@@ -65,10 +63,7 @@ EOCODE;
         $result = $underTest->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-if ($this instanceof FooMyPropertyNameAlternative1) {
-    $variable['myPropertyName'] = $this->myPropertyName->toJson();
-}
-if ($this instanceof FooMyPropertyNameAlternative2) {
+if (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) || ($this->myPropertyName instanceof FooMyPropertyNameAlternative2)) {
     $variable['myPropertyName'] = $this->myPropertyName->toJson();
 }
 EOCODE;
@@ -81,7 +76,7 @@ EOCODE;
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
@@ -89,8 +84,8 @@ EOCODE;
         $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest);
 
         assertSame('FooMyPropertyNameAlternative1|FooMyPropertyNameAlternative2', $underTest->typeAnnotation());
-        assertSame(null, $underTest->typeHint(7));
-        assertSame(null, $underTest->typeHint(5));
+        assertSame(null, $underTest->typeHint("7.2.0"));
+        assertSame(null, $underTest->typeHint("5.6.0"));
     }
 
     public function provideTestSchema()
@@ -121,13 +116,6 @@ EOCODE;
         } elseif (isset($schema['anyOf'])) {
             $subschemas = $schema['anyOf'];
         }
-
-//        $this->generatorRequest->getTargetClass()->willReturn('');
-
-//        foreach ($subschemas as $i => $subschema) {
-//            $this->generatorRequest->withSchema($subschema)->willReturn($this->generatorRequest->reveal());
-//            $this->generatorRequest->withClass('MyPropertyNameAlternative'.($i+1))->willReturn($this->generatorRequest->reveal());
-//        }
 
         $underTest = new UnionProperty('myPropertyName', $schema, $this->generatorRequest);
 

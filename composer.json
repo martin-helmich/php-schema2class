@@ -15,7 +15,8 @@
         "symfony/yaml": "~3.0|~4.0",
         "zendframework/zend-code": "~3.4.1",
         "justinrainbow/json-schema": "^5.2",
-        "ext-json": "*"
+        "ext-json": "*",
+        "composer/semver": "^1.5"
     },
     "autoload": {
         "psr-4": {

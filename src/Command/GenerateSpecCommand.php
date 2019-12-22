@@ -72,6 +72,11 @@ class GenerateSpecCommand extends Command
             $writer = new DebugWriter($output);
         }
 
+        $targetPHPVersion = $specification->getTargetPHPVersion();
+        if (is_int($targetPHPVersion)) {
+            $targetPHPVersion = $targetPHPVersion === 5 ? "5.6.0" : "7.4.0";
+        }
+
         foreach ($specification->getFiles() as $file) {
             $schemaFile = $file->getInput();
             $targetNamespace = $file->getTargetNamespace();
@@ -87,8 +92,7 @@ class GenerateSpecCommand extends Command
 
             $output->writeln("using target namespace <comment>$targetNamespace</comment> in directory <comment>$targetDirectory</comment>");
 
-            $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $file->getClassName());
-            $request->php5 = $specification->getTargetPHPVersion() === 5;
+            $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $file->getClassName(), $targetPHPVersion);
 
             $this->s2c->setWriter($writer)->setOutput($output);
             $this->s2c->schemaToClass($request);

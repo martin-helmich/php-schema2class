@@ -2,6 +2,9 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Composer\Semver\Comparator;
+use Composer\Semver\Semver;
+
 class IntegerProperty extends AbstractPropertyInterface
 {
     use TypeConvert;
@@ -29,9 +32,9 @@ class IntegerProperty extends AbstractPropertyInterface
         return "int";
     }
 
-    public function typeHint(int $phpVersion)
+    public function typeHint(string $phpVersion)
     {
-        if ($phpVersion === 5) {
+        if (Semver::satisfies($phpVersion, "<7.0")) {
             return null;
         }
 

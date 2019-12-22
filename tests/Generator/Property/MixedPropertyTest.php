@@ -11,17 +11,14 @@ use Prophecy\Argument;
 class MixedPropertyTest extends TestCase
 {
 
-    /** @var MixedProperty */
-    private $underTest;
+    private MixedProperty $underTest;
 
-    /** @var GeneratorRequest */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
     protected function setUp(): void
     {
         $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
-        $key = 'myPropertyName';
-        $this->underTest = new MixedProperty($key, [], $this->generatorRequest);
+        $this->underTest = new MixedProperty('myPropertyName', [], $this->generatorRequest);
     }
 
     public function testCanHandleSchema()
@@ -64,8 +61,8 @@ EOCODE;
     public function testGetAnnotationAndHintWithSimpleArray()
     {
         assertSame('mixed', $this->underTest->typeAnnotation());
-        assertSame(null, $this->underTest->typeHint(7));
-        assertSame(null, $this->underTest->typeHint(5));
+        assertSame(null, $this->underTest->typeHint("7.2.0"));
+        assertSame(null, $this->underTest->typeHint("5.6.0"));
     }
 
     public function testGenerateSubTypesWithSimpleArray()

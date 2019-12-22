@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
+use Composer\Semver\Comparator;
+
 class GeneratorRequest
 {
     private array $schema;
@@ -12,22 +14,23 @@ class GeneratorRequest
 
     private string $targetClass;
 
-    //@todo Refactor and make private
-    public bool $php5 = false;
+    private string $targetPHPVersion;
 
-    /**
-     * GeneratorRequest constructor.
-     * @param array $schema
-     * @param string $targetDirectory
-     * @param string $targetNamespace
-     * @param string $targetClass
-     */
-    public function __construct(array $schema, string $targetDirectory, string $targetNamespace, string $targetClass)
+    public function __construct(array $schema, string $targetDirectory, string $targetNamespace, string $targetClass, string $targetPHPVersion = "7.2")
     {
         $this->schema = $schema;
         $this->targetDirectory = $targetDirectory;
         $this->targetNamespace = $targetNamespace;
         $this->targetClass = $targetClass;
+        $this->targetPHPVersion = self::semversifyVersionNumber($targetPHPVersion);
+    }
+
+    private static function semversifyVersionNumber(string $versionNumber): string {
+        if (substr_count($versionNumber, '.') === 1) {
+            return $versionNumber . ".0";
+        }
+
+        return $versionNumber;
     }
 
     public function withSchema(array $schema): self
@@ -46,12 +49,17 @@ class GeneratorRequest
         return $clone;
     }
 
-    /**
-     * @return int
-     */
-    public function getPhpTargetVersion(): int
+    public function withPHPVersion(string $targetPHPVersion): self
     {
-        return $this->php5 ? 5 : 7;
+        $clone = clone $this;
+        $clone->targetPHPVersion = self::semversifyVersionNumber($targetPHPVersion);
+
+        return $clone;
+    }
+
+    public function getPHPTargetVersion(): string
+    {
+        return $this->targetPHPVersion;
     }
 
     /**
@@ -60,7 +68,20 @@ class GeneratorRequest
      */
     public function isPhp(int $version): bool
     {
-        return $this->getPhpTargetVersion() === $version;
+        switch ($version) {
+            case 5:
+                return Comparator::greaterThanOrEqualTo($this->targetPHPVersion, "5.6.0")
+                    && Comparator::lessThan($this->targetPHPVersion, "6.0.0");
+            case 7:
+                return Comparator::greaterThanOrEqualTo($this->targetPHPVersion, "7.0.0");
+            default:
+                return false;
+        }
+    }
+
+    public function isAtLeastPHP(string $version): bool
+    {
+        return Comparator::greaterThanOrEqualTo($this->targetPHPVersion, self::semversifyVersionNumber($version));
     }
 
     /**

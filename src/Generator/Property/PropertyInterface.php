@@ -52,10 +52,10 @@ interface PropertyInterface
     public function typeAnnotation(): string;
 
     /**
-     * @param int $phpVersion
+     * @param string $phpVersion
      * @return string|null
      */
-    public function typeHint(int $phpVersion);
+    public function typeHint(string $phpVersion);
 
     /**
      * @return string|null

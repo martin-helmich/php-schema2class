@@ -2,9 +2,11 @@ required:
   - files
 properties:
   targetPHPVersion:
-    type: integer
-    enum: [5, 7]
-    default: 7
+    oneOf:
+      - type: integer
+        enum: [5, 7]
+        default: 7
+      - type: string
   files:
     type: array
     items:

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\ArrayProperty;
 use Helmich\Schema2Class\Generator\Property\DateProperty;
 use Helmich\Schema2Class\Generator\Property\IntegerProperty;
@@ -15,11 +16,11 @@ use Helmich\Schema2Class\Generator\Property\StringProperty;
 use Helmich\Schema2Class\Generator\Property\UnionProperty;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use UnexpectedValueException;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\FileGenerator;
-use Zend\Code\Generator\PropertyGenerator;
 
 class SchemaToClass
 {
@@ -55,11 +56,11 @@ class SchemaToClass
     public function schemaToClass(GeneratorRequest $generatorRequest): void
     {
         if (!$this->writer instanceof WriterInterface) {
-            throw new \UnexpectedValueException('A file writer has not been set.');
+            throw new UnexpectedValueException('A file writer has not been set.');
         }
 
         if (!$this->output instanceof OutputInterface) {
-            throw new \UnexpectedValueException('A console output has not been set.');
+            throw new UnexpectedValueException('A console output has not been set.');
         }
 
         $schema = $generatorRequest->getSchema();
@@ -69,6 +70,10 @@ class SchemaToClass
             null,
             [new GenericTag("var", "array")]
         ));
+
+        if ($generatorRequest->isAtLeastPHP("7.4")) {
+            $schemaProperty->setTypeHint("array");
+        }
 
         $properties = [$schemaProperty];
         $methods = [];
