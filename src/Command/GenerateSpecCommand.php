@@ -9,6 +9,8 @@ use Helmich\Schema2Class\Generator\SchemaToClassFactory;
 use Helmich\Schema2Class\Loader\LoadingException;
 use Helmich\Schema2Class\Loader\SchemaLoader;
 use Helmich\Schema2Class\Spec\Specification;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
 use Helmich\Schema2Class\Writer\FileWriter;
 use Symfony\Component\Console\Command\Command;
@@ -73,12 +75,17 @@ class GenerateSpecCommand extends Command
             $writer = new DebugWriter($output);
         }
 
-        $targetPHPVersion = $specification->getTargetPHPVersion();
-        if ($targetPHPVersion === null) {
-            $targetPHPVersion = "7.4.0";
-        } else if (is_int($targetPHPVersion)) {
+        $opts = $specification->getOptions() ?? new SpecificationOptions();
+        if (!$opts->getTargetPHPVersion()) {
+            $opts = $opts->withTargetPHPVersion($specification->getTargetPHPVersion());
+        }
+
+        $targetPHPVersion = $opts->getTargetPHPVersion();
+        if (is_int($targetPHPVersion)) {
             $targetPHPVersion = $targetPHPVersion === 5 ? "5.6.0" : "7.4.0";
         }
+
+        $opts = $opts->withTargetPHPVersion($targetPHPVersion);
 
         foreach ($specification->getFiles() as $file) {
             $schemaFile = $file->getInput();
@@ -91,11 +98,12 @@ class GenerateSpecCommand extends Command
             if (!$targetNamespace) {
                 $output->writeln("target namespace not given. trying to infer from target directory...");
                 $targetNamespace = $this->namespaceInferrer->inferNamespaceFromTargetDirectory($targetDirectory);
+                $file = $file->withTargetNamespace($targetNamespace);
             }
 
             $output->writeln("using target namespace <comment>$targetNamespace</comment> in directory <comment>$targetDirectory</comment>");
 
-            $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $file->getClassName(), $targetPHPVersion);
+            $request = new GeneratorRequest($schema, ValidatedSpecificationFilesItem::fromSpecificationFilesItem($file, $targetNamespace), $opts);
 
             $this->s2c->build($writer, $output)->schemaToClass($request);
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Spec;
 
 class Specification
@@ -23,12 +25,12 @@ class Specification
                             5,
                             7,
                         ],
-                        'default' => 7,
                     ],
                     [
                         'type' => 'string',
                     ],
                 ],
+                'default' => '7.4.0',
             ],
             'files' => [
                 'type' => 'array',
@@ -54,18 +56,46 @@ class Specification
                     ],
                 ],
             ],
+            'options' => [
+                'properties' => [
+                    'disableStrictTypes' => [
+                        'type' => 'bool',
+                        'default' => false,
+                    ],
+                    'targetPHPVersion' => [
+                        'oneOf' => [
+                            [
+                                'type' => 'integer',
+                                'enum' => [
+                                    5,
+                                    7,
+                                ],
+                            ],
+                            [
+                                'type' => 'string',
+                            ],
+                        ],
+                        'default' => '7.4.0',
+                    ],
+                ],
+            ],
         ],
     ];
 
     /**
-     * @var int|string|null
+     * @var int|string
      */
-    private $targetPHPVersion = null;
+    private $targetPHPVersion = '7.4.0';
 
     /**
      * @var SpecificationFilesItem[]
      */
     private array $files;
+
+    /**
+     * @var SpecificationOptions|null
+     */
+    private ?SpecificationOptions $options = null;
 
     /**
      * @param SpecificationFilesItem[] $files
@@ -76,7 +106,7 @@ class Specification
     }
 
     /**
-     * @return int|string|null
+     * @return int|string
      */
     public function getTargetPHPVersion()
     {
@@ -89,6 +119,14 @@ class Specification
     public function getFiles() : array
     {
         return $this->files;
+    }
+
+    /**
+     * @return SpecificationOptions|null
+     */
+    public function getOptions() : ?SpecificationOptions
+    {
+        return isset($this->options) ? $this->options : null;
     }
 
     /**
@@ -127,6 +165,29 @@ class Specification
     }
 
     /**
+     * @param SpecificationOptions $options
+     * @return self
+     */
+    public function withOptions(SpecificationOptions $options) : self
+    {
+        $clone = clone $this;
+        $clone->options = $options;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutOptions() : self
+    {
+        $clone = clone $this;
+        unset($clone->options);
+
+        return $clone;
+    }
+
+    /**
      * Builds a new instance from an input array
      *
      * @param array $input Input data
@@ -137,7 +198,7 @@ class Specification
     {
         static::validateInput($input);
 
-        $targetPHPVersion = null;
+        $targetPHPVersion = '7.4.0';
         if (isset($input['targetPHPVersion'])) {
             if ((is_int($input['targetPHPVersion']))) {
                 $targetPHPVersion = (int)($input['targetPHPVersion']);
@@ -146,9 +207,14 @@ class Specification
             }
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
+        $options = NULL;
+        if (isset($input['options'])) {
+            $options = SpecificationOptions::buildFromInput($input['options']);
+        }
 
         $obj = new static($files);
         $obj->targetPHPVersion = $targetPHPVersion;
+        $obj->options = $options;
         return $obj;
     }
 
@@ -166,6 +232,9 @@ class Specification
             }
         }
         $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
+        if (isset($this->options)) {
+            $output['options'] = ($this->options)->toJson();
+        }
 
         return $output;
     }
@@ -196,9 +265,12 @@ class Specification
     public function __clone()
     {
         if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : (null));
+            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
         }
-        $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);;
+        $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
+        if (isset($this->options)) {
+            $this->options = clone $this->options;
+        }
     }
 
 

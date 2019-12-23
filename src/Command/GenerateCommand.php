@@ -9,6 +9,9 @@ use Helmich\Schema2Class\Generator\SchemaToClass;
 use Helmich\Schema2Class\Generator\SchemaToClassFactory;
 use Helmich\Schema2Class\Loader\LoadingException;
 use Helmich\Schema2Class\Loader\SchemaLoader;
+use Helmich\Schema2Class\Spec\SpecificationFilesItem;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
 use Helmich\Schema2Class\Writer\FileWriter;
 use Symfony\Component\Console\Command\Command;
@@ -84,10 +87,15 @@ class GenerateCommand extends Command
             $writer = new DebugWriter($output);
         }
 
-        $request = new GeneratorRequest($schema, $targetDirectory, $targetNamespace, $class, $targetPHPVersion);
+        $spec = new ValidatedSpecificationFilesItem($targetNamespace, $class, $targetDirectory);
+        $opts = (new SpecificationOptions())
+            ->withTargetPHPVersion($targetPHPVersion);
+
         if ($input->getOption("php5")) {
-            $request = $request->withPHPVersion("5.6.0");
+            $opts = $opts->withTargetPHPVersion("5.6.0");
         }
+
+        $request = new GeneratorRequest($schema, $spec, $opts);
 
         $this->s2c->build($writer, $output)->schemaToClass($request);
         return 0;

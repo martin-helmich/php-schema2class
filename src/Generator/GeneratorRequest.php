@@ -3,29 +3,35 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
 use Composer\Semver\Comparator;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 
 class GeneratorRequest
 {
     private array $schema;
 
-    private string $targetDirectory;
+    private ValidatedSpecificationFilesItem $spec;
 
-    private string $targetNamespace;
+    private SpecificationOptions $opts;
 
-    private string $targetClass;
-
-    private string $targetPHPVersion;
-
-    public function __construct(array $schema, string $targetDirectory, string $targetNamespace, string $targetClass, string $targetPHPVersion = "7.2")
+    public function __construct(array $schema, ValidatedSpecificationFilesItem $spec, SpecificationOptions $opts)
     {
+        $opts = $opts->withTargetPHPVersion(self::semversifyVersionNumber($opts->getTargetPHPVersion()));
+
         $this->schema = $schema;
-        $this->targetDirectory = $targetDirectory;
-        $this->targetNamespace = $targetNamespace;
-        $this->targetClass = $targetClass;
-        $this->targetPHPVersion = self::semversifyVersionNumber($targetPHPVersion);
+        $this->spec = $spec;
+        $this->opts = $opts;
     }
 
-    private static function semversifyVersionNumber(string $versionNumber): string {
+    /**
+     * @param string|int $versionNumber
+     * @return string
+     */
+    private static function semversifyVersionNumber($versionNumber): string {
+        if (is_int($versionNumber)) {
+            return $versionNumber . ".0.0";
+        }
+
         if (substr_count($versionNumber, '.') === 1) {
             return $versionNumber . ".0";
         }
@@ -44,7 +50,7 @@ class GeneratorRequest
     public function withClass(string $targetClass): self
     {
         $clone = clone $this;
-        $clone->targetClass = $targetClass;
+        $clone->spec = $this->spec->withTargetClass($targetClass);
 
         return $clone;
     }
@@ -52,28 +58,30 @@ class GeneratorRequest
     public function withPHPVersion(string $targetPHPVersion): self
     {
         $clone = clone $this;
-        $clone->targetPHPVersion = self::semversifyVersionNumber($targetPHPVersion);
+        $clone->opts = $this->opts->withTargetPHPVersion(self::semversifyVersionNumber($targetPHPVersion));
 
         return $clone;
     }
 
-    public function getPHPTargetVersion(): string
+    public function getTargetPHPVersion(): string
     {
-        return $this->targetPHPVersion;
+        return (string) $this->opts->getTargetPHPVersion();
     }
 
     /**
      * @param int $version
      * @return bool
+     * @deprecated Use `isAtLeastPHP` instead
      */
     public function isPhp(int $version): bool
     {
+        $target = $this->getTargetPHPVersion();
         switch ($version) {
             case 5:
-                return Comparator::greaterThanOrEqualTo($this->targetPHPVersion, "5.6.0")
-                    && Comparator::lessThan($this->targetPHPVersion, "6.0.0");
+                return Comparator::greaterThanOrEqualTo($target, "5.6.0")
+                    && Comparator::lessThan($target, "6.0.0");
             case 7:
-                return Comparator::greaterThanOrEqualTo($this->targetPHPVersion, "7.0.0");
+                return Comparator::greaterThanOrEqualTo($target, "7.0.0");
             default:
                 return false;
         }
@@ -81,7 +89,7 @@ class GeneratorRequest
 
     public function isAtLeastPHP(string $version): bool
     {
-        return Comparator::greaterThanOrEqualTo($this->targetPHPVersion, self::semversifyVersionNumber($version));
+        return Comparator::greaterThanOrEqualTo($this->getTargetPHPVersion(), self::semversifyVersionNumber($version));
     }
 
     /**
@@ -89,7 +97,7 @@ class GeneratorRequest
      */
     public function getTargetDirectory(): string
     {
-        return $this->targetDirectory;
+        return $this->spec->getTargetDirectory();
     }
 
     /**
@@ -97,7 +105,7 @@ class GeneratorRequest
      */
     public function getTargetNamespace(): string
     {
-        return $this->targetNamespace;
+        return $this->spec->getTargetNamespace();
     }
 
     /**
@@ -105,7 +113,7 @@ class GeneratorRequest
      */
     public function getTargetClass(): string
     {
-        return $this->targetClass;
+        return $this->spec->getTargetClass();
     }
 
     /**
@@ -114,5 +122,10 @@ class GeneratorRequest
     public function getSchema(): array
     {
         return $this->schema;
+    }
+
+    public function getOptions(): SpecificationOptions
+    {
+        return $this->opts;
     }
 }

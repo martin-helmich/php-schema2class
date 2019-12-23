@@ -5,6 +5,8 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
@@ -17,7 +19,11 @@ class MixedPropertyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
+        $this->generatorRequest = new GeneratorRequest(
+            [],
+            new ValidatedSpecificationFilesItem("BarNs", "Foo", ""),
+            new SpecificationOptions(),
+        );
         $this->underTest = new MixedProperty('myPropertyName', [], $this->generatorRequest);
     }
 

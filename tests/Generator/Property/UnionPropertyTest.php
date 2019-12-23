@@ -5,6 +5,8 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -18,7 +20,7 @@ class UnionPropertyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->generatorRequest = new GeneratorRequest([], "", "BarNs", "Foo");
+        $this->generatorRequest = new GeneratorRequest([], new ValidatedSpecificationFilesItem("BarNs", "Foo", ""), new SpecificationOptions());
         $this->property = new UnionProperty(
             'myPropertyName',
             ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]],
@@ -74,7 +76,7 @@ EOCODE;
     public function testCloneProperty()
     {
         $expected = <<<'EOCODE'
-$this->myPropertyName = ($this->myPropertyName instanceof FooMyPropertyNameAlternative2) ? (clone $this->myPropertyName) : (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) ? (clone $this->myPropertyName) : (null));
+$this->myPropertyName = ($this->myPropertyName instanceof FooMyPropertyNameAlternative2) ? (clone $this->myPropertyName) : (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) ? (clone $this->myPropertyName) : ($this->myPropertyName));
 EOCODE;
         assertSame($expected, $this->property->cloneProperty());
     }

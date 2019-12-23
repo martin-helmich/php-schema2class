@@ -3,20 +3,30 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 
 class GeneratorRequestTest extends TestCase
 {
 
     const TARGET_DIR = 'targetDir';
-    const TARGET_NAME_SPACE = 'targetNameSpace';
+    const TARGET_NAMESPACE = 'targetNameSpace';
     const TARGET_CLASS_NAME = 'targetClassName';
 
     private GeneratorRequest $request;
 
     protected function setUp(): void
     {
-        $this->request = new GeneratorRequest([], self::TARGET_DIR, self::TARGET_NAME_SPACE, self::TARGET_CLASS_NAME, "7.0");
+        $this->request = new GeneratorRequest(
+            [],
+            new ValidatedSpecificationFilesItem(
+                self::TARGET_NAMESPACE,
+                self::TARGET_CLASS_NAME,
+                self::TARGET_DIR,
+            ),
+            (new SpecificationOptions())->withTargetPHPVersion("7.0")
+        );
     }
 
     /**
@@ -44,7 +54,7 @@ class GeneratorRequestTest extends TestCase
 
     public function testGetTargetNamespace()
     {
-        assertSame(self::TARGET_NAME_SPACE, $this->request->getTargetNamespace());
+        assertSame(self::TARGET_NAMESPACE, $this->request->getTargetNamespace());
     }
 
     public function testWithClass()
@@ -70,10 +80,10 @@ class GeneratorRequestTest extends TestCase
     public function testGetPhpTargetVersion()
     {
         $req = $this->request->withPHPVersion("7.2");
-        assertSame("7.2.0", $req->getPHPTargetVersion());
+        assertSame("7.2.0", $req->getTargetPHPVersion());
 
         $req = $this->request->withPHPVersion("5.6.1");
-        assertSame("5.6.1", $req->getPHPTargetVersion());
+        assertSame("5.6.1", $req->getTargetPHPVersion());
     }
 
     public function testGetTargetDirectory()

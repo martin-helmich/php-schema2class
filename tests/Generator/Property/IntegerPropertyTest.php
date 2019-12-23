@@ -6,6 +6,8 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
@@ -18,7 +20,11 @@ class IntegerPropertyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->generatorRequest = new GeneratorRequest([], "", "", "Foo");
+        $this->generatorRequest = new GeneratorRequest(
+            [],
+            new ValidatedSpecificationFilesItem("", "Foo", ""),
+            new SpecificationOptions(),
+        );
         $this->property = new IntegerProperty('myPropertyName', ['type' => 'integer'], $this->generatorRequest);
     }
 

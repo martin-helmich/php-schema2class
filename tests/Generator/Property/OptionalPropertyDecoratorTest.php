@@ -17,6 +17,7 @@ class OptionalPropertyDecoratorTest extends TestCase
     protected function setUp(): void
     {
         $this->innerProperty = $this->prophesize(PropertyInterface::class);
+        $this->innerProperty->schema()->willReturn([]);
         $this->decorator     = new OptionalPropertyDecorator('myPropertyName', $this->innerProperty->reveal());
     }
 

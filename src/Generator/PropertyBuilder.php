@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Generator\Property\BooleanProperty;
 use Helmich\Schema2Class\Generator\Property\ObjectArrayProperty;
 use Helmich\Schema2Class\Generator\Property\PrimitiveArrayProperty;
 use Helmich\Schema2Class\Generator\Property\DateProperty;
@@ -27,6 +28,7 @@ class PropertyBuilder
         ObjectArrayProperty::class,
         IntegerProperty::class,
         NestedObjectProperty::class,
+        BooleanProperty::class,
         MixedProperty::class,
     ];
 

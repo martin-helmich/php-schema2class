@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Spec;
 
 class SpecificationFilesItem
@@ -193,7 +195,7 @@ class SpecificationFilesItem
         $input = $input2['input'];
         $className = $input2['className'];
         $targetDirectory = $input2['targetDirectory'];
-        $targetNamespace = null;
+        $targetNamespace = NULL;
         if (isset($input2['targetNamespace'])) {
             $targetNamespace = $input2['targetNamespace'];
         }

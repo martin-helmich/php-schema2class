@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\NullOutput;
@@ -18,10 +20,8 @@ class SchemaToClassTest extends TestCase
     {
         $generatorRequest = new GeneratorRequest(
             ['properties' => ['foo' => ['type' => 'string']]],
-            __DIR__,
-            'Ns',
-            'Foo',
-            '7.2',
+            new ValidatedSpecificationFilesItem("Ns", "Foo", __DIR__),
+            (new SpecificationOptions())->withTargetPHPVersion('7.2'),
         );
         $output = new NullOutput();
         $writer = new DebugWriter($output);

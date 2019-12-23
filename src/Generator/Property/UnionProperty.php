@@ -207,7 +207,7 @@ class UnionProperty extends AbstractProperty
 
     public function generateCloneExpr(string $expr): string
     {
-        $out = "null";
+        $out = $expr;
 
         foreach ($this->subProperties as $i => $subProperty) {
             $assert = $subProperty->generateTypeAssertionExpr($expr);

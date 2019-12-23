@@ -37,11 +37,19 @@ class Generator
 
         foreach ($properties as $property) {
             $schema = $property->schema();
+            $isOptional = false;
             $prop = new PropertyGenerator(
                 $property->key(),
                 isset($schema["default"]) ? $schema["default"] : null,
                 PropertyGenerator::FLAG_PRIVATE
             );
+
+            if ($property instanceof OptionalPropertyDecorator) {
+                $isOptional = true;
+                if (isset($schema["default"]) && $schema["default"] !== null) {
+                    $property = $property->unwrap();
+                }
+            }
 
             $prop->setDocBlock(new DocBlockGenerator(
                 isset($schema["description"]) ? $schema["description"] : null,
@@ -49,12 +57,12 @@ class Generator
                 [new GenericTag("var", $property->typeAnnotation())]
             ));
 
-            $typeHint = $property->typeHint($this->generatorRequest->getPHPTargetVersion());
+            $typeHint = $property->typeHint($this->generatorRequest->getTargetPHPVersion());
             if ($this->generatorRequest->isAtLeastPHP("7.4") && $typeHint) {
                 $prop->setTypeHint($typeHint);
             }
 
-            if (!$properties->isOptional($property)) {
+            if (!$isOptional) {
                 $prop->omitDefaultValue(true);
             }
 
@@ -110,7 +118,7 @@ class Generator
             )
         );
 
-        if (!$this->generatorRequest->isPhp(5)) {
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
             $method->setReturnType($this->generatorRequest->getTargetNamespace() . "\\" . $this->generatorRequest->getTargetClass());
         }
 
@@ -137,7 +145,7 @@ class Generator
             )
         );
 
-        if (!$this->generatorRequest->isPhp(5)) {
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
             $method->setReturnType("array");
         }
 
@@ -145,16 +153,15 @@ class Generator
     }
 
     /**
-     * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateValidateMethod(PropertyCollection $properties): MethodGenerator
+    public function generateValidateMethod(): MethodGenerator
     {
         $method = new MethodGenerator(
             'validateInput',
             [
-                new ParameterGenerator("input", $this->generatorRequest->isPhp(5) ? null : "array"),
-                new ParameterGenerator("return", $this->generatorRequest->isPhp(5) ? null : "bool", false),
+                new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("7.0") ? "array" : null),
+                new ParameterGenerator("return", $this->generatorRequest->isAtLeastPHP("7.0") ? "bool" : null, false),
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
@@ -178,7 +185,7 @@ class Generator
             )
         );
 
-        if (!$this->generatorRequest->isPhp(5)) {
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
             $method->setReturnType("bool");
         }
 
@@ -229,6 +236,10 @@ class Generator
      */
     public function generateGetterMethod(PropertyInterface $property): MethodGenerator
     {
+        if (isset($property->schema()["default"]) && $property instanceof OptionalPropertyDecorator) {
+            $property = $property->unwrap();
+        }
+
         $key = $property->key();
         $capitalizedName = $this->capitalize($key);
         $annotatedType = $property->typeAnnotation();
@@ -242,7 +253,7 @@ class Generator
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
-            $typeHint = $property->typeHint($this->generatorRequest->getPHPTargetVersion());
+            $typeHint = $property->typeHint($this->generatorRequest->getTargetPHPVersion());
             if ($typeHint) {
                 $getMethod->setReturnType($typeHint);
 
@@ -282,7 +293,7 @@ class Generator
         $requiredProperty = ($property instanceof OptionalPropertyDecorator) ? $property->unwrap() : $property;
 
         $annotatedType = $requiredProperty->typeAnnotation();
-        $typeHint = $requiredProperty->typeHint($this->generatorRequest->getPHPTargetVersion());
+        $typeHint = $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion());
 
         if ($property->isComplex()) {
             $setterValidation = "";
@@ -357,7 +368,7 @@ return \$clone;",
         foreach ($requiredProperties as $requiredProperty) {
             $params[] = new ParameterGenerator(
                 $requiredProperty->key(),
-                $requiredProperty->typeHint($this->generatorRequest->getPHPTargetVersion())
+                $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion())
             );
 
             $tags[] = new ParamTag(
@@ -368,14 +379,12 @@ return \$clone;",
             $assignments[] = "\$this->{$requiredProperty->key()} = \${$requiredProperty->key()};";
         }
 
-        $method = new MethodGenerator(
+        return new MethodGenerator(
             "__construct",
             $params,
             MethodGenerator::FLAG_PUBLIC,
             join("\n", $assignments),
             new DocBlockGenerator("", "", $tags)
         );
-
-        return $method;
     }
 }

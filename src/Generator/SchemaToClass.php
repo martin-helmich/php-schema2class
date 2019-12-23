@@ -25,12 +25,12 @@ class SchemaToClass
     }
 
     /**
-     * @param GeneratorRequest $generatorRequest
+     * @param GeneratorRequest $req
      * @throws GeneratorException
      */
-    public function schemaToClass(GeneratorRequest $generatorRequest): void
+    public function schemaToClass(GeneratorRequest $req): void
     {
-        $schema = $generatorRequest->getSchema();
+        $schema = $req->getSchema();
         $schemaProperty = new PropertyGenerator("schema", $schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
         $schemaProperty->setDocBlock(new DocBlockGenerator(
             "Schema used to validate input for creating instances of this class",
@@ -38,7 +38,7 @@ class SchemaToClass
             [new GenericTag("var", "array")]
         ));
 
-        if ($generatorRequest->isAtLeastPHP("7.4")) {
+        if ($req->isAtLeastPHP("7.4")) {
             $schemaProperty->setTypeHint("array");
         }
 
@@ -54,7 +54,7 @@ class SchemaToClass
         foreach ($schema["properties"] as $key => $definition) {
             $isRequired = isset($schema["required"]) && in_array($key, $schema["required"]);
 
-            $property = PropertyBuilder::buildPropertyFromSchema($generatorRequest, $key, $definition, $isRequired);
+            $property = PropertyBuilder::buildPropertyFromSchema($req, $key, $definition, $isRequired);
             $propertiesFromSchema->add($property);
         }
 
@@ -62,7 +62,7 @@ class SchemaToClass
             $property->generateSubTypes($this);
         }
 
-        $codeGenerator = new Generator($generatorRequest);
+        $codeGenerator = new Generator($req);
 
         $methods[] = $codeGenerator->generateConstructor($propertiesFromSchema);
 
@@ -72,12 +72,12 @@ class SchemaToClass
 
         $methods[] = $codeGenerator->generateBuildMethod($propertiesFromSchema);
         $methods[] = $codeGenerator->generateToJSONMethod($propertiesFromSchema);
-        $methods[] = $codeGenerator->generateValidateMethod($propertiesFromSchema);
+        $methods[] = $codeGenerator->generateValidateMethod();
         $methods[] = $codeGenerator->generateCloneMethod($propertiesFromSchema);
 
         $cls = new ClassGenerator(
-            $generatorRequest->getTargetClass(),
-            $generatorRequest->getTargetNamespace(),
+            $req->getTargetClass(),
+            $req->getTargetNamespace(),
             null,
             null,
             [],
@@ -88,15 +88,18 @@ class SchemaToClass
 
         $file = new FileGenerator();
         $file->setClasses([$cls]);
-        $file->setDeclares([DeclareStatement::strictTypes(1)]);
+
+        if ($req->isAtLeastPHP("7.0") && !$req->getOptions()->getDisableStrictTypes()) {
+            $file->setDeclares([DeclareStatement::strictTypes(1)]);
+        }
 
         $content = $file->generate();
 
         // Do some corrections because the Zend code generation library is stupid.
         $content = preg_replace('/ : \\\\self/', ' : self', $content);
-        $content = preg_replace('/\\\\'.preg_quote($generatorRequest->getTargetNamespace()).'\\\\/', '', $content);
+        $content = preg_replace('/\\\\'.preg_quote($req->getTargetNamespace()).'\\\\/', '', $content);
 
-        $this->writer->writeFile($generatorRequest->getTargetDirectory() . '/' . $generatorRequest->getTargetClass() . '.php', $content);
+        $this->writer->writeFile($req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php', $content);
     }
 
 }
