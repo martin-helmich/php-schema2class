@@ -1,5 +1,6 @@
 # JSONSchema to PHP class converter
 
+Test
 Build PHP classes from [JSON schemas][jsonschema] automatically.
 
 ## Example
