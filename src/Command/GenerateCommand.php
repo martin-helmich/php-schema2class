@@ -89,7 +89,7 @@ class GenerateCommand extends Command
 
         $spec = new ValidatedSpecificationFilesItem($targetNamespace, $class, $targetDirectory);
         $opts = (new SpecificationOptions())
-            ->withTargetPHPVersion($targetPHPVersion);
+            ->withTargetPHPVersion($targetPHPVersion ?? "7.4.0");
 
         if ($input->getOption("php5")) {
             $opts = $opts->withTargetPHPVersion("5.6.0");
