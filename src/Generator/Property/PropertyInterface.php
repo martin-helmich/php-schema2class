@@ -28,6 +28,11 @@ interface PropertyInterface
     public function isComplex();
 
     /**
+     * @return bool
+     */
+    public function isCollection();
+
+    /**
      * @param string $inputVarName
      * @return string
      */

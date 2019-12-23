@@ -4,6 +4,7 @@ namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Generator\Property\ArrayProperty;
 use Helmich\Schema2Class\Generator\Property\DateProperty;
+use Helmich\Schema2Class\Generator\Property\DynamicObjectProperty;
 use Helmich\Schema2Class\Generator\Property\IntegerProperty;
 use Helmich\Schema2Class\Generator\Property\IntersectProperty;
 use Helmich\Schema2Class\Generator\Property\MixedProperty;
@@ -87,6 +88,7 @@ class SchemaToClass
             StringProperty::class,
             ArrayProperty::class,
             IntegerProperty::class,
+            DynamicObjectProperty::class,
             NestedObjectProperty::class,
             MixedProperty::class,
         ];
