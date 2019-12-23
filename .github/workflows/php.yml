@@ -1,0 +1,40 @@
+name: PHP type checking and unit testing
+
+on: [push]
+
+jobs:
+  build:
+    strategy:      
+      matrix:
+        php-versions: ['7.4']
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v1
+      with:
+        php-version: ${{ matrix.php-versions }}
+        coverage: pcov
+    
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Generate example code
+      run: ./cmd/s2c --class=Customer generate:fromschema tests/example.yaml src/Example
+      
+    - name: Run type checker
+      run: ./vendor/bin/psalm
+      
+    - name: Run unit tests
+      run: ./vendor/bin/phpunit --testdox
+    
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    # - name: Run test suite
+    #   run: composer run-script test
