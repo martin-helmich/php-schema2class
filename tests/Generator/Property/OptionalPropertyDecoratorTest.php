@@ -1,41 +1,42 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class OptionalPropertyDecoratorTest extends TestCase
 {
 
-    /** @var OptionalPropertyDecorator */
-    private $underTest;
+    private OptionalPropertyDecorator $decorator;
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy */
-    private $innerProperty;
+    private ObjectProphecy $innerProperty;
+
+    protected function setUp(): void
+    {
+        $this->innerProperty = $this->prophesize(PropertyInterface::class);
+        $this->innerProperty->schema()->willReturn([]);
+        $this->decorator     = new OptionalPropertyDecorator('myPropertyName', $this->innerProperty->reveal());
+    }
 
     public function testCanHandleSchema()
     {
         assertFalse(OptionalPropertyDecorator::canHandleSchema([]));
     }
 
-    protected function setUp()
-    {
-        $this->innerProperty = $this->prophesize(PropertyInterface::class);
-        $key = 'myPropertyName';
-        $this->underTest = new OptionalPropertyDecorator($key, $this->innerProperty->reveal());
-    }
-
     public function testIsComplex()
     {
         $this->innerProperty->isComplex()->shouldBeCalled()->willReturn(false);
-        assertFalse($this->underTest->isComplex());
+        assertFalse($this->decorator->isComplex());
     }
 
     public function testConvertJsonToType()
     {
         $this->innerProperty->convertJSONToType('variable')->shouldBeCalled()->willReturn('echo "InnerCode";');
 
-        $result = $this->underTest->convertJSONToType('variable');
+        $result = $this->decorator->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
 $myPropertyName = null;
@@ -51,7 +52,7 @@ EOCODE;
     {
         $this->innerProperty->convertTypeToJSON('variable')->shouldBeCalled()->willReturn('echo "InnerCode";');
 
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->decorator->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
 if (isset($this->myPropertyName)) {
@@ -67,7 +68,7 @@ EOCODE;
         $this->innerProperty->key()->shouldBeCalled()->willReturn('innerPropertyName');
         $this->innerProperty->cloneProperty()->shouldBeCalled()->willReturn(null);
 
-        assertNull($this->underTest->cloneProperty());
+        assertNull($this->decorator->cloneProperty());
     }
 
     public function testClonePropertyWithInnerCode()
@@ -79,22 +80,22 @@ if (isset($this->innerPropertyName)) {
     echo "InnerCode";
 }
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->decorator->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
         $this->innerProperty->typeAnnotation()->shouldBeCalled()->willReturn('Foo');
-        assertSame('Foo|null', $this->underTest->typeAnnotation());
+        assertSame('Foo|null', $this->decorator->typeAnnotation());
 
-        $this->innerProperty->typeHint(7)->shouldBeCalled()->willReturn('Foo');
-        assertSame('?Foo', $this->underTest->typeHint(7));
+        $this->innerProperty->typeHint("7.2.0")->shouldBeCalled()->willReturn('Foo');
+        assertSame('?Foo', $this->decorator->typeHint("7.2.0"));
 
-        $this->innerProperty->typeHint(5)->shouldBeCalled()->willReturn('Foo');
-        assertSame('Foo', $this->underTest->typeHint(5));
+        $this->innerProperty->typeHint("5.6.0")->shouldBeCalled()->willReturn('Foo');
+        assertSame('Foo', $this->decorator->typeHint("5.6.0"));
 
-        $this->innerProperty->typeHint(7)->shouldBeCalled()->willReturn(null);
-        assertSame(null, $this->underTest->typeHint(7));
+        $this->innerProperty->typeHint("7.2.0")->shouldBeCalled()->willReturn(null);
+        assertSame(null, $this->decorator->typeHint("7.2.0"));
 
     }
 

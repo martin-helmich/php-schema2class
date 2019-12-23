@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Spec;
 
 class Specification
@@ -10,55 +12,90 @@ class Specification
      *
      * @var array
      */
-    private static $schema = array(
-        'required' => array(
+    private static array $schema = [
+        'required' => [
             'files',
-        ),
-        'properties' => array(
-            'targetPHPVersion' => array(
-                'type' => 'integer',
-                'enum' => array(
-                    5,
-                    7,
-                ),
-                'default' => 7,
-            ),
-            'files' => array(
+        ],
+        'properties' => [
+            'targetPHPVersion' => [
+                'oneOf' => [
+                    [
+                        'type' => 'integer',
+                        'enum' => [
+                            5,
+                            7,
+                        ],
+                    ],
+                    [
+                        'type' => 'string',
+                    ],
+                ],
+                'default' => '7.4.0',
+            ],
+            'files' => [
                 'type' => 'array',
-                'items' => array(
-                    'required' => array(
+                'items' => [
+                    'required' => [
                         'input',
                         'className',
                         'targetDirectory',
-                    ),
-                    'properties' => array(
-                        'input' => array(
+                    ],
+                    'properties' => [
+                        'input' => [
                             'type' => 'string',
-                        ),
-                        'className' => array(
+                        ],
+                        'className' => [
                             'type' => 'string',
-                        ),
-                        'targetDirectory' => array(
+                        ],
+                        'targetDirectory' => [
                             'type' => 'string',
-                        ),
-                        'targetNamespace' => array(
+                        ],
+                        'targetNamespace' => [
                             'type' => 'string',
-                        ),
-                    ),
-                ),
-            ),
-        ),
-    );
+                        ],
+                    ],
+                ],
+            ],
+            'options' => [
+                'properties' => [
+                    'disableStrictTypes' => [
+                        'type' => 'bool',
+                        'default' => false,
+                    ],
+                    'targetPHPVersion' => [
+                        'oneOf' => [
+                            [
+                                'type' => 'integer',
+                                'enum' => [
+                                    5,
+                                    7,
+                                ],
+                            ],
+                            [
+                                'type' => 'string',
+                            ],
+                        ],
+                        'default' => '7.4.0',
+                    ],
+                ],
+            ],
+        ],
+    ];
 
     /**
-     * @var int|null
+     * @var int|string
      */
-    private $targetPHPVersion = 7;
+    private $targetPHPVersion = '7.4.0';
 
     /**
      * @var SpecificationFilesItem[]
      */
-    private $files = null;
+    private array $files;
+
+    /**
+     * @var SpecificationOptions|null
+     */
+    private ?SpecificationOptions $options = null;
 
     /**
      * @param SpecificationFilesItem[] $files
@@ -69,7 +106,7 @@ class Specification
     }
 
     /**
-     * @return int|null
+     * @return int|string
      */
     public function getTargetPHPVersion()
     {
@@ -79,23 +116,25 @@ class Specification
     /**
      * @return SpecificationFilesItem[]
      */
-    public function getFiles()
+    public function getFiles() : array
     {
         return $this->files;
     }
 
     /**
-     * @param int $targetPHPVersion
+     * @return SpecificationOptions|null
+     */
+    public function getOptions() : ?SpecificationOptions
+    {
+        return isset($this->options) ? $this->options : null;
+    }
+
+    /**
+     * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion($targetPHPVersion)
+    public function withTargetPHPVersion($targetPHPVersion) : self
     {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($targetPHPVersion, static::$schema['properties']['targetPHPVersion']);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;
 
@@ -105,7 +144,7 @@ class Specification
     /**
      * @return self
      */
-    public function withoutTargetPHPVersion()
+    public function withoutTargetPHPVersion() : self
     {
         $clone = clone $this;
         unset($clone->targetPHPVersion);
@@ -117,10 +156,33 @@ class Specification
      * @param SpecificationFilesItem[] $files
      * @return self
      */
-    public function withFiles(array $files)
+    public function withFiles(array $files) : self
     {
         $clone = clone $this;
         $clone->files = $files;
+
+        return $clone;
+    }
+
+    /**
+     * @param SpecificationOptions $options
+     * @return self
+     */
+    public function withOptions(SpecificationOptions $options) : self
+    {
+        $clone = clone $this;
+        $clone->options = $options;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutOptions() : self
+    {
+        $clone = clone $this;
+        unset($clone->options);
 
         return $clone;
     }
@@ -132,18 +194,27 @@ class Specification
      * @return Specification Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input)
+    public static function buildFromInput(array $input) : Specification
     {
         static::validateInput($input);
 
-        $targetPHPVersion = null;
+        $targetPHPVersion = '7.4.0';
         if (isset($input['targetPHPVersion'])) {
-            $targetPHPVersion = (int) $input['targetPHPVersion'];
+            if ((is_int($input['targetPHPVersion']))) {
+                $targetPHPVersion = (int)($input['targetPHPVersion']);
+            } else {
+                $targetPHPVersion = $input['targetPHPVersion'];
+            }
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
+        $options = NULL;
+        if (isset($input['options'])) {
+            $options = SpecificationOptions::buildFromInput($input['options']);
+        }
 
         $obj = new static($files);
         $obj->targetPHPVersion = $targetPHPVersion;
+        $obj->options = $options;
         return $obj;
     }
 
@@ -152,13 +223,18 @@ class Specification
      *
      * @return array Converted array
      */
-    public function toJson()
+    public function toJson() : array
     {
         $output = [];
         if (isset($this->targetPHPVersion)) {
-            $output['targetPHPVersion'] = $this->targetPHPVersion;
+            if ((is_int($this->targetPHPVersion)) || (is_string($this->targetPHPVersion))) {
+                $output['targetPHPVersion'] = $this->targetPHPVersion;
+            }
         }
         $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
+        if (isset($this->options)) {
+            $output['options'] = ($this->options)->toJson();
+        }
 
         return $output;
     }
@@ -171,13 +247,13 @@ class Specification
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, $return = false)
+    public static function validateInput(array $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {
-            $errors = array_map(function($e) {
+            $errors = array_map(function(array $e): string {
                 return $e["property"] . ": " . $e["message"];
             }, $validator->getErrors());
             throw new \InvalidArgumentException(join(", ", $errors));
@@ -188,7 +264,13 @@ class Specification
 
     public function __clone()
     {
+        if (isset($this->targetPHPVersion)) {
+            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
+        }
         $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
+        if (isset($this->options)) {
+            $this->options = clone $this->options;
+        }
     }
 
 

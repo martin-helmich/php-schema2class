@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Loader;
 
 use Symfony\Component\Yaml\Yaml;
@@ -10,7 +11,7 @@ class SchemaLoader
      * @return array
      * @throws LoadingException
      */
-    public function loadSchema($filename)
+    public function loadSchema(string $filename): array
     {
         if (!file_exists($filename)) {
             throw new LoadingException($filename, "file does not exist");
@@ -21,13 +22,15 @@ class SchemaLoader
             throw new LoadingException($filename, "could not open file");
         }
 
-        $path_parts = pathinfo($filename);
-        switch ($path_parts['extension']) {
+        $pathParts = pathinfo($filename);
+        switch ($pathParts['extension']) {
             case 'yml':
             case 'yaml':
                 return Yaml::parse($contents);
             case 'json':
-                return json_decode($contents, JSON_OBJECT_AS_ARRAY);
+                return json_decode($contents, true);
         }
+
+        throw new LoadingException($filename, "unsupported file type: {$pathParts["extension"]}");
     }
 }

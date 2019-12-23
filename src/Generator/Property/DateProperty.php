@@ -1,11 +1,12 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-class DateProperty extends AbstractPropertyInterface
+class DateProperty extends AbstractProperty
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         return isset($schema["type"])
             && isset($schema["format"])
@@ -13,36 +14,39 @@ class DateProperty extends AbstractPropertyInterface
             && $schema["format"] === "date-time";
     }
 
-    public function isComplex()
+    public function isComplex(): bool
     {
         return true;
     }
 
-    public function convertJSONToType($inputVarName = 'input')
-    {
-        $key = $this->key;
-        return "\$$key = new \\DateTime(\${$inputVarName}['$key']);";
-    }
-    
-    public function convertTypeToJSON($outputVarName = 'output') {
-        $key = $this->key;
-        return "\${$outputVarName}['$key'] = \$this->$key" . "->format(\\DateTime::ATOM);";
-    }
-
-    public function cloneProperty()
-    {
-        $key = $this->key;
-        return "\$this->$key = clone \$this->$key;";
-    }
-
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         return "\\DateTime";
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(string $phpVersion): string
     {
         return "\\DateTime";
+    }
+
+    public function generateTypeAssertionExpr(string $expr): string
+    {
+        return "${expr} instanceof \\DateTime";
+    }
+
+    public function generateInputMappingExpr(string $expr): string
+    {
+        return "new \\DateTime({$expr})";
+    }
+
+    public function generateOutputMappingExpr(string $expr): string
+    {
+        return "({$expr})->format(\\DateTime::ATOM)";
+    }
+
+    public function generateCloneExpr(string $expr): string
+    {
+        return "clone {$expr}";
     }
 
 }

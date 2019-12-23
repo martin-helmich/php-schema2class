@@ -1,11 +1,14 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-class IntegerProperty extends AbstractPropertyInterface
+use Composer\Semver\Semver;
+
+class IntegerProperty extends AbstractProperty
 {
     use TypeConvert;
 
-    public static function canHandleSchema(array $schema)
+    public static function canHandleSchema(array $schema): bool
     {
         if (!isset($schema["type"])) {
             return false;
@@ -17,24 +20,28 @@ class IntegerProperty extends AbstractPropertyInterface
         ;
     }
 
-    public function convertJSONToType($inputVarName = 'input')
-    {
-        $key = $this->key;
-        return "\$$key = (int) \${$inputVarName}['$key'];";
-    }
-
-    public function typeAnnotation()
+    public function typeAnnotation(): string
     {
         return "int";
     }
 
-    public function typeHint($phpVersion)
+    public function typeHint(string $phpVersion)
     {
-        if ($phpVersion === 5) {
+        if (Semver::satisfies($phpVersion, "<7.0")) {
             return null;
         }
 
         return "int";
+    }
+
+    public function generateTypeAssertionExpr(string $expr): string
+    {
+        return "is_int({$expr})";
+    }
+
+    public function generateInputMappingExpr(string $expr): string
+    {
+        return "(int)({$expr})";
     }
 
 }

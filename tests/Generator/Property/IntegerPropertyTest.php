@@ -1,22 +1,32 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 class IntegerPropertyTest extends TestCase
 {
 
-    /** @var IntegerProperty */
-    private $underTest;
+    private IntegerProperty $property;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
+    protected function setUp(): void
+    {
+        $this->generatorRequest = new GeneratorRequest(
+            [],
+            new ValidatedSpecificationFilesItem("", "Foo", ""),
+            new SpecificationOptions(),
+        );
+        $this->property = new IntegerProperty('myPropertyName', ['type' => 'integer'], $this->generatorRequest);
+    }
 
     public function testCanHandleSchema()
     {
@@ -30,24 +40,17 @@ class IntegerPropertyTest extends TestCase
         assertFalse(IntegerProperty::canHandleSchema(['type' => 'number', 'format' => 'foo']));
     }
 
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new IntegerProperty($key, ['type' => 'integer'], $this->generatorRequest->reveal());
-    }
-
     public function testIsComplex()
     {
-        assertFalse($this->underTest->isComplex());
+        assertFalse($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
     {
-        $result = $this->underTest->convertJSONToType('variable');
+        $result = $this->property->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
-$myPropertyName = (int) $variable['myPropertyName'];
+$myPropertyName = (int)($variable['myPropertyName']);
 EOCODE;
 
         assertSame($expected, $result);
@@ -55,7 +58,7 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
 $variable['myPropertyName'] = $this->myPropertyName;
@@ -66,21 +69,21 @@ EOCODE;
 
     public function testCloneProperty()
     {
-        assertNull($this->underTest->cloneProperty());
+        assertNull($this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        assertSame('int', $this->underTest->typeAnnotation());
-        assertSame('int', $this->underTest->typeHint(7));
-        assertSame(null, $this->underTest->typeHint(5));
+        assertSame('int', $this->property->typeAnnotation());
+        assertSame('int', $this->property->typeHint("7.2.0"));
+        assertSame(null, $this->property->typeHint("5.6.0"));
     }
 
     public function testGenerateSubTypesWithSimpleArray()
     {
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
-        $this->underTest->generateSubTypes($schemaToClass->reveal());
+        $this->property->generateSubTypes($schemaToClass->reveal());
 
         $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
     }

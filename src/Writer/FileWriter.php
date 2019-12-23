@@ -1,19 +1,19 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Writer;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FileWriter implements WriterInterface
 {
-    /** @var OutputInterface */
-    private $output;
+    private OutputInterface $output;
 
     public function __construct(OutputInterface $output)
     {
         $this->output = $output;
     }
 
-    public function writeFile($filename, $contents)
+    public function writeFile(string $filename, string $contents): void
     {
         $dirname = dirname($filename);
 

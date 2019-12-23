@@ -1,10 +1,12 @@
 required:
   - files
 properties:
-  targetPHPVersion:
-    type: integer
-    enum: [5, 7]
-    default: 7
+  targetPHPVersion: &targetPHPVersion
+    oneOf:
+      - type: integer
+        enum: [5, 7]
+      - type: string
+    default: 7.4.0
   files:
     type: array
     items:
@@ -21,3 +23,9 @@ properties:
           type: string
         targetNamespace:
           type: string
+  options:
+    properties:
+      disableStrictTypes:
+        type: bool
+        default: false
+      targetPHPVersion: *targetPHPVersion

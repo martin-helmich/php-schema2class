@@ -1,41 +1,45 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
+use Composer\Semver\Comparator;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 
 class GeneratorRequest
 {
-    /** @var array */
-    private $schema;
+    private array $schema;
 
-    /** @var string */
-    private $targetDirectory;
+    private ValidatedSpecificationFilesItem $spec;
 
-    /** @var string */
-    private $targetNamespace;
+    private SpecificationOptions $opts;
 
-    /** @var string */
-    private $targetClass;
-
-    /** @var bool */
-    //@todo Refactor and make private
-    public $php5 = false;
-
-    /**
-     * GeneratorRequest constructor.
-     * @param array $schema
-     * @param string $targetDirectory
-     * @param string $targetNamespace
-     * @param string $targetClass
-     */
-    public function __construct($schema, $targetDirectory, $targetNamespace, $targetClass)
+    public function __construct(array $schema, ValidatedSpecificationFilesItem $spec, SpecificationOptions $opts)
     {
+        $opts = $opts->withTargetPHPVersion(self::semversifyVersionNumber($opts->getTargetPHPVersion()));
+
         $this->schema = $schema;
-        $this->targetDirectory = $targetDirectory;
-        $this->targetNamespace = $targetNamespace;
-        $this->targetClass = $targetClass;
+        $this->spec = $spec;
+        $this->opts = $opts;
     }
 
-    public function withSchema(array $schema)
+    /**
+     * @param string|int $versionNumber
+     * @return string
+     */
+    private static function semversifyVersionNumber($versionNumber): string {
+        if (is_int($versionNumber)) {
+            return $versionNumber . ".0.0";
+        }
+
+        if (substr_count($versionNumber, '.') === 1) {
+            return $versionNumber . ".0";
+        }
+
+        return $versionNumber;
+    }
+
+    public function withSchema(array $schema): self
     {
         $clone = clone $this;
         $clone->schema = $schema;
@@ -43,60 +47,85 @@ class GeneratorRequest
         return $clone;
     }
 
-    public function withClass($targetClass)
+    public function withClass(string $targetClass): self
     {
         $clone = clone $this;
-        $clone->targetClass = $targetClass;
+        $clone->spec = $this->spec->withTargetClass($targetClass);
 
         return $clone;
     }
 
-    /**
-     * @return int
-     */
-    public function getPhpTargetVersion()
+    public function withPHPVersion(string $targetPHPVersion): self
     {
-        return $this->php5 ? 5 : 7;
+        $clone = clone $this;
+        $clone->opts = $this->opts->withTargetPHPVersion(self::semversifyVersionNumber($targetPHPVersion));
+
+        return $clone;
+    }
+
+    public function getTargetPHPVersion(): string
+    {
+        return (string) $this->opts->getTargetPHPVersion();
     }
 
     /**
      * @param int $version
      * @return bool
+     * @deprecated Use `isAtLeastPHP` instead
      */
-    public function isPhp($version)
+    public function isPhp(int $version): bool
     {
-        return $this->getPhpTargetVersion() === $version;
+        $target = $this->getTargetPHPVersion();
+        switch ($version) {
+            case 5:
+                return Comparator::greaterThanOrEqualTo($target, "5.6.0")
+                    && Comparator::lessThan($target, "6.0.0");
+            case 7:
+                return Comparator::greaterThanOrEqualTo($target, "7.0.0");
+            default:
+                return false;
+        }
+    }
+
+    public function isAtLeastPHP(string $version): bool
+    {
+        return Comparator::greaterThanOrEqualTo($this->getTargetPHPVersion(), self::semversifyVersionNumber($version));
     }
 
     /**
      * @return string
      */
-    public function getTargetDirectory()
+    public function getTargetDirectory(): string
     {
-        return $this->targetDirectory;
+        return $this->spec->getTargetDirectory();
     }
 
     /**
      * @return string
      */
-    public function getTargetNamespace()
+    public function getTargetNamespace(): string
     {
-        return $this->targetNamespace;
+        return $this->spec->getTargetNamespace();
     }
 
     /**
      * @return string
      */
-    public function getTargetClass()
+    public function getTargetClass(): string
     {
-        return $this->targetClass;
+        return $this->spec->getTargetClass();
     }
 
     /**
      * @return array
      */
-    public function getSchema()
+    public function getSchema(): array
     {
         return $this->schema;
+    }
+
+    public function getOptions(): SpecificationOptions
+    {
+        return $this->opts;
     }
 }

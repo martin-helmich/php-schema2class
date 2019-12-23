@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Spec;
 
 class SpecificationFilesItem
@@ -10,54 +12,54 @@ class SpecificationFilesItem
      *
      * @var array
      */
-    private static $schema = array(
-        'required' => array(
+    private static array $schema = [
+        'required' => [
             'input',
             'className',
             'targetDirectory',
-        ),
-        'properties' => array(
-            'input' => array(
+        ],
+        'properties' => [
+            'input' => [
                 'type' => 'string',
-            ),
-            'className' => array(
+            ],
+            'className' => [
                 'type' => 'string',
-            ),
-            'targetDirectory' => array(
+            ],
+            'targetDirectory' => [
                 'type' => 'string',
-            ),
-            'targetNamespace' => array(
+            ],
+            'targetNamespace' => [
                 'type' => 'string',
-            ),
-        ),
-    );
+            ],
+        ],
+    ];
 
     /**
      * @var string
      */
-    private $input = null;
+    private string $input;
 
     /**
      * @var string
      */
-    private $className = null;
+    private string $className;
 
     /**
      * @var string
      */
-    private $targetDirectory = null;
+    private string $targetDirectory;
 
     /**
      * @var string|null
      */
-    private $targetNamespace = null;
+    private ?string $targetNamespace = null;
 
     /**
      * @param string $input
      * @param string $className
      * @param string $targetDirectory
      */
-    public function __construct($input, $className, $targetDirectory)
+    public function __construct(string $input, string $className, string $targetDirectory)
     {
         $this->input = $input;
         $this->className = $className;
@@ -67,7 +69,7 @@ class SpecificationFilesItem
     /**
      * @return string
      */
-    public function getInput()
+    public function getInput() : string
     {
         return $this->input;
     }
@@ -75,7 +77,7 @@ class SpecificationFilesItem
     /**
      * @return string
      */
-    public function getClassName()
+    public function getClassName() : string
     {
         return $this->className;
     }
@@ -83,7 +85,7 @@ class SpecificationFilesItem
     /**
      * @return string
      */
-    public function getTargetDirectory()
+    public function getTargetDirectory() : string
     {
         return $this->targetDirectory;
     }
@@ -91,16 +93,16 @@ class SpecificationFilesItem
     /**
      * @return string|null
      */
-    public function getTargetNamespace()
+    public function getTargetNamespace() : ?string
     {
-        return $this->targetNamespace;
+        return isset($this->targetNamespace) ? $this->targetNamespace : null;
     }
 
     /**
      * @param string $input
      * @return self
      */
-    public function withInput($input)
+    public function withInput(string $input) : self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema['properties']['input']);
@@ -118,7 +120,7 @@ class SpecificationFilesItem
      * @param string $className
      * @return self
      */
-    public function withClassName($className)
+    public function withClassName(string $className) : self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($className, static::$schema['properties']['className']);
@@ -136,7 +138,7 @@ class SpecificationFilesItem
      * @param string $targetDirectory
      * @return self
      */
-    public function withTargetDirectory($targetDirectory)
+    public function withTargetDirectory(string $targetDirectory) : self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($targetDirectory, static::$schema['properties']['targetDirectory']);
@@ -154,7 +156,7 @@ class SpecificationFilesItem
      * @param string $targetNamespace
      * @return self
      */
-    public function withTargetNamespace($targetNamespace)
+    public function withTargetNamespace(string $targetNamespace) : self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($targetNamespace, static::$schema['properties']['targetNamespace']);
@@ -171,7 +173,7 @@ class SpecificationFilesItem
     /**
      * @return self
      */
-    public function withoutTargetNamespace()
+    public function withoutTargetNamespace() : self
     {
         $clone = clone $this;
         unset($clone->targetNamespace);
@@ -186,14 +188,14 @@ class SpecificationFilesItem
      * @return SpecificationFilesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input2)
+    public static function buildFromInput(array $input2) : SpecificationFilesItem
     {
         static::validateInput($input2);
 
         $input = $input2['input'];
         $className = $input2['className'];
         $targetDirectory = $input2['targetDirectory'];
-        $targetNamespace = null;
+        $targetNamespace = NULL;
         if (isset($input2['targetNamespace'])) {
             $targetNamespace = $input2['targetNamespace'];
         }
@@ -208,7 +210,7 @@ class SpecificationFilesItem
      *
      * @return array Converted array
      */
-    public function toJson()
+    public function toJson() : array
     {
         $output = [];
         $output['input'] = $this->input;
@@ -229,13 +231,13 @@ class SpecificationFilesItem
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, $return = false)
+    public static function validateInput(array $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {
-            $errors = array_map(function($e) {
+            $errors = array_map(function(array $e): string {
                 return $e["property"] . ": " . $e["message"];
             }, $validator->getErrors());
             throw new \InvalidArgumentException(join(", ", $errors));

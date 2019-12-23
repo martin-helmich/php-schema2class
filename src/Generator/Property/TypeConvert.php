@@ -1,9 +1,10 @@
 <?php
+declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 trait TypeConvert
 {
-    protected function phpPrimitiveForSchemaType(array $def)
+    protected function phpPrimitiveForSchemaType(array $def): array
     {
         $t = isset($def["type"]) ? $def["type"] : "any";
 

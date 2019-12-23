@@ -1,32 +1,35 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 class MixedPropertyTest extends TestCase
 {
 
-    /** @var MixedProperty */
-    private $underTest;
+    private MixedProperty $underTest;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
 
+    protected function setUp(): void
+    {
+        $this->generatorRequest = new GeneratorRequest(
+            [],
+            new ValidatedSpecificationFilesItem("BarNs", "Foo", ""),
+            new SpecificationOptions(),
+        );
+        $this->underTest = new MixedProperty('myPropertyName', [], $this->generatorRequest);
+    }
 
     public function testCanHandleSchema()
     {
         assertTrue(MixedProperty::canHandleSchema([]));
-    }
-
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new MixedProperty($key, [], $this->generatorRequest->reveal());
     }
 
     public function testIsComplex()
@@ -64,8 +67,8 @@ EOCODE;
     public function testGetAnnotationAndHintWithSimpleArray()
     {
         assertSame('mixed', $this->underTest->typeAnnotation());
-        assertSame(null, $this->underTest->typeHint(7));
-        assertSame(null, $this->underTest->typeHint(5));
+        assertSame(null, $this->underTest->typeHint("7.2.0"));
+        assertSame(null, $this->underTest->typeHint("5.6.0"));
     }
 
     public function testGenerateSubTypesWithSimpleArray()

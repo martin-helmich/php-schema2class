@@ -1,19 +1,28 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 class NestedObjectPropertyTest extends TestCase
 {
 
-    /** @var NestedObjectProperty */
-    private $underTest;
+    private NestedObjectProperty $property;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
+
+    protected function setUp(): void
+    {
+        $this->generatorRequest = new GeneratorRequest([], new ValidatedSpecificationFilesItem("BarNs", "Foo", ""), new SpecificationOptions());
+        $this->property = new NestedObjectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
+    }
 
     public function testCanHandleSchema()
     {
@@ -23,23 +32,14 @@ class NestedObjectPropertyTest extends TestCase
         assertFalse(NestedObjectProperty::canHandleSchema([]));
     }
 
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new NestedObjectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
-    }
-
     public function testIsComplex()
     {
-        assertTrue($this->underTest->isComplex());
+        assertTrue($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-
-        $underTest = new NestedObjectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new NestedObjectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         $result = $underTest->convertJSONToType('variable');
 
@@ -52,10 +52,10 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-$variable['myPropertyName'] = $this->myPropertyName->toJson();
+$variable['myPropertyName'] = ($this->myPropertyName)->toJson();
 EOCODE;
 
         assertSame($expected, $result);
@@ -66,32 +66,27 @@ EOCODE;
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
-
-        $underTest = new NestedObjectProperty('myPropertyName',  ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new NestedObjectProperty('myPropertyName',  ['allOf' => []], $this->generatorRequest);
 
         assertSame('FooMyPropertyName', $underTest->typeAnnotation());
-        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(7));
-        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(5));
+        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint("7.2.0"));
+        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint("5.6.0"));
     }
 
     public function testGenerateSubTypesWithSimpleArray()
     {
-        $this->generatorRequest->withSchema(['allOf' => []])->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->withClass('MyPropertyName')->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->getTargetClass()->willReturn('');
-
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
-        $this->underTest->generateSubTypes($schemaToClass->reveal());
+        $this->property->generateSubTypes($schemaToClass->reveal());
 
-        $schemaToClass->schemaToClass($this->generatorRequest->reveal())->shouldHaveBeenCalled();
+        $schemaToClass->schemaToClass(Argument::that(function(GeneratorRequest $subReq) {
+            return Assert::equalTo(['allOf' => []])->evaluate($subReq->getSchema());
+        }))->shouldHaveBeenCalled();
     }
 
 }

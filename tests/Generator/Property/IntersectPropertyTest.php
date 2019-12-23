@@ -1,19 +1,32 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 class IntersectPropertyTest extends TestCase
 {
 
-    /** @var IntersectProperty */
-    private $underTest;
+    private IntersectProperty $property;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
+
+    protected function setUp(): void
+    {
+        $this->generatorRequest = new GeneratorRequest(
+            [],
+            new ValidatedSpecificationFilesItem("BarNs", "Foo", ""),
+            new SpecificationOptions(),
+        );
+        $this->property = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
+    }
 
     public function testCanHandleSchema()
     {
@@ -22,23 +35,14 @@ class IntersectPropertyTest extends TestCase
         assertFalse(IntersectProperty::canHandleSchema([]));
     }
 
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new IntersectProperty($key, ['allOf' => []], $this->generatorRequest->reveal());
-    }
-
     public function testIsComplex()
     {
-        assertTrue($this->underTest->isComplex());
+        assertTrue($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-
-        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         $result = $underTest->convertJSONToType('variable');
 
@@ -51,10 +55,10 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-$variable['myPropertyName'] = $this->myPropertyName->toJson();
+$variable['myPropertyName'] = ($this->myPropertyName)->toJson();
 EOCODE;
 
         assertSame($expected, $result);
@@ -65,19 +69,16 @@ EOCODE;
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        $this->generatorRequest->getTargetClass()->willReturn('Foo');
-        $this->generatorRequest->getTargetNamespace()->willReturn('BarNs');
-
-        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest->reveal());
+        $underTest = new IntersectProperty('myPropertyName', ['allOf' => []], $this->generatorRequest);
 
         assertSame('FooMyPropertyName', $underTest->typeAnnotation());
-        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(7));
-        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint(5));
+        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint("7.2.0"));
+        assertSame('\\BarNs\\FooMyPropertyName', $underTest->typeHint("5.6.0"));
     }
 
 
@@ -125,17 +126,14 @@ EOCODE;
      */
     public function testGenerateSubTypes($schema, $subschema)
     {
-
-        $this->generatorRequest->withSchema($subschema)->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->withClass('MyPropertyName')->willReturn($this->generatorRequest->reveal());
-        $this->generatorRequest->getTargetClass()->willReturn('');
-
-        $underTest = new IntersectProperty('myPropertyName', $schema, $this->generatorRequest->reveal());
+        $underTest = new IntersectProperty('myPropertyName', $schema, $this->generatorRequest);
 
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
         $underTest->generateSubTypes($schemaToClass->reveal());
 
-        $schemaToClass->schemaToClass($this->generatorRequest->reveal())->shouldHaveBeenCalled();
+        $schemaToClass->schemaToClass(Argument::that(function(GeneratorRequest $subReq) use ($subschema) {
+            return Assert::equalTo($subschema)->evaluate($subReq->getSchema());
+        }))->shouldHaveBeenCalled();
     }
 }

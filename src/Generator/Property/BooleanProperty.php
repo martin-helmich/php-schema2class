@@ -4,36 +4,42 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Composer\Semver\Semver;
 
-class StringProperty extends AbstractProperty
+class BooleanProperty extends AbstractProperty
 {
     use TypeConvert;
 
     public static function canHandleSchema(array $schema): bool
     {
-        return isset($schema["type"]) && $schema["type"] === "string";
+        if (!isset($schema["type"])) {
+            return false;
+        }
+        return $schema["type"] === "bool"
+            || $schema["type"] === "boolean";
+        ;
     }
 
     public function typeAnnotation(): string
     {
-        return "string";
+        return "bool";
     }
 
-    /**
-     * @param string $phpVersion
-     * @return string|null
-     */
     public function typeHint(string $phpVersion)
     {
         if (Semver::satisfies($phpVersion, "<7.0")) {
             return null;
         }
 
-        return "string";
+        return "bool";
     }
 
     public function generateTypeAssertionExpr(string $expr): string
     {
-        return "is_string({$expr})";
+        return "is_bool({$expr})";
+    }
+
+    public function generateInputMappingExpr(string $expr): string
+    {
+        return "(bool)({$expr})";
     }
 
 }

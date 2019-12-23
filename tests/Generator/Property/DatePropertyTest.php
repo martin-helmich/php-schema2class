@@ -1,22 +1,27 @@
 <?php
+declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 class DatePropertyTest extends TestCase
 {
 
-    /**
-     * @var DateProperty
-     */
-    private $underTest;
+    private DateProperty $property;
 
-    /** @var GeneratorRequest|\Prophecy\Prophecy\ObjectProphecy */
-    private $generatorRequest;
+    private GeneratorRequest $generatorRequest;
+
+    protected function setUp(): void
+    {
+        $this->generatorRequest = new GeneratorRequest([], new ValidatedSpecificationFilesItem("", "Foo", ""), new SpecificationOptions());
+        $this->property = new DateProperty('myPropertyName', ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest);
+    }
 
     public function testCanHandleSchema()
     {
@@ -26,21 +31,15 @@ class DatePropertyTest extends TestCase
         assertFalse(DateProperty::canHandleSchema(['type' => 'string', 'format' => 'foo']));
 
     }
-    protected function setUp()
-    {
-        $this->generatorRequest = $this->prophesize(GeneratorRequest::class);
-        $key = 'myPropertyName';
-        $this->underTest = new DateProperty($key, ['type' => 'string', 'format' => 'date-time'], $this->generatorRequest->reveal());
-    }
 
     public function testIsComplex()
     {
-        assertTrue($this->underTest->isComplex());
+        assertTrue($this->property->isComplex());
     }
 
     public function testConvertJsonToType()
     {
-        $result = $this->underTest->convertJSONToType('variable');
+        $result = $this->property->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
 $myPropertyName = new \DateTime($variable['myPropertyName']);
@@ -51,10 +50,10 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
-        $result = $this->underTest->convertTypeToJSON('variable');
+        $result = $this->property->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-$variable['myPropertyName'] = $this->myPropertyName->format(\DateTime::ATOM);
+$variable['myPropertyName'] = ($this->myPropertyName)->format(\DateTime::ATOM);
 EOCODE;
 
         assertSame($expected, $result);
@@ -65,21 +64,21 @@ EOCODE;
         $expected = <<<'EOCODE'
 $this->myPropertyName = clone $this->myPropertyName;
 EOCODE;
-        assertSame($expected, $this->underTest->cloneProperty());
+        assertSame($expected, $this->property->cloneProperty());
     }
 
     public function testGetAnnotationAndHintWithSimpleArray()
     {
-        assertSame('\\DateTime', $this->underTest->typeAnnotation());
-        assertSame('\\DateTime', $this->underTest->typeHint(7));
-        assertSame('\\DateTime', $this->underTest->typeHint(5));
+        assertSame('\\DateTime', $this->property->typeAnnotation());
+        assertSame('\\DateTime', $this->property->typeHint("7.2.0"));
+        assertSame('\\DateTime', $this->property->typeHint("5.6.0"));
     }
 
     public function testGenerateSubTypesWithSimpleArray()
     {
         $schemaToClass = $this->prophesize(SchemaToClass::class);
 
-        $this->underTest->generateSubTypes($schemaToClass->reveal());
+        $this->property->generateSubTypes($schemaToClass->reveal());
 
         $schemaToClass->schemaToClass(Argument::any(), Argument::any(), Argument::any())->shouldNotHaveBeenCalled();
     }
