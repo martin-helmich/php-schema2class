@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "^7.4",
-        "symfony/console": "~3.0|~4.0",
+        "symfony/console": "^5.0.2",
         "symfony/yaml": "~3.0|~4.0",
         "zendframework/zend-code": "~3.4.1",
         "justinrainbow/json-schema": "^5.2",
