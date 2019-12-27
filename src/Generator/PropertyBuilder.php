@@ -42,6 +42,8 @@ class PropertyBuilder
      */
     public static function buildPropertyFromSchema(GeneratorRequest $req, string $name, array $definition, bool $isRequired): PropertyInterface
     {
+        static::testInvariants($definition);
+
         foreach (static::$propertyTypes as $propertyType) {
             if ($propertyType::canHandleSchema($definition)) {
                 /** @var PropertyInterface $property */
@@ -56,5 +58,12 @@ class PropertyBuilder
         }
 
         throw new GeneratorException("cannot map type " . json_encode($definition));
+    }
+
+    private static function testInvariants(array $definition)
+    {
+        if (isset($definition["properties"]) && isset($definition["additionalProperties"])) {
+            throw new GeneratorException("using 'properties' and 'additionalProperties in the same schema is currently not supported.");
+        }
     }
 }

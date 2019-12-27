@@ -28,12 +28,23 @@ class ObjectArrayProperty extends AbstractProperty
 
     public static function canHandleSchema(array $schema): bool
     {
+        $itemSchema = null;
+        $isAssociativeArray = isset($schema["additionalProperties"]);
         $isArray = isset($schema["type"]) && $schema["type"] === "array";
-        if (!$isArray) {
+
+        if ($isAssociativeArray) {
+            $itemSchema = $schema["additionalProperties"];
+        }
+
+        if ($isArray) {
+            $itemSchema = $schema["items"];
+        }
+
+        if (!$isArray && !$isAssociativeArray) {
             return false;
         }
 
-        return (isset($schema["items"]["type"]) && $schema["items"]["type"] === "object") || isset($schema["items"]["properties"]);
+        return (isset($itemSchema["type"]) && $itemSchema["type"] === "object") || isset($itemSchema["properties"]);
     }
 
     public function isComplex(): bool

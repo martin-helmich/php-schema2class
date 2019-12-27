@@ -43,7 +43,7 @@ class NamespaceInferrer
             }
         }
 
-        throw new GeneratorException("could not automatically infer namespace from composer.json (hind: use PSR-4 autoloading)");
+        throw new GeneratorException("could not automatically infer namespace from composer.json (hint: use PSR-4 autoloading)");
     }
 
     /**
