@@ -195,7 +195,7 @@ class SpecificationFilesItem
         $input = $input2['input'];
         $className = $input2['className'];
         $targetDirectory = $input2['targetDirectory'];
-        $targetNamespace = NULL;
+        $targetNamespace = null;
         if (isset($input2['targetNamespace'])) {
             $targetNamespace = $input2['targetNamespace'];
         }

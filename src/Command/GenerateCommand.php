@@ -69,7 +69,7 @@ class GenerateCommand extends Command
         $targetNamespace = $input->getOption("target-namespace");
         /** @var string $class */
         $class = $input->getOption("class");
-        /** @var string $targetPHPVersion */
+        /** @var string|null $targetPHPVersion */
         $targetPHPVersion = $input->getOption("target-php");
 
         $output->writeln("loading schema from <comment>$schemaFile</comment>");
