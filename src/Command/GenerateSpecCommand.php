@@ -76,8 +76,9 @@ class GenerateSpecCommand extends Command
         }
 
         $opts = $specification->getOptions() ?? new SpecificationOptions();
-        if (!$opts->getTargetPHPVersion()) {
-            $opts = $opts->withTargetPHPVersion($specification->getTargetPHPVersion());
+        $targetPHPVersionFromSpec = $specification->getTargetPHPVersion();
+        if ($targetPHPVersionFromSpec !== null) {
+            $opts = $opts->withTargetPHPVersion($targetPHPVersionFromSpec);
         }
 
         $targetPHPVersion = $opts->getTargetPHPVersion();

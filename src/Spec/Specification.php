@@ -30,7 +30,6 @@ class Specification
                         'type' => 'string',
                     ],
                 ],
-                'default' => '7.4.0',
             ],
             'files' => [
                 'type' => 'array',
@@ -83,9 +82,9 @@ class Specification
     ];
 
     /**
-     * @var int|string
+     * @var int|string|null
      */
-    private $targetPHPVersion = '7.4.0';
+    private $targetPHPVersion = null;
 
     /**
      * @var SpecificationFilesItem[]
@@ -106,7 +105,7 @@ class Specification
     }
 
     /**
-     * @return int|string
+     * @return int|string|null
      */
     public function getTargetPHPVersion()
     {
@@ -198,7 +197,7 @@ class Specification
     {
         static::validateInput($input);
 
-        $targetPHPVersion = '7.4.0';
+        $targetPHPVersion = null;
         if (isset($input['targetPHPVersion'])) {
             if ((is_int($input['targetPHPVersion']))) {
                 $targetPHPVersion = (int)($input['targetPHPVersion']);
@@ -207,7 +206,7 @@ class Specification
             }
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
-        $options = NULL;
+        $options = null;
         if (isset($input['options'])) {
             $options = SpecificationOptions::buildFromInput($input['options']);
         }
