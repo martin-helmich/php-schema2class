@@ -16,7 +16,7 @@
         "zendframework/zend-code": "~3.4.1",
         "justinrainbow/json-schema": "^5.2",
         "ext-json": "*",
-        "composer/semver": "^1.5"
+        "composer/semver": "^2.0"
     },
     "autoload": {
         "psr-4": {
