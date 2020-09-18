@@ -6,7 +6,7 @@ Build PHP classes from [JSON schemas][jsonschema] automatically.
 
 Consider a simple JSON schema (ironically stored in YAML format), stored in a file `example.yaml`:
 
-```
+```yaml
 required:
   - givenName
   - familyName
@@ -30,21 +30,27 @@ properties:
 Using this converter, you can automatically generate PHP classes from this schema
 with accessor and conversion functions:
 
-    $ vendor/bin/s2c generate:fromschema --class User ./example.yaml src/Target
+```bash
+$ vendor/bin/s2c generate:fromschema --class User ./example.yaml src/Target
+```
 
 This command will automatically try to infer a PHP target namespace from your `composer.json` file and automatically create the appropriate PHP classes:
 
-    $ find src/Target
-    src/Target
-    src/Target/User.php
-    src/Target/UserLocation.php
+```bash
+$ find src/Target
+src/Target
+src/Target/User.php
+src/Target/UserLocation.php
+```
 
 Then, use the classes in your code:
 
-    $userData = json_decode("user.json", true);
-    $user = \MyNamespace\Target\User::buildFromInput($userData);
+```php
+$userData = json_decode("user.json", true);
+$user = \MyNamespace\Target\User::buildFromInput($userData);
 
-    echo "Hello, " . $user->getGivenName() . "\n";
+echo "Hello, " . $user->getGivenName() . "\n";
+```
 
 ## Compatibility
 
@@ -164,13 +170,15 @@ class UserLocation
 
 Install using Composer:
 
-    $ composer require --dev helmich/schema2class
+```bash
+$ composer require --dev helmich/schema2class
+```
 
 ## Using configuration files
 
 In many projects, you're going to want to keep an evolving JSON schema in sync with the generated PHP classes continuously. For this reason, S2C allows you to create a configuration file `.s2c.yaml` that stores the most common conversion options:
 
-```
+```yaml
 targetPHPVersion: "7.4"
 files:
 - input: src/Spec/Spec.yaml
@@ -180,8 +188,10 @@ files:
 
 You can store your local configuration in this yaml file and start the generation process by calling
 
-    s2c generate:fromspec
-    
+```bash
+s2c generate:fromspec
+```
+
 This will scan for `.s2c.yaml` in the current directory and use it's parameters. If you need to have different files for multiple schemas, you can provide a config file as a parameter.
 
 [jsonschema]: http://json-schema.org/
