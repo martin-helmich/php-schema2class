@@ -6,13 +6,12 @@ namespace Ns;
 
 class Foo
 {
-
     /**
      * Schema used to validate input for creating instances of this class
      *
      * @var array
      */
-    private static $schema = [
+    private static array $schema = [
         'type' => 'object',
         'properties' => [
             'name' => [
@@ -30,12 +29,12 @@ class Foo
     /**
      * @var string|null
      */
-    private $name = null;
+    private ?string $name = null;
 
     /**
      * @var mixed[]|null
      */
-    private $params = null;
+    private ?array $params = null;
 
     /**
      *
@@ -188,7 +187,5 @@ class Foo
     public function __clone()
     {
     }
-
-
 }
 

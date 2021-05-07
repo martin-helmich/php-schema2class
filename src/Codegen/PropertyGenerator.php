@@ -1,11 +1,10 @@
 <?php
 namespace Helmich\Schema2Class\Codegen;
 
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\Exception;
-use Zend\Code\Generator\PropertyGenerator as ZendPropertyGenerator;
-use Zend\Code\Generator\PropertyValueGenerator;
-use Zend\Code\Reflection\PropertyReflection;
+use Laminas\Code\Generator\Exception;
+use Laminas\Code\Generator\PropertyGenerator as ZendPropertyGenerator;
+use Laminas\Code\Generator\PropertyValueGenerator;
+use Laminas\Code\Reflection\PropertyReflection;
 use function sprintf;
 use function str_replace;
 use function strtolower;
@@ -23,12 +22,12 @@ class PropertyGenerator extends ZendPropertyGenerator
     /**
      * @var bool
      */
-    protected $isConst = false;
+    protected bool $isConst = false;
 
     /**
      * @var PropertyValueGenerator|null
      */
-    protected $defaultValue = null;
+    protected ?PropertyValueGenerator $defaultValue = null;
 
     /**
      * @var bool

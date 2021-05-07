@@ -6,13 +6,12 @@ namespace Ns;
 
 class Foo
 {
-
     /**
      * Schema used to validate input for creating instances of this class
      *
      * @var array
      */
-    private static $schema = [
+    private static array $schema = [
         'properties' => [
             'foo' => [
                 'type' => 'string',
@@ -23,7 +22,7 @@ class Foo
     /**
      * @var string|null
      */
-    private $foo = null;
+    private ?string $foo = null;
 
     /**
      *
@@ -131,6 +130,5 @@ class Foo
     public function __clone()
     {
     }
-
-
 }
+

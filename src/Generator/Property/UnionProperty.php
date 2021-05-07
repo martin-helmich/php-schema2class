@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Generator\GeneratorContext;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\PropertyBuilder;
@@ -152,7 +151,7 @@ class UnionProperty extends AbstractProperty
         return join("|", $types);
     }
 
-    public function typeHint(string $phpVersion)
+    public function typeHint(string $phpVersion): ?string
     {
         return null;
     }

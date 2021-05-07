@@ -42,7 +42,7 @@ abstract class AbstractProperty implements PropertyInterface
     /**
      * @return string|null
      */
-    public function cloneProperty()
+    public function cloneProperty(): ?string
     {
         $key = $this->key;
         $expr = "\$this->{$key}";

@@ -59,7 +59,7 @@ class SchemaToClassTest extends TestCase
         $req = new GeneratorRequest(
             $schema,
             new ValidatedSpecificationFilesItem("Ns", "Foo", __DIR__),
-            (new SpecificationOptions())->withTargetPHPVersion("7.2"),
+            (new SpecificationOptions())->withTargetPHPVersion("7.4"),
         );
 
         $output = new NullOutput();
