@@ -241,11 +241,11 @@ class Generator
         }
 
         $key = $property->key();
-        $capitalizedName = $this->capitalize($key);
+        $camelCasedName = $this->convertToCamelCase($key);
         $annotatedType = $property->typeAnnotation();
 
         $getMethod = new MethodGenerator(
-            'get' . $capitalizedName,
+            'get' . $camelCasedName,
             [],
             MethodGenerator::FLAG_PUBLIC,
             "return \$this->$key;",
@@ -288,7 +288,7 @@ class Generator
     public function generateSetterMethod(PropertyInterface $property): MethodGenerator
     {
         $key = $property->key();
-        $capitalizedName = $this->capitalize($key);
+        $camelCaseName = $this->convertToCamelCase($key);
 
         $requiredProperty = ($property instanceof OptionalPropertyDecorator) ? $property->unwrap() : $property;
 
@@ -308,7 +308,7 @@ if (!\$validator->isValid()) {
         }
 
         $setMethod = new MethodGenerator(
-            'with' . $capitalizedName,
+            'with' . $camelCaseName,
             [new ParameterGenerator($key, $typeHint)],
             MethodGenerator::FLAG_PUBLIC,
             $setterValidation . "\$clone = clone \$this;
@@ -335,10 +335,10 @@ return \$clone;",
     public function generateUnsetterMethod(PropertyInterface $property): MethodGenerator
     {
         $key = $property->key();
-        $capitalizedName = $this->capitalize($key);
+        $camelCasedName = $this->convertToCamelCase($key);
 
         $unsetMethod = new MethodGenerator(
-            'without' . $capitalizedName,
+            'without' . $camelCasedName,
             [],
             MethodGenerator::FLAG_PUBLIC,
             "\$clone = clone \$this;
@@ -366,13 +366,14 @@ return \$clone;",
         $requiredProperties = $properties->filterRequired();
 
         foreach ($requiredProperties as $requiredProperty) {
+            $paramName = $this->convertToLowerCamelCase($requiredProperty->key());
             $params[] = new ParameterGenerator(
-                $requiredProperty->key(),
+                $paramName,
                 $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion())
             );
 
             $tags[] = new ParamTag(
-                $requiredProperty->key(),
+                $paramName,
                 [$requiredProperty->typeAnnotation()]
             );
 

@@ -8,11 +8,26 @@ trait CodeFormatting
     {
         $indent = str_repeat("    ", $by);
         $lines = explode("\n", $code);
-        $lines = array_map(function($l) use ($indent) {
-            return $indent . $l;
-        }, $lines);
+        $lines = array_map(fn($l) => $indent . $l, $lines);
 
         return join("\n", $lines);
+    }
+
+    protected function convertToCamelCase(string $str): string
+    {
+        $parts = explode("_", $str);
+        $parts = array_map(fn($p) => $this->capitalize($p), $parts);
+
+        return join("", $parts);
+    }
+
+    protected function convertToLowerCamelCase(string $str): string
+    {
+        $parts = explode("_", $str);
+        $first = array_shift($parts);
+        $parts = array_map(fn($p) => $this->capitalize($p), $parts);
+
+        return $first . join("", $parts);
     }
 
     protected function capitalize(string $str): string
