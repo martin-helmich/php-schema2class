@@ -9,6 +9,10 @@ namespace Helmich\Schema2Class\Codegen;
  */
 class DocBlockGenerator extends \Laminas\Code\Generator\DocBlockGenerator
 {
+    /**
+     * @psalm-suppress InvalidNullableReturnType
+     * @psalm-suppress NullableReturnStatement
+     */
     public function getLongDescription(): ?string
     {
         return $this->longDescription ? $this->longDescription : null;

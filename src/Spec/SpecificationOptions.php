@@ -6,7 +6,6 @@ namespace Helmich\Schema2Class\Spec;
 
 class SpecificationOptions
 {
-
     /**
      * Schema used to validate input for creating instances of this class
      *
@@ -145,7 +144,7 @@ class SpecificationOptions
             }
         }
 
-        $obj = new static();
+        $obj = new self();
         $obj->disableStrictTypes = $disableStrictTypes;
         $obj->targetPHPVersion = $targetPHPVersion;
         return $obj;
@@ -200,7 +199,5 @@ class SpecificationOptions
             $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
         }
     }
-
-
 }
 

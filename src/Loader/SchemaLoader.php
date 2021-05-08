@@ -23,6 +23,11 @@ class SchemaLoader
         }
 
         $pathParts = pathinfo($filename);
+
+        if (!isset($pathParts["extension"])) {
+            throw new LoadingException($filename, "could not determine file extension");
+        }
+
         switch ($pathParts['extension']) {
             case 'yml':
             case 'yaml':

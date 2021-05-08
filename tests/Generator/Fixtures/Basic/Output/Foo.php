@@ -84,7 +84,7 @@ class Foo
             $foo = $input['foo'];
         }
 
-        $obj = new static();
+        $obj = new self();
         $obj->foo = $foo;
         return $obj;
     }

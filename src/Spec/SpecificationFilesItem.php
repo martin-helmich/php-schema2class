@@ -6,7 +6,6 @@ namespace Helmich\Schema2Class\Spec;
 
 class SpecificationFilesItem
 {
-
     /**
      * Schema used to validate input for creating instances of this class
      *
@@ -200,7 +199,7 @@ class SpecificationFilesItem
             $targetNamespace = $input2['targetNamespace'];
         }
 
-        $obj = new static($input, $className, $targetDirectory);
+        $obj = new self($input, $className, $targetDirectory);
         $obj->targetNamespace = $targetNamespace;
         return $obj;
     }
@@ -249,7 +248,5 @@ class SpecificationFilesItem
     public function __clone()
     {
     }
-
-
 }
 

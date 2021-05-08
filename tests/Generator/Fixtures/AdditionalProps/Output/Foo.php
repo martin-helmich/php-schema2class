@@ -137,7 +137,7 @@ class Foo
             $params = $input['params'];
         }
 
-        $obj = new static();
+        $obj = new self();
         $obj->name = $name;
         $obj->params = $params;
         return $obj;

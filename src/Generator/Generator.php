@@ -106,7 +106,7 @@ class Generator
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             "static::validateInput(\$$inputVarName);\n\n" .
             $properties->generateJSONToTypeConversionCode($inputVarName) . "\n\n" .
-            '$obj = new static(' . join(", ", $constructorParams) . ');' . "\n" .
+            '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
             join("\n", $assignments) . "\n" .
             'return $obj;',
             new DocBlockGenerator(

@@ -24,7 +24,7 @@ class DateProperty extends AbstractProperty
         return "\\DateTime";
     }
 
-    public function typeHint(string $phpVersion): string
+    public function typeHint(string $phpVersion): ?string
     {
         return "\\DateTime";
     }
