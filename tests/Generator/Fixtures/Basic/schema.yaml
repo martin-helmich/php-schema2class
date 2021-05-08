@@ -1,3 +1,5 @@
 properties:
   foo:
     type: string
+  foo_bar:
+    type: string
