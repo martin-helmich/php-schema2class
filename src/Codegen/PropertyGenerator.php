@@ -1,6 +1,7 @@
 <?php
 namespace Helmich\Schema2Class\Codegen;
 
+use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\Exception;
 use Laminas\Code\Generator\PropertyGenerator as ZendPropertyGenerator;
 use Laminas\Code\Generator\PropertyValueGenerator;

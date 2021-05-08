@@ -3,10 +3,10 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
-use Helmich\Schema2Class\Codegen\DocBlockGenerator;
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Writer\WriterInterface;
+use Laminas\Code\Generator\DocBlockGenerator;
 use Symfony\Component\Console\Output\OutputInterface;
 use Laminas\Code\DeclareStatement;
 use Laminas\Code\Generator\ClassGenerator;

@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
-use Helmich\Schema2Class\Codegen\DocBlockGenerator;
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
@@ -13,6 +12,7 @@ use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlock\Tag\ParamTag;
 use Laminas\Code\Generator\DocBlock\Tag\ReturnTag;
 use Laminas\Code\Generator\DocBlock\Tag\ThrowsTag;
+use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
 
