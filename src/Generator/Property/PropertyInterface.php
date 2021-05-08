@@ -55,7 +55,7 @@ interface PropertyInterface
      * @param string $phpVersion
      * @return string|null
      */
-    public function typeHint(string $phpVersion);
+    public function typeHint(string $phpVersion): ?string;
 
     /**
      * @param string $expr
@@ -90,6 +90,6 @@ interface PropertyInterface
     /**
      * @return string|null
      */
-    public function cloneProperty();
+    public function cloneProperty(): ?string;
 
 }

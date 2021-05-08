@@ -8,13 +8,13 @@ use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
-use Zend\Code\Generator\DocBlock\Tag\GenericTag;
-use Zend\Code\Generator\DocBlock\Tag\ParamTag;
-use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
-use Zend\Code\Generator\DocBlock\Tag\ThrowsTag;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
+use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
+use Laminas\Code\Generator\DocBlock\Tag\ParamTag;
+use Laminas\Code\Generator\DocBlock\Tag\ReturnTag;
+use Laminas\Code\Generator\DocBlock\Tag\ThrowsTag;
+use Laminas\Code\Generator\DocBlockGenerator;
+use Laminas\Code\Generator\MethodGenerator;
+use Laminas\Code\Generator\ParameterGenerator;
 
 class Generator
 {
@@ -106,7 +106,7 @@ class Generator
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             "static::validateInput(\$$inputVarName);\n\n" .
             $properties->generateJSONToTypeConversionCode($inputVarName) . "\n\n" .
-            '$obj = new static(' . join(", ", $constructorParams) . ');' . "\n" .
+            '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
             join("\n", $assignments) . "\n" .
             'return $obj;',
             new DocBlockGenerator(

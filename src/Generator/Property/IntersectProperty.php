@@ -40,7 +40,7 @@ class IntersectProperty extends AbstractProperty
         return $this->subTypeName();
     }
 
-    public function typeHint(string $phpVersion): string
+    public function typeHint(string $phpVersion): ?string
     {
         return "\\" . $this->generatorRequest->getTargetNamespace() . "\\" . $this->subTypeName();
     }

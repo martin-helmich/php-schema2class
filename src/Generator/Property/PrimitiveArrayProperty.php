@@ -57,7 +57,7 @@ class PrimitiveArrayProperty extends AbstractProperty
         return "array";
     }
 
-    public function typeHint(string $phpVersion): string
+    public function typeHint(string $phpVersion): ?string
     {
         return "array";
     }

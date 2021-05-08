@@ -1,11 +1,11 @@
 <?php
 namespace Helmich\Schema2Class\Codegen;
 
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\Exception;
-use Zend\Code\Generator\PropertyGenerator as ZendPropertyGenerator;
-use Zend\Code\Generator\PropertyValueGenerator;
-use Zend\Code\Reflection\PropertyReflection;
+use Laminas\Code\Generator\DocBlockGenerator;
+use Laminas\Code\Generator\Exception;
+use Laminas\Code\Generator\PropertyGenerator as ZendPropertyGenerator;
+use Laminas\Code\Generator\PropertyValueGenerator;
+use Laminas\Code\Reflection\PropertyReflection;
 use function sprintf;
 use function str_replace;
 use function strtolower;
@@ -23,12 +23,12 @@ class PropertyGenerator extends ZendPropertyGenerator
     /**
      * @var bool
      */
-    protected $isConst = false;
+    protected bool $isConst = false;
 
     /**
      * @var PropertyValueGenerator|null
      */
-    protected $defaultValue = null;
+    protected ?PropertyValueGenerator $defaultValue = null;
 
     /**
      * @var bool
@@ -42,9 +42,10 @@ class PropertyGenerator extends ZendPropertyGenerator
 
     /**
      * @param  PropertyReflection $reflectionProperty
-     * @return PropertyGenerator
+     * @psalm-suppress LessSpecificImplementedReturnType
+     * @return \Laminas\Code\Generator\PropertyGenerator
      */
-    public static function fromReflection(PropertyReflection $reflectionProperty)
+    public static function fromReflection(PropertyReflection $reflectionProperty): ZendPropertyGenerator
     {
         /** @var PropertyGenerator $property */
         $property = ZendPropertyGenerator::fromReflection($reflectionProperty);
@@ -71,9 +72,10 @@ class PropertyGenerator extends ZendPropertyGenerator
      *
      * @throws Exception\InvalidArgumentException
      * @param  array $array
-     * @return PropertyGenerator
+     * @psalm-suppress LessSpecificImplementedReturnType
+     * @return \Laminas\Code\Generator\PropertyGenerator
      */
-    public static function fromArray(array $array)
+    public static function fromArray(array $array): ZendPropertyGenerator
     {
         if (! isset($array['name'])) {
             throw new Exception\InvalidArgumentException(
@@ -81,7 +83,7 @@ class PropertyGenerator extends ZendPropertyGenerator
             );
         }
 
-        $property = new static($array['name']);
+        $property = new self($array['name']);
         foreach ($array as $name => $value) {
             // normalize key
             switch (strtolower(str_replace(['.', '-', '_'], '', $name))) {
@@ -166,13 +168,14 @@ class PropertyGenerator extends ZendPropertyGenerator
      * @param string                       $defaultValueType
      * @param string                       $defaultValueOutputMode
      *
-     * @return PropertyGenerator
+     * @psalm-suppress LessSpecificImplementedReturnType
+     * @return \Laminas\Code\Generator\PropertyGenerator
      */
     public function setDefaultValue(
         $defaultValue,
         $defaultValueType = PropertyValueGenerator::TYPE_AUTO,
         $defaultValueOutputMode = PropertyValueGenerator::OUTPUT_MULTIPLE_LINE
-    ) {
+    ): ZendPropertyGenerator {
         if (! $defaultValue instanceof PropertyValueGenerator) {
             $defaultValue = new PropertyValueGenerator($defaultValue, $defaultValueType, $defaultValueOutputMode);
         }
