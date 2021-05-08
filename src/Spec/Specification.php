@@ -6,7 +6,6 @@ namespace Helmich\Schema2Class\Spec;
 
 class Specification
 {
-
     /**
      * Schema used to validate input for creating instances of this class
      *
@@ -211,7 +210,7 @@ class Specification
             $options = SpecificationOptions::buildFromInput($input['options']);
         }
 
-        $obj = new static($files);
+        $obj = new self($files);
         $obj->targetPHPVersion = $targetPHPVersion;
         $obj->options = $options;
         return $obj;
@@ -271,7 +270,5 @@ class Specification
             $this->options = clone $this->options;
         }
     }
-
-
 }
 

@@ -25,7 +25,7 @@ class IntegerProperty extends AbstractProperty
         return "int";
     }
 
-    public function typeHint(string $phpVersion)
+    public function typeHint(string $phpVersion): ?string
     {
         if (Semver::satisfies($phpVersion, "<7.0")) {
             return null;

@@ -6,12 +6,12 @@ namespace Helmich\Schema2Class\Generator;
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Writer\WriterInterface;
+use Laminas\Code\Generator\DocBlockGenerator;
 use Symfony\Component\Console\Output\OutputInterface;
-use Zend\Code\DeclareStatement;
-use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\DocBlock\Tag\GenericTag;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\FileGenerator;
+use Laminas\Code\DeclareStatement;
+use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
+use Laminas\Code\Generator\FileGenerator;
 
 class SchemaToClass
 {

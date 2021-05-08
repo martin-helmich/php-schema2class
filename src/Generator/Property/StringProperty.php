@@ -22,7 +22,7 @@ class StringProperty extends AbstractProperty
      * @param string $phpVersion
      * @return string|null
      */
-    public function typeHint(string $phpVersion)
+    public function typeHint(string $phpVersion): ?string
     {
         if (Semver::satisfies($phpVersion, "<7.0")) {
             return null;

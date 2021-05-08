@@ -96,7 +96,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      * @param $phpVersion
      * @return string|null
      */
-    public function typeHint(string $phpVersion)
+    public function typeHint(string $phpVersion): ?string
     {
         $inner = $this->inner->typeHint($phpVersion);
 
@@ -118,7 +118,7 @@ class OptionalPropertyDecorator implements PropertyInterface
     /**
      * @return string|null
      */
-    public function cloneProperty()
+    public function cloneProperty(): ?string
     {
         $key = $this->key();
         $inner = $this->inner->cloneProperty();

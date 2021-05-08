@@ -54,7 +54,7 @@ echo "Hello, " . $user->getGivenName() . "\n";
 
 ## Compatibility
 
-This tool requires PHP 7.4 to run.
+This tool requires PHP 7.4 or newer to run.
 
 The generated code can be backwards-compatible up until PHP 5.6. Use the `--target-php` flag to set the desired PHP version that the generated code should be compatible with. When [using a configuration file](#using-configuration-files), use the `targetPHPVersion` property. 
 

@@ -78,7 +78,7 @@ class ObjectArrayProperty extends AbstractProperty
         return $this->subTypeName() . "[]";
     }
 
-    public function typeHint(string $phpVersion): string
+    public function typeHint(string $phpVersion): ?string
     {
         return "array";
     }
