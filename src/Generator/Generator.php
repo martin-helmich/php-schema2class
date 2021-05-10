@@ -160,12 +160,12 @@ class Generator
         $method = new MethodGenerator(
             'validateInput',
             [
-                new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("7.0") ? "array" : null),
+                new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("8.0") ? "array|object" : null),
                 new ParameterGenerator("return", $this->generatorRequest->isAtLeastPHP("7.0") ? "bool" : null, false),
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
-            '$asObject = $validator::arrayToObjectRecursive($input);' . "\n" .
+            '$asObject = is_array($input) ? $validator::arrayToObjectRecursive($input) : $input;' . "\n" .
             '$validator->validate($asObject, static::$schema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
             ($this->generatorRequest->isAtLeastPHP("7.0") ?
@@ -178,7 +178,7 @@ class Generator
             'return $validator->isValid();',
             new DocBlockGenerator(
                 "Validates an input array", null, [
-                    new ParamTag("input", ["array"], "Input data"),
+                    new ParamTag("input", ["array|object"], "Input data"),
                     new ParamTag("return", ["bool"], "Return instead of throwing errors"),
                     new ReturnTag(["bool"], "Validation result"),
                     new ThrowsTag("\\InvalidArgumentException"),
