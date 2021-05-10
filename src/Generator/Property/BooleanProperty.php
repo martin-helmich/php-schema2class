@@ -37,8 +37,12 @@ class BooleanProperty extends AbstractProperty
         return "is_bool({$expr})";
     }
 
-    public function generateInputMappingExpr(string $expr): string
+    public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
+        if ($asserted) {
+            return $expr;
+        }
+
         return "(bool)({$expr})";
     }
 

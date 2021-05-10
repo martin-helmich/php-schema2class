@@ -39,8 +39,12 @@ class IntegerProperty extends AbstractProperty
         return "is_int({$expr})";
     }
 
-    public function generateInputMappingExpr(string $expr): string
+    public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
+        if ($asserted) {
+            return $expr;
+        }
+
         return "(int)({$expr})";
     }
 

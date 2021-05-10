@@ -71,9 +71,10 @@ interface PropertyInterface
 
     /**
      * @param string $expr
+     * @param bool   $asserted
      * @return string
      */
-    public function generateInputMappingExpr(string $expr): string;
+    public function generateInputMappingExpr(string $expr, bool $asserted = false): string;
 
     /**
      * @param string $expr

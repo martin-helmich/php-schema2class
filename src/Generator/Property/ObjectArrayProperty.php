@@ -95,9 +95,8 @@ class ObjectArrayProperty extends AbstractProperty
         return "is_array({$expr}) && count(array_filter({$expr}, function({$st} \$item) {return {$st}::validateInput(\$item, true)};})) === count({$expr})";
     }
 
-    public function generateInputMappingExpr(string $expr): string
+    public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
-        $st = $this->subTypeName();
         $sm = $this->itemType->generateInputMappingExpr('$i');
         return "array_map(function(\$i) { return {$sm}; }, {$expr})";
     }
