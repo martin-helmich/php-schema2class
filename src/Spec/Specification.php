@@ -198,11 +198,7 @@ class Specification
 
         $targetPHPVersion = null;
         if (isset($input['targetPHPVersion'])) {
-            if ((is_int($input['targetPHPVersion']))) {
-                $targetPHPVersion = (int)($input['targetPHPVersion']);
-            } else {
-                $targetPHPVersion = $input['targetPHPVersion'];
-            }
+            $targetPHPVersion = $input['targetPHPVersion'];
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
         $options = null;

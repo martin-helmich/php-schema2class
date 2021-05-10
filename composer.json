@@ -36,7 +36,7 @@
     ],
     "require-dev": {
         "phpunit/phpunit": "^8.0",
-        "vimeo/psalm": "^3.7"
+        "vimeo/psalm": "^4.7"
     },
     "archive": {
         "exclude": [

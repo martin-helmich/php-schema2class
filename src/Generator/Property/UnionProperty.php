@@ -50,7 +50,7 @@ class UnionProperty extends AbstractProperty
         $conversions = ["\$$key = \${$inputVarName}[{$keyStr}];" => ["discriminators" => [], "fallback" => true]];
 
         foreach ($this->subProperties as $i => $subProp) {
-            $mapping       = $subProp->generateInputMappingExpr("\${$inputVarName}[{$keyStr}]");
+            $mapping       = $subProp->generateInputMappingExpr("\${$inputVarName}[{$keyStr}]", true);
             $assignment    = "\$$key = {$mapping};";
             $discriminator = $subProp->generateInputAssertionExpr("\${$inputVarName}[{$keyStr}]");
 
@@ -178,7 +178,7 @@ class UnionProperty extends AbstractProperty
         return "(" . join(") || (", $subAssertions) . ")";
     }
 
-    public function generateInputMappingExpr(string $expr): string
+    public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
         $out = "null";
 

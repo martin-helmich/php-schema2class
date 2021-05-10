@@ -137,11 +137,7 @@ class SpecificationOptions
         }
         $targetPHPVersion = '7.4.0';
         if (isset($input['targetPHPVersion'])) {
-            if ((is_int($input['targetPHPVersion']))) {
-                $targetPHPVersion = (int)($input['targetPHPVersion']);
-            } else {
-                $targetPHPVersion = $input['targetPHPVersion'];
-            }
+            $targetPHPVersion = $input['targetPHPVersion'];
         }
 
         $obj = new self();
