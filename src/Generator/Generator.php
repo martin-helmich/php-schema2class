@@ -165,7 +165,8 @@ class Generator
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
-            '$validator->validate($input, static::$schema);' . "\n\n" .
+            '$asObject = $validator::arrayToObjectRecursive($input);' . "\n" .
+            '$validator->validate($asObject, static::$schema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
             ($this->generatorRequest->isAtLeastPHP("7.0") ?
                 '    $errors = array_map(function(array $e): string {' . "\n" :

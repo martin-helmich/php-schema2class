@@ -233,7 +233,8 @@ class SpecificationFilesItem
     public static function validateInput(array $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($input, static::$schema);
+        $asObject = $validator::arrayToObjectRecursive($input);
+        $validator->validate($asObject, static::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {
