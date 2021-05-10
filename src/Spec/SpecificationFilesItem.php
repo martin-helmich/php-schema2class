@@ -225,15 +225,16 @@ class SpecificationFilesItem
     /**
      * Validates an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @param bool $return Return instead of throwing errors
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($input, static::$schema);
+        $asObject = is_array($input) ? $validator::arrayToObjectRecursive($input) : $input;
+        $validator->validate($asObject, static::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {
