@@ -108,6 +108,10 @@ class OptionalPropertyDecorator implements PropertyInterface
             return $inner;
         }
 
+        if (Semver::satisfies($phpVersion, ">=8.0") && str_contains($inner, "|")) {
+            return "{$inner}|null";
+        }
+
         if (Semver::satisfies($phpVersion, ">=7.1.0") && strpos($inner, "?") !== 0) {
             $inner = "?" . $inner;
         }

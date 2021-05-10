@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\PropertyBuilder;
@@ -153,6 +154,26 @@ class UnionProperty extends AbstractProperty
 
     public function typeHint(string $phpVersion): ?string
     {
+        if (Semver::satisfies($phpVersion, ">=8.0")) {
+            $subTypeHints = [];
+
+            foreach ($this->subProperties as $subProp) {
+                $th = $subProp->typeHint($phpVersion);
+                if ($th === null) {
+                    return null;
+                }
+
+                if (strpos($th, "?") === 0) {
+                    $subTypeHints["null"] = true;
+                    $th = substr($th, 1);
+                }
+
+                $subTypeHints[$th] = true;
+            }
+
+            return join("|", array_keys($subTypeHints));
+        }
+
         return null;
     }
 

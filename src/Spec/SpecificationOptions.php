@@ -43,7 +43,7 @@ class SpecificationOptions
     /**
      * @var int|string
      */
-    private $targetPHPVersion = '7.4.0';
+    private int|string $targetPHPVersion = '7.4.0';
 
     /**
      *
@@ -63,7 +63,7 @@ class SpecificationOptions
     /**
      * @return int|string
      */
-    public function getTargetPHPVersion()
+    public function getTargetPHPVersion() : int|string
     {
         return $this->targetPHPVersion;
     }
@@ -101,7 +101,7 @@ class SpecificationOptions
      * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion($targetPHPVersion) : self
+    public function withTargetPHPVersion(int|string $targetPHPVersion) : self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;

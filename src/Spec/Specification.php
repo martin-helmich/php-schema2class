@@ -83,7 +83,7 @@ class Specification
     /**
      * @var int|string|null
      */
-    private $targetPHPVersion = null;
+    private int|string|null $targetPHPVersion = null;
 
     /**
      * @var SpecificationFilesItem[]
@@ -106,7 +106,7 @@ class Specification
     /**
      * @return int|string|null
      */
-    public function getTargetPHPVersion()
+    public function getTargetPHPVersion() : int|string|null
     {
         return $this->targetPHPVersion;
     }
@@ -131,7 +131,7 @@ class Specification
      * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion($targetPHPVersion) : self
+    public function withTargetPHPVersion(int|string $targetPHPVersion) : self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;
