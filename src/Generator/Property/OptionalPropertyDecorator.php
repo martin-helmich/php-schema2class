@@ -43,19 +43,22 @@ class OptionalPropertyDecorator implements PropertyInterface
 
     /**
      * @param string $inputVarName
+     * @param bool   $object
      * @return string
      */
-    public function convertJSONToType(string $inputVarName = 'input'): string
+    public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
         $key = $this->key;
-        $inner = $this->inner->convertJSONToType($inputVarName);
+        $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
         $default = isset($this->schema()["default"]) ? $this->schema()["default"] : null;
         $defaultExp = var_export($default, true);
 
         $defaultExp = $defaultExp === "NULL" ? "null" : $defaultExp;
 
-        return "\$$key = {$defaultExp};\nif (isset(\${$inputVarName}['$key'])) {\n" . $this->indentCode($inner,1) . "\n}";
+        $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
+
+        return "\$$key = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner,1) . "\n}";
     }
 
     /**

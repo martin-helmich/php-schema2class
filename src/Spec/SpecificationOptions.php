@@ -123,21 +123,22 @@ class SpecificationOptions
     /**
      * Builds a new instance from an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @return SpecificationOptions Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : SpecificationOptions
+    public static function buildFromInput($input) : SpecificationOptions
     {
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
 
         $disableStrictTypes = false;
-        if (isset($input['disableStrictTypes'])) {
-            $disableStrictTypes = (bool)($input['disableStrictTypes']);
+        if (isset($input->{'disableStrictTypes'})) {
+            $disableStrictTypes = (bool)($input->{'disableStrictTypes'});
         }
         $targetPHPVersion = '7.4.0';
-        if (isset($input['targetPHPVersion'])) {
-            $targetPHPVersion = $input['targetPHPVersion'];
+        if (isset($input->{'targetPHPVersion'})) {
+            $targetPHPVersion = $input->{'targetPHPVersion'};
         }
 
         $obj = new self();
@@ -177,8 +178,8 @@ class SpecificationOptions
     public static function validateInput($input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
-        $asObject = is_array($input) ? $validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($asObject, static::$schema);
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
+        $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

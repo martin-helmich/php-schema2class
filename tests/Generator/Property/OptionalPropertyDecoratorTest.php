@@ -34,7 +34,7 @@ class OptionalPropertyDecoratorTest extends TestCase
 
     public function testConvertJsonToType()
     {
-        $this->innerProperty->convertJSONToType('variable')->shouldBeCalled()->willReturn('echo "InnerCode";');
+        $this->innerProperty->convertJSONToType('variable', Argument::any())->shouldBeCalled()->willReturn('echo "InnerCode";');
 
         $result = $this->decorator->convertJSONToType('variable');
 
