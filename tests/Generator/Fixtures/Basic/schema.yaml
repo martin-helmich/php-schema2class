@@ -1,3 +1,5 @@
+required:
+  - foo_bar
 properties:
   foo:
     type: string

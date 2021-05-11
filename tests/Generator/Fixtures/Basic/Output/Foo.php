@@ -12,6 +12,9 @@ class Foo
      * @var array
      */
     private static array $schema = [
+        'required' => [
+            'foo_bar',
+        ],
         'properties' => [
             'foo' => [
                 'type' => 'string',
@@ -28,15 +31,16 @@ class Foo
     private ?string $foo = null;
 
     /**
-     * @var string|null
+     * @var string
      */
-    private ?string $foo_bar = null;
+    private string $foo_bar;
 
     /**
-     *
+     * @param string $fooBar
      */
-    public function __construct()
+    public function __construct(string $fooBar)
     {
+        $this->foo_bar = $fooBar;
     }
 
     /**
@@ -48,11 +52,11 @@ class Foo
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getFooBar() : ?string
+    public function getFooBar() : string
     {
-        return isset($this->foo_bar) ? $this->foo_bar : null;
+        return $this->foo_bar;
     }
 
     /**
@@ -103,17 +107,6 @@ class Foo
     }
 
     /**
-     * @return self
-     */
-    public function withoutFooBar() : self
-    {
-        $clone = clone $this;
-        unset($clone->foo_bar);
-
-        return $clone;
-    }
-
-    /**
      * Builds a new instance from an input array
      *
      * @param array|object $input Input data
@@ -129,14 +122,10 @@ class Foo
         if (isset($input->{'foo'})) {
             $foo = $input->{'foo'};
         }
-        $foo_bar = null;
-        if (isset($input->{'foo_bar'})) {
-            $foo_bar = $input->{'foo_bar'};
-        }
+        $foo_bar = $input->{'foo_bar'};
 
-        $obj = new self();
+        $obj = new self($foo_bar);
         $obj->foo = $foo;
-        $obj->foo_bar = $foo_bar;
         return $obj;
     }
 
@@ -151,9 +140,7 @@ class Foo
         if (isset($this->foo)) {
             $output['foo'] = $this->foo;
         }
-        if (isset($this->foo_bar)) {
-            $output['foo_bar'] = $this->foo_bar;
-        }
+        $output['foo_bar'] = $this->foo_bar;
 
         return $output;
     }
