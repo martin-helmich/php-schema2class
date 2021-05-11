@@ -16,14 +16,15 @@ class PropertyCollection implements \Iterator
 
     /**
      * @param string $inputVarName
+     * @param bool   $object
      * @return string
      */
-    public function generateJSONToTypeConversionCode(string $inputVarName = 'input'): string
+    public function generateJSONToTypeConversionCode(string $inputVarName = 'input', bool $object = false): string
     {
         $conv = [];
 
         foreach ($this->properties as $generator) {
-            $conv[] = $generator->convertJSONToType($inputVarName);
+            $conv[] = $generator->convertJSONToType($inputVarName, $object);
         }
 
         return join("\n", $conv);

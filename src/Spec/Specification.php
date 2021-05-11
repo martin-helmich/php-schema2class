@@ -188,22 +188,23 @@ class Specification
     /**
      * Builds a new instance from an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @return Specification Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : Specification
+    public static function buildFromInput($input) : Specification
     {
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
 
         $targetPHPVersion = null;
-        if (isset($input['targetPHPVersion'])) {
-            $targetPHPVersion = $input['targetPHPVersion'];
+        if (isset($input->{'targetPHPVersion'})) {
+            $targetPHPVersion = $input->{'targetPHPVersion'};
         }
-        $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input['files']);
+        $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input->{'files'});
         $options = null;
-        if (isset($input['options'])) {
-            $options = SpecificationOptions::buildFromInput($input['options']);
+        if (isset($input->{'options'})) {
+            $options = SpecificationOptions::buildFromInput($input->{'options'});
         }
 
         $obj = new self($files);
@@ -244,8 +245,8 @@ class Specification
     public static function validateInput($input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
-        $asObject = is_array($input) ? $validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($asObject, static::$schema);
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
+        $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {
