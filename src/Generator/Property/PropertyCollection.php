@@ -2,6 +2,9 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
+/**
+ * @template-implements \Iterator<PropertyInterface>
+ */
 class PropertyCollection implements \Iterator
 {
     /** @var PropertyInterface[] */
@@ -90,22 +93,22 @@ class PropertyCollection implements \Iterator
         return $this->properties[$this->current];
     }
 
-    public function next()
+    public function next(): void
     {
         $this->current ++;
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->current;
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->current < count($this->properties);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->current = 0;
     }

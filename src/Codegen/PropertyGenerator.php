@@ -164,9 +164,9 @@ class PropertyGenerator extends ZendPropertyGenerator
     }
 
     /**
-     * @param PropertyValueGenerator|mixed $defaultValue
-     * @param string                       $defaultValueType
-     * @param string                       $defaultValueOutputMode
+     * @param PropertyValueGenerator|mixed     $defaultValue
+     * @param string                           $defaultValueType
+     * @param PropertyValueGenerator::OUTPUT_* $defaultValueOutputMode
      *
      * @psalm-suppress LessSpecificImplementedReturnType
      * @return \Laminas\Code\Generator\PropertyGenerator
@@ -204,6 +204,7 @@ class PropertyGenerator extends ZendPropertyGenerator
 
     /**
      * @throws Exception\RuntimeException
+     * @psalm-return non-empty-string
      * @return string
      */
     public function generate(): string

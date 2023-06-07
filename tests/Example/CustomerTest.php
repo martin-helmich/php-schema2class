@@ -5,6 +5,10 @@ namespace Example;
 use Helmich\Schema2Class\Example\Customer;
 use Helmich\Schema2Class\Example\CustomerAddress;
 use PHPUnit\Framework\TestCase;
+use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\equalTo;
+use function PHPUnit\Framework\isInstanceOf;
+use function PHPUnit\Framework\isNull;
 
 class CustomerTest extends TestCase
 {

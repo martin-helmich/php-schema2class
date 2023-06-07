@@ -9,9 +9,15 @@ use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertNull;
+use function PHPUnit\Framework\assertSame;
+use function PHPUnit\Framework\assertTrue;
 
 class MixedPropertyTest extends TestCase
 {
+    use ProphecyTrait;
 
     private MixedProperty $underTest;
 

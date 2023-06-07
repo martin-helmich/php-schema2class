@@ -31,7 +31,7 @@ class DateProperty extends AbstractProperty
 
     public function generateTypeAssertionExpr(string $expr): string
     {
-        return "${expr} instanceof \\DateTime";
+        return "{$expr} instanceof \\DateTime";
     }
 
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
