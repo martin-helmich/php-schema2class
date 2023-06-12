@@ -5,10 +5,15 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertNull;
+use function PHPUnit\Framework\assertSame;
 
 class OptionalPropertyDecoratorTest extends TestCase
 {
+    use ProphecyTrait;
 
     private OptionalPropertyDecorator $decorator;
 

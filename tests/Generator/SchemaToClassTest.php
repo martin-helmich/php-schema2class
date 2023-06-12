@@ -9,6 +9,8 @@ use Helmich\Schema2Class\Writer\DebugWriter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Yaml\Yaml;
+use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\equalTo;
 
 class SchemaToClassTest extends TestCase
 {

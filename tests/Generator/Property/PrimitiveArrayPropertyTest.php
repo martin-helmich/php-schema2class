@@ -9,9 +9,17 @@ use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertSame;
+use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\assertTrue;
+use function PHPUnit\Framework\isNull;
 
 class PrimitiveArrayPropertyTest extends TestCase
 {
+    use ProphecyTrait;
+
     private PrimitiveArrayProperty $property;
 
     private GeneratorRequest $generatorRequest;
