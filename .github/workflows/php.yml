@@ -43,7 +43,7 @@ jobs:
       run: ./cmd/s2c --class=Customer generate:fromschema tests/example.yaml src/Example
 
     - name: Run type checker
-      run: ./vendor/bin/psalm
+      run: ./vendor/bin/psalm --php-version=${{ matrix.php-versions }}
 
     - name: Run unit tests
       run: ./vendor/bin/phpunit --testdox
