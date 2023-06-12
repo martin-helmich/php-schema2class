@@ -169,6 +169,7 @@ class PropertyGenerator extends ZendPropertyGenerator
      * @param PropertyValueGenerator::OUTPUT_* $defaultValueOutputMode
      *
      * @psalm-suppress LessSpecificImplementedReturnType
+     * @psalm-suppress MoreSpecificImplementedParamType
      * @return \Laminas\Code\Generator\PropertyGenerator
      */
     public function setDefaultValue(
