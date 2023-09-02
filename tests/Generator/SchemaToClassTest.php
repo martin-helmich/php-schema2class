@@ -64,12 +64,12 @@ class SchemaToClassTest extends TestCase
         );
 
         $req = $req->withReferenceLookup(new class implements ReferenceLookup {
-            public function lookupReference(string $reference): ?string
+            public function lookupReference(string $reference): ReferenceLookupResult
             {
                 if ($reference === "#/properties/address") {
-                    return CustomerAddress::class;
+                    return new ReferenceLookupResult(CustomerAddress::class, ReferenceLookupResultType::TYPE_CLASS);
                 }
-                return null;
+                return new ReferenceLookupResult("mixed", ReferenceLookupResultType::TYPE_UNKNOWN);
             }
         });
 

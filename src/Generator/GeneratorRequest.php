@@ -139,9 +139,9 @@ class GeneratorRequest
         return $this->opts;
     }
 
-    public function lookupReference(string $ref): ?string {
+    public function lookupReference(string $ref): ReferenceLookupResult {
         if ($this->referenceLookup === null) {
-            return null;
+            return new ReferenceLookupResult("mixed", ReferenceLookupResultType::TYPE_UNKNOWN);
         }
 
         return $this->referenceLookup->lookupReference($ref);
