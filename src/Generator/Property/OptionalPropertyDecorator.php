@@ -112,6 +112,10 @@ class OptionalPropertyDecorator implements PropertyInterface
         }
 
         if (Semver::satisfies($phpVersion, ">=7.1.0") && strpos($inner, "?") !== 0) {
+            if ($inner === "mixed" || $inner === "null") {
+                return $inner;
+            }
+
             $inner = "?" . $inner;
         }
 

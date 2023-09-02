@@ -136,7 +136,9 @@ class SchemaToClass
 
         $file = new FileGenerator();
         $file->setBody($enum->generate());
-        $file->setDeclares([DeclareStatement::strictTypes(1)]);
+
+        // No strict typings for enums, because Psalm shits itself in that case.
+        // $file->setDeclares([DeclareStatement::strictTypes(1)]);
 
         $content = $file->generate();
 

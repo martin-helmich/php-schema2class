@@ -65,7 +65,7 @@ class StringEnumProperty extends AbstractProperty
 
     public function generateCloneExpr(string $expr): string
     {
-        return "clone {$expr}";
+        return $expr;
     }
 
     private function subTypeName(): string
