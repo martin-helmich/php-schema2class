@@ -69,4 +69,9 @@ class ReferenceProperty extends AbstractProperty
         }
     }
 
+    public function isComplex(): bool
+    {
+        return true;
+    }
+
 }
