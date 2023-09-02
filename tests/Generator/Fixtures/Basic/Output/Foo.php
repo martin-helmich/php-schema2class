@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns;
+namespace Ns\Basic;
 
 class Foo
 {
