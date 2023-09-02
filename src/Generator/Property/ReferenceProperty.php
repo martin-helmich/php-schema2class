@@ -44,6 +44,16 @@ class ReferenceProperty extends AbstractProperty
         };
     }
 
+    public function generateInputAssertionExpr(string $expr): string
+    {
+        $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
+        return match ($reference->type) {
+            ReferenceLookupResultType::TYPE_CLASS => "\\{$reference->name}::validateInput({$expr}, true)",
+            ReferenceLookupResultType::TYPE_ENUM => "\\{$reference->name}::tryFrom({$expr}) !== null",
+            ReferenceLookupResultType::TYPE_UNKNOWN => "true",
+        };
+    }
+
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
         $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
