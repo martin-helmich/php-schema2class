@@ -21,7 +21,7 @@ class ReferenceProperty extends AbstractProperty
     {
         $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
-            return $reference;
+            return '\\' . $reference;
         } else {
             return 'mixed';
         }
@@ -31,7 +31,7 @@ class ReferenceProperty extends AbstractProperty
     {
         $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
-            return $reference;
+            return '\\' . $reference;
         } else if ($this->generatorRequest->isAtLeastPHP("8.0")) {
             return 'mixed';
         } else {
@@ -43,7 +43,7 @@ class ReferenceProperty extends AbstractProperty
     {
         $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
-            return "({$expr}) instanceof {$reference}";
+            return "({$expr}) instanceof \\{$reference}";
         } else {
             return "is_object({$expr})";
         }
@@ -53,7 +53,7 @@ class ReferenceProperty extends AbstractProperty
     {
         $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
-            return "{$reference}::buildFromInput({$expr})";
+            return "\\{$reference}::buildFromInput({$expr})";
         } else {
             return $expr;
         }
