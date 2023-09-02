@@ -30,9 +30,10 @@ interface PropertyInterface
 
     /**
      * @param string $inputVarName
+     * @param bool   $object
      * @return string
      */
-    public function convertJSONToType(string $inputVarName = 'input'): string;
+    public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string;
 
     /**
      * @param string $outputVarName

@@ -85,8 +85,9 @@ class PropertyGenerator extends ZendPropertyGenerator
 
         $property = new self($array['name']);
         foreach ($array as $name => $value) {
-            // normalize key
-            switch (strtolower(str_replace(['.', '-', '_'], '', $name))) {
+            /** @var string $normalizedKey */
+            $normalizedKey = str_replace(['.', '-', '_'], '', $name);
+            switch (strtolower($normalizedKey)) {
                 case 'const':
                     $property->setConst($value);
                     break;
@@ -164,11 +165,12 @@ class PropertyGenerator extends ZendPropertyGenerator
     }
 
     /**
-     * @param PropertyValueGenerator|mixed $defaultValue
-     * @param string                       $defaultValueType
-     * @param string                       $defaultValueOutputMode
+     * @param PropertyValueGenerator|mixed     $defaultValue
+     * @param string                           $defaultValueType
+     * @param PropertyValueGenerator::OUTPUT_* $defaultValueOutputMode
      *
      * @psalm-suppress LessSpecificImplementedReturnType
+     * @psalm-suppress MoreSpecificImplementedParamType
      * @return \Laminas\Code\Generator\PropertyGenerator
      */
     public function setDefaultValue(
@@ -204,6 +206,7 @@ class PropertyGenerator extends ZendPropertyGenerator
 
     /**
      * @throws Exception\RuntimeException
+     * @psalm-return non-empty-string
      * @return string
      */
     public function generate(): string

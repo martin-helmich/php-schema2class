@@ -10,9 +10,14 @@ use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertSame;
+use function PHPUnit\Framework\assertTrue;
 
 class IntersectPropertyTest extends TestCase
 {
+    use ProphecyTrait;
 
     private IntersectProperty $property;
 

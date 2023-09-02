@@ -183,20 +183,21 @@ class SpecificationFilesItem
     /**
      * Builds a new instance from an input array
      *
-     * @param array $input2 Input data
+     * @param array|object $input2 Input data
      * @return SpecificationFilesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input2) : SpecificationFilesItem
+    public static function buildFromInput($input2) : SpecificationFilesItem
     {
+        $input2 = is_array($input2) ? \JsonSchema\Validator::arrayToObjectRecursive($input2) : $input2;
         static::validateInput($input2);
 
-        $input = $input2['input'];
-        $className = $input2['className'];
-        $targetDirectory = $input2['targetDirectory'];
+        $input = $input2->{'input'};
+        $className = $input2->{'className'};
+        $targetDirectory = $input2->{'targetDirectory'};
         $targetNamespace = null;
-        if (isset($input2['targetNamespace'])) {
-            $targetNamespace = $input2['targetNamespace'];
+        if (isset($input2->{'targetNamespace'})) {
+            $targetNamespace = $input2->{'targetNamespace'};
         }
 
         $obj = new self($input, $className, $targetDirectory);
@@ -225,14 +226,15 @@ class SpecificationFilesItem
     /**
      * Validates an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @param bool $return Return instead of throwing errors
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {

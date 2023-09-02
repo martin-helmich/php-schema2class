@@ -43,17 +43,19 @@ class UnionProperty extends AbstractProperty
         return true;
     }
 
-    public function convertJSONToType(string $inputVarName = 'input'): string
+    public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
         $key    = $this->key;
         $keyStr = var_export($key, true);
 
-        $conversions = ["\$$key = \${$inputVarName}[{$keyStr}];" => ["discriminators" => [], "fallback" => true]];
+        $accessor = $object ? "\${$inputVarName}->{{$keyStr}}" : "\${$inputVarName}[{$keyStr}]";
+
+        $conversions = ["\$$key = $accessor;" => ["discriminators" => [], "fallback" => true]];
 
         foreach ($this->subProperties as $i => $subProp) {
-            $mapping       = $subProp->generateInputMappingExpr("\${$inputVarName}[{$keyStr}]", true);
+            $mapping       = $subProp->generateInputMappingExpr($accessor, true);
             $assignment    = "\$$key = {$mapping};";
-            $discriminator = $subProp->generateInputAssertionExpr("\${$inputVarName}[{$keyStr}]");
+            $discriminator = $subProp->generateInputAssertionExpr($accessor);
 
             if (!isset($conversions[$assignment])) {
                 $conversions[$assignment] = ["discriminators" => [], "fallback" => false];

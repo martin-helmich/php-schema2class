@@ -55,11 +55,17 @@ abstract class AbstractProperty implements PropertyInterface
         return null;
     }
 
-    public function convertJSONToType(string $inputVarName = 'input'): string
+    public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
         $key = $this->key;
         $keyS = var_export($key, true);
-        $map = $this->generateInputMappingExpr("\${$inputVarName}[{$keyS}]");
+
+        if ($object) {
+            $map = $this->generateInputMappingExpr("\${$inputVarName}->{{$keyS}}");
+        } else {
+            $map = $this->generateInputMappingExpr("\${$inputVarName}[{$keyS}]");
+        }
+
         return "\$$key = {$map};";
     }
 

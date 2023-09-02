@@ -60,6 +60,8 @@ properties:
         maxLength: 32
       street:
         type: string
+  alternateAddress:
+    $ref: '#/properties/address'
   tags:
     type: array
     items:
@@ -71,3 +73,5 @@ properties:
       properties:
         name:
           type: string
+  emptyProperty:
+    type: object

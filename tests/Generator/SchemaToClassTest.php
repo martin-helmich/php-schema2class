@@ -3,12 +3,15 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Example\CustomerAddress;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Yaml\Yaml;
+use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\equalTo;
 
 class SchemaToClassTest extends TestCase
 {
@@ -43,24 +46,32 @@ class SchemaToClassTest extends TestCase
                 $expectedFiles[$outputEntry] = trim(file_get_contents(join(DIRECTORY_SEPARATOR, [$outputDir, $outputEntry])));
             }
 
-            $testCases[$entry] = [$schema, $expectedFiles];
+            $testCases[$entry] = [$entry, $schema, $expectedFiles];
         }
 
         return $testCases;
     }
 
     /**
-     * @param array $schema
-     * @param array $expectedOutput
      * @dataProvider loadCodeGenerationTestCases
      */
-    public function testCodeGeneration(array $schema, array $expectedOutput): void
+    public function testCodeGeneration(string $name, array $schema, array $expectedOutput): void
     {
         $req = new GeneratorRequest(
             $schema,
-            new ValidatedSpecificationFilesItem("Ns", "Foo", __DIR__),
-            (new SpecificationOptions())->withTargetPHPVersion("7.4"),
+            new ValidatedSpecificationFilesItem("Ns\\{$name}", "Foo", __DIR__),
+            (new SpecificationOptions())->withTargetPHPVersion("8.2"),
         );
+
+        $req = $req->withReferenceLookup(new class implements ReferenceLookup {
+            public function lookupReference(string $reference): ReferenceLookupResult
+            {
+                if ($reference === "#/properties/address") {
+                    return new ReferenceLookupResult(CustomerAddress::class, ReferenceLookupResultType::TYPE_CLASS);
+                }
+                return new ReferenceLookupResult("mixed", ReferenceLookupResultType::TYPE_UNKNOWN);
+            }
+        });
 
         $output = new NullOutput();
         $writer = new DebugWriter($output);

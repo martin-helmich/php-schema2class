@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns;
+namespace Ns\AdditionalProps;
 
 class Foo
 {
@@ -120,21 +120,22 @@ class Foo
     /**
      * Builds a new instance from an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @return Foo Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : Foo
+    public static function buildFromInput(array|object $input) : Foo
     {
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
 
         $name = null;
-        if (isset($input['name'])) {
-            $name = $input['name'];
+        if (isset($input->{'name'})) {
+            $name = $input->{'name'};
         }
         $params = null;
-        if (isset($input['params'])) {
-            $params = $input['params'];
+        if (isset($input->{'params'})) {
+            $params = $input->{'params'};
         }
 
         $obj = new self();
@@ -164,14 +165,15 @@ class Foo
     /**
      * Validates an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @param bool $return Return instead of throwing errors
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {

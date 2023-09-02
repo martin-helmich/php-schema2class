@@ -123,21 +123,22 @@ class SpecificationOptions
     /**
      * Builds a new instance from an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @return SpecificationOptions Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array $input) : SpecificationOptions
+    public static function buildFromInput($input) : SpecificationOptions
     {
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
 
         $disableStrictTypes = false;
-        if (isset($input['disableStrictTypes'])) {
-            $disableStrictTypes = (bool)($input['disableStrictTypes']);
+        if (isset($input->{'disableStrictTypes'})) {
+            $disableStrictTypes = (bool)($input->{'disableStrictTypes'});
         }
         $targetPHPVersion = '7.4.0';
-        if (isset($input['targetPHPVersion'])) {
-            $targetPHPVersion = $input['targetPHPVersion'];
+        if (isset($input->{'targetPHPVersion'})) {
+            $targetPHPVersion = $input->{'targetPHPVersion'};
         }
 
         $obj = new self();
@@ -169,14 +170,15 @@ class SpecificationOptions
     /**
      * Validates an input array
      *
-     * @param array $input Input data
+     * @param array|object $input Input data
      * @param bool $return Return instead of throwing errors
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array $input, bool $return = false) : bool
+    public static function validateInput($input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
+        $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         $validator->validate($input, static::$schema);
 
         if (!$validator->isValid() && !$return) {

@@ -6,6 +6,10 @@ namespace Helmich\Schema2Class\Generator;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertNotSame;
+use function PHPUnit\Framework\assertSame;
+use function PHPUnit\Framework\assertTrue;
 
 class GeneratorRequestTest extends TestCase
 {

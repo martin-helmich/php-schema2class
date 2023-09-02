@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
@@ -36,9 +37,9 @@ class Generator
         $propertyGenerators = [];
 
         foreach ($properties as $property) {
-            $schema = $property->schema();
+            $schema     = $property->schema();
             $isOptional = false;
-            $prop = new PropertyGenerator(
+            $prop       = new PropertyGenerator(
                 $property->key(),
                 isset($schema["default"]) ? $schema["default"] : null,
                 PropertyGenerator::FLAG_PRIVATE
@@ -82,7 +83,7 @@ class Generator
         $optionalProperties = $properties->filterOptional();
 
         $constructorParams = [];
-        $assignments = [];
+        $assignments       = [];
 
         foreach ($requiredProperties as $requiredProperty) {
             $constructorParams[] = '$' . $requiredProperty->key();
@@ -97,21 +98,30 @@ class Generator
             $i = 2;
             do {
                 $inputVarName = 'input' . $i;
+                $i++;
             } while ($properties->hasPropertyWithKey($inputVarName));
+        }
+
+        $paramType = null;
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $paramType = "array|object";
         }
 
         $method = new MethodGenerator(
             'buildFromInput',
-            [new ParameterGenerator($inputVarName, "array")],
+            [new ParameterGenerator($inputVarName, $paramType)],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
-            "static::validateInput(\$$inputVarName);\n\n" .
-            $properties->generateJSONToTypeConversionCode($inputVarName) . "\n\n" .
-            '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
-            join("\n", $assignments) . "\n" .
-            'return $obj;',
+            "\$$inputVarName = is_array(\$$inputVarName) ? \\JsonSchema\\Validator::arrayToObjectRecursive(\$$inputVarName) : \$$inputVarName;\n" .
+                "static::validateInput(\$$inputVarName);\n\n" .
+                $properties->generateJSONToTypeConversionCode($inputVarName, true) . "\n\n" .
+                '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
+                join("\n", $assignments) . "\n" .
+                'return $obj;',
             new DocBlockGenerator(
-                "Builds a new instance from an input array", null, [
-                    new ParamTag($inputVarName, ["array"], "Input data"),
+                "Builds a new instance from an input array",
+                null,
+                [
+                    new ParamTag($inputVarName, ["array|object"], "Input data"),
                     new ReturnTag([$this->generatorRequest->getTargetClass()], "Created instance"),
                     new ThrowsTag("\\InvalidArgumentException"),
                 ]
@@ -136,10 +146,12 @@ class Generator
             [],
             MethodGenerator::FLAG_PUBLIC,
             '$output = [];' . "\n" .
-            $properties->generateTypeToJSONConversionCode('output') . "\n\n" .
-            'return $output;',
+                $properties->generateTypeToJSONConversionCode('output') . "\n\n" .
+                'return $output;',
             new DocBlockGenerator(
-                "Converts this object back to a simple array that can be JSON-serialized", null, [
+                "Converts this object back to a simple array that can be JSON-serialized",
+                null,
+                [
                     new ReturnTag(["array"], "Converted array"),
                 ]
             )
@@ -160,24 +172,27 @@ class Generator
         $method = new MethodGenerator(
             'validateInput',
             [
-                new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("7.0") ? "array" : null),
+                new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("8.0") ? "array|object" : null),
                 new ParameterGenerator("return", $this->generatorRequest->isAtLeastPHP("7.0") ? "bool" : null, false),
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
-            '$validator->validate($input, static::$schema);' . "\n\n" .
-            'if (!$validator->isValid() && !$return) {' . "\n" .
-            ($this->generatorRequest->isAtLeastPHP("7.0") ?
-                '    $errors = array_map(function(array $e): string {' . "\n" :
-                '    $errors = array_map(function($e) {' . "\n")  .
-            '        return $e["property"] . ": " . $e["message"];' . "\n" .
-            '    }, $validator->getErrors());' . "\n" .
-            '    throw new \\InvalidArgumentException(join(", ", $errors));' . "\n" .
-            '}' . "\n\n" .
-            'return $validator->isValid();',
+                '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
+                '$validator->validate($input, static::$schema);' . "\n\n" .
+                'if (!$validator->isValid() && !$return) {' . "\n" .
+                ($this->generatorRequest->isAtLeastPHP("7.0") ?
+                    '    $errors = array_map(function(array $e): string {' . "\n" :
+                    '    $errors = array_map(function($e) {' . "\n") .
+                '        return $e["property"] . ": " . $e["message"];' . "\n" .
+                '    }, $validator->getErrors());' . "\n" .
+                '    throw new \\InvalidArgumentException(join(", ", $errors));' . "\n" .
+                '}' . "\n\n" .
+                'return $validator->isValid();',
             new DocBlockGenerator(
-                "Validates an input array", null, [
-                    new ParamTag("input", ["array"], "Input data"),
+                "Validates an input array",
+                null,
+                [
+                    new ParamTag("input", ["array|object"], "Input data"),
                     new ParamTag("return", ["bool"], "Return instead of throwing errors"),
                     new ReturnTag(["bool"], "Validation result"),
                     new ThrowsTag("\\InvalidArgumentException"),
@@ -240,9 +255,9 @@ class Generator
             $property = $property->unwrap();
         }
 
-        $key = $property->key();
+        $key            = $property->key();
         $camelCasedName = $this->convertToCamelCase($key);
-        $annotatedType = $property->typeAnnotation();
+        $annotatedType  = $property->typeAnnotation();
 
         $getMethod = new MethodGenerator(
             'get' . $camelCasedName,
@@ -258,7 +273,7 @@ class Generator
                 $getMethod->setReturnType($typeHint);
 
                 if ($typeHint[0] === '?') {
-                    $getMethod->setBody("return isset(\$this->${key}) ? \$this->${key} : null;");
+                    $getMethod->setBody("return isset(\$this->{$key}) ? \$this->{$key} : null;");
                 }
             }
         }
@@ -287,13 +302,13 @@ class Generator
 
     public function generateSetterMethod(PropertyInterface $property): MethodGenerator
     {
-        $key = $property->key();
+        $key           = $property->key();
         $camelCaseName = $this->convertToCamelCase($key);
 
         $requiredProperty = ($property instanceof OptionalPropertyDecorator) ? $property->unwrap() : $property;
 
         $annotatedType = $requiredProperty->typeAnnotation();
-        $typeHint = $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion());
+        $typeHint      = $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion());
 
         if ($property->isComplex()) {
             $setterValidation = "";
@@ -334,7 +349,7 @@ return \$clone;",
      */
     public function generateUnsetterMethod(PropertyInterface $property): MethodGenerator
     {
-        $key = $property->key();
+        $key            = $property->key();
         $camelCasedName = $this->convertToCamelCase($key);
 
         $unsetMethod = new MethodGenerator(
@@ -359,15 +374,15 @@ return \$clone;",
 
     public function generateConstructor(PropertyCollection $properties): MethodGenerator
     {
-        $params = [];
-        $tags = [];
+        $params      = [];
+        $tags        = [];
         $assignments = [];
 
         $requiredProperties = $properties->filterRequired();
 
         foreach ($requiredProperties as $requiredProperty) {
             $paramName = $this->convertToLowerCamelCase($requiredProperty->key());
-            $params[] = new ParameterGenerator(
+            $params[]  = new ParameterGenerator(
                 $paramName,
                 $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion())
             );
@@ -377,7 +392,7 @@ return \$clone;",
                 [$requiredProperty->typeAnnotation()]
             );
 
-            $assignments[] = "\$this->{$requiredProperty->key()} = \${$requiredProperty->key()};";
+            $assignments[] = "\$this->{$requiredProperty->key()} = \${$paramName};";
         }
 
         return new MethodGenerator(
