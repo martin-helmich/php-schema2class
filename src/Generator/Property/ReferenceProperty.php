@@ -49,5 +49,24 @@ class ReferenceProperty extends AbstractProperty
         }
     }
 
+    public function generateInputMappingExpr(string $expr, bool $asserted = false): string
+    {
+        $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
+        if ($reference) {
+            return "{$reference}::buildFromInput({$expr})";
+        } else {
+            return $expr;
+        }
+    }
+
+    public function generateOutputMappingExpr(string $expr): string
+    {
+        $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
+        if ($reference) {
+            return "({$expr})->toJson()";
+        } else {
+            return $expr;
+        }
+    }
 
 }
