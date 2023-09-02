@@ -48,8 +48,8 @@ class ReferenceProperty extends AbstractProperty
     {
         $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         return match ($reference->type) {
-            ReferenceLookupResultType::TYPE_CLASS => "{$reference->name}::buildFromInput({$expr})",
-            ReferenceLookupResultType::TYPE_ENUM => "{$reference->name}::from({$expr})",
+            ReferenceLookupResultType::TYPE_CLASS => "\\{$reference->name}::buildFromInput({$expr})",
+            ReferenceLookupResultType::TYPE_ENUM => "\\{$reference->name}::from({$expr})",
             ReferenceLookupResultType::TYPE_UNKNOWN => $expr,
         };
     }
