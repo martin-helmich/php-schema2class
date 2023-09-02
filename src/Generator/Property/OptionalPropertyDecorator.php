@@ -88,7 +88,7 @@ class OptionalPropertyDecorator implements PropertyInterface
     public function typeAnnotation(): string
     {
         $inner = $this->inner->typeAnnotation();
-        if (strpos($inner, "|null") === false) {
+        if (!str_contains($inner, "|null")) {
             $inner .= "|null";
         }
 
@@ -109,6 +109,10 @@ class OptionalPropertyDecorator implements PropertyInterface
 
         if ($inner === null) {
             return $inner;
+        }
+
+        if (Semver::satisfies($phpVersion, ">=8.0") && str_contains($inner, "|")) {
+            return "{$inner}|null";
         }
 
         if (Semver::satisfies($phpVersion, ">=7.1.0") && strpos($inner, "?") !== 0) {

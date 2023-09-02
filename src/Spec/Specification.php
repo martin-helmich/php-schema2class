@@ -83,7 +83,7 @@ class Specification
     /**
      * @var int|string|null
      */
-    private $targetPHPVersion = null;
+    private int|string|null $targetPHPVersion = null;
 
     /**
      * @var SpecificationFilesItem[]
@@ -106,7 +106,7 @@ class Specification
     /**
      * @return int|string|null
      */
-    public function getTargetPHPVersion()
+    public function getTargetPHPVersion() : int|string|null
     {
         return $this->targetPHPVersion;
     }
@@ -124,14 +124,14 @@ class Specification
      */
     public function getOptions() : ?SpecificationOptions
     {
-        return isset($this->options) ? $this->options : null;
+        return $this->options ?? null;
     }
 
     /**
      * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion($targetPHPVersion) : self
+    public function withTargetPHPVersion(int|string $targetPHPVersion) : self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;
@@ -192,14 +192,16 @@ class Specification
      * @return Specification Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput($input) : Specification
+    public static function buildFromInput(array|object $input) : Specification
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
 
         $targetPHPVersion = null;
         if (isset($input->{'targetPHPVersion'})) {
-            $targetPHPVersion = $input->{'targetPHPVersion'};
+            $targetPHPVersion = match (true) {
+                is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
+            };
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input->{'files'});
         $options = null;
@@ -222,9 +224,9 @@ class Specification
     {
         $output = [];
         if (isset($this->targetPHPVersion)) {
-            if ((is_int($this->targetPHPVersion)) || (is_string($this->targetPHPVersion))) {
-                $output['targetPHPVersion'] = $this->targetPHPVersion;
-            }
+            $output['targetPHPVersion'] = match (true) {
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+            };
         }
         $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
         if (isset($this->options)) {
@@ -242,7 +244,7 @@ class Specification
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
@@ -261,7 +263,9 @@ class Specification
     public function __clone()
     {
         if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
+            $this->targetPHPVersion = match (true) {
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+            };
         }
         $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
         if (isset($this->options)) {

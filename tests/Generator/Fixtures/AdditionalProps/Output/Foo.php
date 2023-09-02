@@ -48,7 +48,7 @@ class Foo
      */
     public function getName() : ?string
     {
-        return isset($this->name) ? $this->name : null;
+        return $this->name ?? null;
     }
 
     /**
@@ -56,7 +56,7 @@ class Foo
      */
     public function getParams() : ?array
     {
-        return isset($this->params) ? $this->params : null;
+        return $this->params ?? null;
     }
 
     /**

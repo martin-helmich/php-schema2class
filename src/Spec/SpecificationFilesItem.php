@@ -94,7 +94,7 @@ class SpecificationFilesItem
      */
     public function getTargetNamespace() : ?string
     {
-        return isset($this->targetNamespace) ? $this->targetNamespace : null;
+        return $this->targetNamespace ?? null;
     }
 
     /**
@@ -187,7 +187,7 @@ class SpecificationFilesItem
      * @return SpecificationFilesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput($input2) : SpecificationFilesItem
+    public static function buildFromInput(array|object $input2) : SpecificationFilesItem
     {
         $input2 = is_array($input2) ? \JsonSchema\Validator::arrayToObjectRecursive($input2) : $input2;
         static::validateInput($input2);
@@ -231,7 +231,7 @@ class SpecificationFilesItem
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;

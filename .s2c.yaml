@@ -1,4 +1,4 @@
-targetPHPVersion: "7.4"
+targetPHPVersion: "8.2"
 files:
 - input: src/Spec/Spec.yaml
   className: Specification

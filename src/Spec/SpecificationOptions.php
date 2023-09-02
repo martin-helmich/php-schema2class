@@ -43,7 +43,7 @@ class SpecificationOptions
     /**
      * @var int|string
      */
-    private $targetPHPVersion = '7.4.0';
+    private int|string $targetPHPVersion = '7.4.0';
 
     /**
      *
@@ -63,7 +63,7 @@ class SpecificationOptions
     /**
      * @return int|string
      */
-    public function getTargetPHPVersion()
+    public function getTargetPHPVersion() : int|string
     {
         return $this->targetPHPVersion;
     }
@@ -101,7 +101,7 @@ class SpecificationOptions
      * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion($targetPHPVersion) : self
+    public function withTargetPHPVersion(int|string $targetPHPVersion) : self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;
@@ -127,7 +127,7 @@ class SpecificationOptions
      * @return SpecificationOptions Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput($input) : SpecificationOptions
+    public static function buildFromInput(array|object $input) : SpecificationOptions
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
@@ -138,7 +138,9 @@ class SpecificationOptions
         }
         $targetPHPVersion = '7.4.0';
         if (isset($input->{'targetPHPVersion'})) {
-            $targetPHPVersion = $input->{'targetPHPVersion'};
+            $targetPHPVersion = match (true) {
+                is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
+            };
         }
 
         $obj = new self();
@@ -159,9 +161,9 @@ class SpecificationOptions
             $output['disableStrictTypes'] = $this->disableStrictTypes;
         }
         if (isset($this->targetPHPVersion)) {
-            if ((is_int($this->targetPHPVersion)) || (is_string($this->targetPHPVersion))) {
-                $output['targetPHPVersion'] = $this->targetPHPVersion;
-            }
+            $output['targetPHPVersion'] = match (true) {
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+            };
         }
 
         return $output;
@@ -175,7 +177,7 @@ class SpecificationOptions
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
@@ -194,7 +196,9 @@ class SpecificationOptions
     public function __clone()
     {
         if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
+            $this->targetPHPVersion = match (true) {
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+            };
         }
     }
 }

@@ -48,7 +48,7 @@ class Foo
      */
     public function getFoo() : ?string
     {
-        return isset($this->foo) ? $this->foo : null;
+        return $this->foo ?? null;
     }
 
     /**

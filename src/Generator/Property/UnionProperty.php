@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
+use Helmich\Schema2Class\Generator\MatchGenerator;
 use Helmich\Schema2Class\Generator\PropertyBuilder;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
@@ -42,8 +44,29 @@ class UnionProperty extends AbstractProperty
         return true;
     }
 
+    public function convertJSONToTypeMatch(string $inputVarName = 'input', bool $object = false): string
+    {
+        $key      = $this->key;
+        $keyStr   = var_export($key, true);
+        $accessor = $object ? "\${$inputVarName}->{{$keyStr}}" : "\${$inputVarName}[{$keyStr}]";
+        $match    = new MatchGenerator("true");
+
+        foreach ($this->subProperties as $subProperty) {
+            $mapping       = $subProperty->generateInputMappingExpr($accessor, asserted: true);
+            $discriminator = $subProperty->generateInputAssertionExpr($accessor);
+
+            $match->addArm($discriminator, $mapping);
+        }
+
+        return "\${$key} = {$match->generate()};";
+    }
+
     public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            return $this->convertJSONToTypeMatch($inputVarName, $object);
+        }
+
         $key    = $this->key;
         $keyStr = var_export($key, true);
 
@@ -86,8 +109,28 @@ class UnionProperty extends AbstractProperty
         return str_replace("}\nelse", "} else", join("\n", $branches));
     }
 
+    private function convertTypeToJSONMatch(string $outputVarName = 'output'): string
+    {
+        $key    = $this->key;
+        $keyStr = var_export($key, true);
+        $match  = new MatchGenerator("true");
+
+        foreach ($this->subProperties as $subProperty) {
+            $mapping       = $subProperty->generateOutputMappingExpr("\$this->{$key}");
+            $discriminator = $subProperty->generateTypeAssertionExpr("\$this->{$key}");
+
+            $match->addArm($discriminator, $mapping);
+        }
+
+        return "\${$outputVarName}[{$keyStr}] = " . $match->generate() . ";";
+    }
+
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            return $this->convertTypeToJSONMatch($outputVarName);
+        }
+
         $key         = $this->key;
         $keyStr      = var_export($key, true);
         $conversions = [];
@@ -155,6 +198,26 @@ class UnionProperty extends AbstractProperty
 
     public function typeHint(string $phpVersion): ?string
     {
+        if (Semver::satisfies($phpVersion, ">=8.0")) {
+            $subTypeHints = [];
+
+            foreach ($this->subProperties as $subProp) {
+                $th = $subProp->typeHint($phpVersion);
+                if ($th === null) {
+                    return null;
+                }
+
+                if (strpos($th, "?") === 0) {
+                    $subTypeHints["null"] = true;
+                    $th                   = substr($th, 1);
+                }
+
+                $subTypeHints[$th] = true;
+            }
+
+            return join("|", array_keys($subTypeHints));
+        }
+
         return null;
     }
 
@@ -182,9 +245,22 @@ class UnionProperty extends AbstractProperty
 
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $match = new MatchGenerator("true");
+            $match->addArm("default", "null");
+
+            foreach ($this->subProperties as $subProperty) {
+                $assert = $subProperty->generateInputAssertionExpr($expr);
+                $map    = $subProperty->generateInputMappingExpr($expr);
+                $match->addArm($assert, $map);
+            }
+
+            return $match->generate();
+        }
+
         $out = "null";
 
-        foreach ($this->subProperties as $i => $subProperty) {
+        foreach ($this->subProperties as $subProperty) {
             $assert = $subProperty->generateInputAssertionExpr($expr);
             $map    = $subProperty->generateInputMappingExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
@@ -195,9 +271,22 @@ class UnionProperty extends AbstractProperty
 
     public function generateOutputMappingExpr(string $expr): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $match = new MatchGenerator("true");
+            $match->addArm("default", "null");
+
+            foreach ($this->subProperties as $subProperty) {
+                $assert = $subProperty->generateTypeAssertionExpr($expr);
+                $map    = $subProperty->generateOutputMappingExpr($expr);
+                $match->addArm($assert, $map);
+            }
+
+            return $match->generate();
+        }
+
         $out = "null";
 
-        foreach ($this->subProperties as $i => $subProperty) {
+        foreach ($this->subProperties as $subProperty) {
             $assert = $subProperty->generateTypeAssertionExpr($expr);
             $map    = $subProperty->generateOutputMappingExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
@@ -208,9 +297,21 @@ class UnionProperty extends AbstractProperty
 
     public function generateCloneExpr(string $expr): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $match = new MatchGenerator("true");
+
+            foreach ($this->subProperties as $subProperty) {
+                $assert = $subProperty->generateTypeAssertionExpr($expr);
+                $map    = $subProperty->generateCloneExpr($expr);
+                $match->addArm($assert, $map);
+            }
+
+            return $match->generate();
+        }
+
         $out = $expr;
 
-        foreach ($this->subProperties as $i => $subProperty) {
+        foreach ($this->subProperties as $subProperty) {
             $assert = $subProperty->generateTypeAssertionExpr($expr);
             $map    = $subProperty->generateCloneExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";

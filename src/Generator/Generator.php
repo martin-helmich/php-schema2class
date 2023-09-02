@@ -273,7 +273,7 @@ class Generator
                 $getMethod->setReturnType($typeHint);
 
                 if ($typeHint[0] === '?') {
-                    $getMethod->setBody("return isset(\$this->{$key}) ? \$this->{$key} : null;");
+                    $getMethod->setBody("return \$this->{$key} ?? null;");
                 }
             }
         }
