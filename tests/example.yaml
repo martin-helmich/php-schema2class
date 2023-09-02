@@ -71,3 +71,5 @@ properties:
       properties:
         name:
           type: string
+  emptyProperty:
+    type: object

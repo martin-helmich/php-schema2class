@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
+use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Laminas\Code\Generator\DocBlockGenerator;
@@ -45,7 +46,7 @@ class SchemaToClass
         $properties = [$schemaProperty];
         $methods = [];
 
-        if (!isset($schema["properties"])) {
+        if (!NestedObjectProperty::canHandleSchema($schema)) {
             throw new GeneratorException("cannot generate class for types other than 'object'");
         }
 
