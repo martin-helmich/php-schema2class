@@ -62,7 +62,7 @@ class SchemaToClassTest extends TestCase
         $req = new GeneratorRequest(
             $schema,
             new ValidatedSpecificationFilesItem("Ns", "Foo", __DIR__),
-            (new SpecificationOptions())->withTargetPHPVersion("7.4"),
+            (new SpecificationOptions())->withTargetPHPVersion("8.2"),
         );
 
         $req = $req->withReferenceLookup(new class implements ReferenceLookup {
