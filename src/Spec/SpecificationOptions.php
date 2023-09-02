@@ -138,7 +138,9 @@ class SpecificationOptions
         }
         $targetPHPVersion = '7.4.0';
         if (isset($input->{'targetPHPVersion'})) {
-            $targetPHPVersion = $input->{'targetPHPVersion'};
+            $targetPHPVersion = match (true) {
+                is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
+            };
         }
 
         $obj = new self();
@@ -159,9 +161,9 @@ class SpecificationOptions
             $output['disableStrictTypes'] = $this->disableStrictTypes;
         }
         if (isset($this->targetPHPVersion)) {
-            if ((is_int($this->targetPHPVersion)) || (is_string($this->targetPHPVersion))) {
-                $output['targetPHPVersion'] = $this->targetPHPVersion;
-            }
+            $output['targetPHPVersion'] = match (true) {
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+            };
         }
 
         return $output;
@@ -195,7 +197,7 @@ class SpecificationOptions
     {
         if (isset($this->targetPHPVersion)) {
             $this->targetPHPVersion = match (true) {
-                (is_int($this->targetPHPVersion)), (is_string($this->targetPHPVersion)) => ($this->targetPHPVersion),
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
             };
         }
     }

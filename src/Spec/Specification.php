@@ -199,7 +199,9 @@ class Specification
 
         $targetPHPVersion = null;
         if (isset($input->{'targetPHPVersion'})) {
-            $targetPHPVersion = $input->{'targetPHPVersion'};
+            $targetPHPVersion = match (true) {
+                is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
+            };
         }
         $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input->{'files'});
         $options = null;
@@ -222,9 +224,9 @@ class Specification
     {
         $output = [];
         if (isset($this->targetPHPVersion)) {
-            if ((is_int($this->targetPHPVersion)) || (is_string($this->targetPHPVersion))) {
-                $output['targetPHPVersion'] = $this->targetPHPVersion;
-            }
+            $output['targetPHPVersion'] = match (true) {
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+            };
         }
         $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
         if (isset($this->options)) {
@@ -262,7 +264,7 @@ class Specification
     {
         if (isset($this->targetPHPVersion)) {
             $this->targetPHPVersion = match (true) {
-                (is_int($this->targetPHPVersion)), (is_string($this->targetPHPVersion)) => ($this->targetPHPVersion),
+                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
             };
         }
         $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
