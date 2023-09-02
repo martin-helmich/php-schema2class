@@ -7,12 +7,9 @@ use Helmich\Schema2Class\Generator\ReferenceLookup;
 
 class ReferenceProperty extends AbstractProperty
 {
-    private ReferenceLookup $referenceLookup;
-
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
         parent::__construct($key, $schema, $generatorRequest);
-        $this->referenceLookup = $referenceLookup;
     }
 
     public static function canHandleSchema(array $schema): bool
@@ -22,7 +19,7 @@ class ReferenceProperty extends AbstractProperty
 
     public function typeAnnotation(): string
     {
-        $reference = $this->referenceLookup->lookupReference($this->schema['$ref']);
+        $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
             return $reference;
         } else {
@@ -32,7 +29,7 @@ class ReferenceProperty extends AbstractProperty
 
     public function typeHint(string $phpVersion): ?string
     {
-        $reference = $this->referenceLookup->lookupReference($this->schema['$ref']);
+        $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
             return $reference;
         } else if ($this->generatorRequest->isAtLeastPHP("8.0")) {
@@ -44,7 +41,7 @@ class ReferenceProperty extends AbstractProperty
 
     public function generateTypeAssertionExpr(string $expr): string
     {
-        $reference = $this->referenceLookup->lookupReference($this->schema['$ref']);
+        $reference = $this->generatorRequest->lookupReference($this->schema['$ref']);
         if ($reference) {
             return "({$expr}) instanceof {$reference}";
         } else {
