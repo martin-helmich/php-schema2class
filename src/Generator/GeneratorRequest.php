@@ -14,7 +14,7 @@ class GeneratorRequest
 
     private SpecificationOptions $opts;
 
-    private ?ReferenceLookup $referenceLookup;
+    private ?ReferenceLookup $referenceLookup = null;
 
     public function __construct(array $schema, ValidatedSpecificationFilesItem $spec, SpecificationOptions $opts)
     {
