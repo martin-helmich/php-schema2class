@@ -14,6 +14,8 @@ class GeneratorRequest
 
     private SpecificationOptions $opts;
 
+    private ?ReferenceLookup $referenceLookup;
+
     public function __construct(array $schema, ValidatedSpecificationFilesItem $spec, SpecificationOptions $opts)
     {
         $opts = $opts->withTargetPHPVersion(self::semversifyVersionNumber($opts->getTargetPHPVersion()));
@@ -37,6 +39,14 @@ class GeneratorRequest
         }
 
         return $versionNumber;
+    }
+
+    public function withReferenceLookup(ReferenceLookup $referenceLookup): self
+    {
+        $clone = clone $this;
+        $clone->referenceLookup = $referenceLookup;
+
+        return $clone;
     }
 
     public function withSchema(array $schema): self
@@ -127,5 +137,13 @@ class GeneratorRequest
     public function getOptions(): SpecificationOptions
     {
         return $this->opts;
+    }
+
+    public function lookupReference(string $ref): ?string {
+        if ($this->referenceLookup === null) {
+            return null;
+        }
+
+        return $this->referenceLookup->lookupReference($ref);
     }
 }
