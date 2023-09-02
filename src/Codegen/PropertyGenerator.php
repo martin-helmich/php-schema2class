@@ -85,8 +85,9 @@ class PropertyGenerator extends ZendPropertyGenerator
 
         $property = new self($array['name']);
         foreach ($array as $name => $value) {
-            // normalize key
-            switch (strtolower(str_replace(['.', '-', '_'], '', $name))) {
+            /** @var string $normalizedKey */
+            $normalizedKey = str_replace(['.', '-', '_'], '', $name);
+            switch (strtolower($normalizedKey)) {
                 case 'const':
                     $property->setConst($value);
                     break;
