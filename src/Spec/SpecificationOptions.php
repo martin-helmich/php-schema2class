@@ -127,7 +127,7 @@ class SpecificationOptions
      * @return SpecificationOptions Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput($input) : SpecificationOptions
+    public static function buildFromInput(array|object $input) : SpecificationOptions
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
@@ -175,7 +175,7 @@ class SpecificationOptions
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
@@ -194,7 +194,9 @@ class SpecificationOptions
     public function __clone()
     {
         if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
+            $this->targetPHPVersion = match (true) {
+                (is_int($this->targetPHPVersion)), (is_string($this->targetPHPVersion)) => ($this->targetPHPVersion),
+            };
         }
     }
 }

@@ -124,7 +124,7 @@ class Specification
      */
     public function getOptions() : ?SpecificationOptions
     {
-        return isset($this->options) ? $this->options : null;
+        return $this->options ?? null;
     }
 
     /**
@@ -192,7 +192,7 @@ class Specification
      * @return Specification Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput($input) : Specification
+    public static function buildFromInput(array|object $input) : Specification
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         static::validateInput($input);
@@ -242,7 +242,7 @@ class Specification
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput($input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false) : bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
@@ -261,7 +261,9 @@ class Specification
     public function __clone()
     {
         if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = (is_string($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ((is_int($this->targetPHPVersion)) ? ($this->targetPHPVersion) : ($this->targetPHPVersion));
+            $this->targetPHPVersion = match (true) {
+                (is_int($this->targetPHPVersion)), (is_string($this->targetPHPVersion)) => ($this->targetPHPVersion),
+            };
         }
         $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
         if (isset($this->options)) {

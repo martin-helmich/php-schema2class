@@ -167,7 +167,7 @@ class UnionProperty extends AbstractProperty
 
                 if (strpos($th, "?") === 0) {
                     $subTypeHints["null"] = true;
-                    $th = substr($th, 1);
+                    $th                   = substr($th, 1);
                 }
 
                 $subTypeHints[$th] = true;
@@ -203,9 +203,30 @@ class UnionProperty extends AbstractProperty
 
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $matchArms = [];
+            $out       = "match (true) {\n";
+
+            foreach ($this->subProperties as $subProperty) {
+                $assert            = $subProperty->generateInputAssertionExpr($expr);
+                $map               = $subProperty->generateInputMappingExpr($expr);
+                $matchArms[$map][] = $assert;
+            }
+
+            foreach ($matchArms as $map => $asserts) {
+                $arm = join("), (", $asserts);
+                $out .= "    ({$arm}) => ({$map}),\n";
+            }
+
+            $out .= "    default => null,\n";
+            $out .= "}";
+
+            return $out;
+        }
+
         $out = "null";
 
-        foreach ($this->subProperties as $i => $subProperty) {
+        foreach ($this->subProperties as $subProperty) {
             $assert = $subProperty->generateInputAssertionExpr($expr);
             $map    = $subProperty->generateInputMappingExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
@@ -216,9 +237,30 @@ class UnionProperty extends AbstractProperty
 
     public function generateOutputMappingExpr(string $expr): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $matchArms = [];
+            $out       = "match (true) {\n";
+
+            foreach ($this->subProperties as $subProperty) {
+                $assert            = $subProperty->generateTypeAssertionExpr($expr);
+                $map               = $subProperty->generateOutputMappingExpr($expr);
+                $matchArms[$map][] = $assert;
+            }
+
+            foreach ($matchArms as $map => $asserts) {
+                $arm = join("), (", $asserts);
+                $out .= "    ({$arm}) => ({$map}),\n";
+            }
+
+            $out .= "    default => null,\n";
+            $out .= "}";
+
+            return $out;
+        }
+
         $out = "null";
 
-        foreach ($this->subProperties as $i => $subProperty) {
+        foreach ($this->subProperties as $subProperty) {
             $assert = $subProperty->generateTypeAssertionExpr($expr);
             $map    = $subProperty->generateOutputMappingExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";
@@ -229,9 +271,29 @@ class UnionProperty extends AbstractProperty
 
     public function generateCloneExpr(string $expr): string
     {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
+            $matchArms = [];
+            $out       = "match (true) {\n";
+
+            foreach ($this->subProperties as $subProperty) {
+                $assert            = $subProperty->generateTypeAssertionExpr($expr);
+                $map               = $subProperty->generateCloneExpr($expr);
+                $matchArms[$map][] = $assert;
+            }
+
+            foreach ($matchArms as $map => $asserts) {
+                $arm = join("), (", $asserts);
+                $out .= "    ({$arm}) => ({$map}),\n";
+            }
+
+            $out .= "}";
+
+            return $out;
+        }
+
         $out = $expr;
 
-        foreach ($this->subProperties as $i => $subProperty) {
+        foreach ($this->subProperties as $subProperty) {
             $assert = $subProperty->generateTypeAssertionExpr($expr);
             $map    = $subProperty->generateCloneExpr($expr);
             $out    = "({$assert}) ? ({$map}) : ({$out})";

@@ -88,7 +88,7 @@ class OptionalPropertyDecorator implements PropertyInterface
     public function typeAnnotation(): string
     {
         $inner = $this->inner->typeAnnotation();
-        if (strpos($inner, "|null") === false) {
+        if (!str_contains($inner, "|null")) {
             $inner .= "|null";
         }
 
