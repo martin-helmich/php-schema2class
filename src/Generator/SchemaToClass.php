@@ -52,11 +52,13 @@ class SchemaToClass
 
         $propertiesFromSchema = new PropertyCollection();
 
-        foreach ($schema["properties"] as $key => $definition) {
-            $isRequired = isset($schema["required"]) && in_array($key, $schema["required"]);
+        if (isset($schema["properties"])) {
+            foreach ($schema["properties"] as $key => $definition) {
+                $isRequired = isset($schema["required"]) && in_array($key, $schema["required"]);
 
-            $property = PropertyBuilder::buildPropertyFromSchema($req, $key, $definition, $isRequired);
-            $propertiesFromSchema->add($property);
+                $property = PropertyBuilder::buildPropertyFromSchema($req, $key, $definition, $isRequired);
+                $propertiesFromSchema->add($property);
+            }
         }
 
         foreach ($propertiesFromSchema as $property) {

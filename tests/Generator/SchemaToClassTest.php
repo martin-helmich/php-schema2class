@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Example\CustomerAddress;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
@@ -63,6 +64,16 @@ class SchemaToClassTest extends TestCase
             new ValidatedSpecificationFilesItem("Ns", "Foo", __DIR__),
             (new SpecificationOptions())->withTargetPHPVersion("7.4"),
         );
+
+        $req = $req->withReferenceLookup(new class implements ReferenceLookup {
+            public function lookupReference(string $reference): ?string
+            {
+                if ($reference === "#/properties/address") {
+                    return CustomerAddress::class;
+                }
+                return null;
+            }
+        });
 
         $output = new NullOutput();
         $writer = new DebugWriter($output);

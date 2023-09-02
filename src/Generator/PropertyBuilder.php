@@ -13,6 +13,7 @@ use Helmich\Schema2Class\Generator\Property\MixedProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
+use Helmich\Schema2Class\Generator\Property\ReferenceProperty;
 use Helmich\Schema2Class\Generator\Property\StringProperty;
 use Helmich\Schema2Class\Generator\Property\UnionProperty;
 
@@ -29,6 +30,7 @@ class PropertyBuilder
         IntegerProperty::class,
         NestedObjectProperty::class,
         BooleanProperty::class,
+        ReferenceProperty::class,
         MixedProperty::class,
     ];
 
