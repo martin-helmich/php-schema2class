@@ -22,9 +22,7 @@ class ObjectArrayProperty extends AbstractProperty
      */
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
-        $this->itemSchema = isset($schema["additionalProperties"])
-            ? $schema["additionalProperties"]
-            : $schema["items"];
+        $this->itemSchema = $schema["additionalProperties"] ?? $schema["items"];
 
         $this->itemType = PropertyBuilder::buildPropertyFromSchema($generatorRequest, $key . "Item", $this->itemSchema, true);
         parent::__construct($key, $schema, $generatorRequest);
