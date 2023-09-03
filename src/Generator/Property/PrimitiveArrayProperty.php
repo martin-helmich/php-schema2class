@@ -49,7 +49,7 @@ class PrimitiveArrayProperty extends AbstractProperty
             return $annot . "[]";
         }
 
-        if (isset($this->schema["additionalProperties"])) {
+        if (isset($this->schema["additionalProperties"]) && is_array($this->schema["additionalProperties"])) {
             [$annot, $hint] = $this->phpPrimitiveForSchemaType($this->schema["additionalProperties"]);
             return $annot . "[]";
         }
