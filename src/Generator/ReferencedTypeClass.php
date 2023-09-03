@@ -23,6 +23,11 @@ readonly class ReferencedTypeClass implements ReferencedType
         return "\\" . $this->className;
     }
 
+    public function serializedTypeHint(GeneratorRequest $req): ?string
+    {
+        return "array";
+    }
+
     public function typeAssertionExpr(GeneratorRequest $req, string $expr): string
     {
         return "({$expr}) instanceof \\{$this->className}";

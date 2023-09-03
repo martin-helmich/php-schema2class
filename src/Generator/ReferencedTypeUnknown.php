@@ -23,6 +23,15 @@ readonly class ReferencedTypeUnknown implements ReferencedType
         return null;
     }
 
+    public function serializedTypeHint(GeneratorRequest $req): ?string
+    {
+        if ($req->isAtLeastPHP("8.0")) {
+            return "mixed";
+        }
+
+        return null;
+    }
+
     public function typeAssertionExpr(GeneratorRequest $req, string $expr): string
     {
         return "true";
