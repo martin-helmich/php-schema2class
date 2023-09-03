@@ -20,7 +20,7 @@ class MatchGenerator
         $code = "match ({$this->subjectExpr}) {\n";
 
         foreach ($this->arms as $returnExpr => $conditionExprs) {
-            $arm  = join(", ", $conditionExprs);
+            $arm  = in_array("default", $conditionExprs) ? "default" : join(", ", $conditionExprs);
             $code .= "    {$arm} => {$returnExpr},\n";
         }
 
