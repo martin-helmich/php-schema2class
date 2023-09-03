@@ -14,6 +14,7 @@ use Helmich\Schema2Class\Generator\Property\MixedProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
+use Helmich\Schema2Class\Generator\Property\ReferenceArrayProperty;
 use Helmich\Schema2Class\Generator\Property\ReferenceProperty;
 use Helmich\Schema2Class\Generator\Property\StringEnumProperty;
 use Helmich\Schema2Class\Generator\Property\StringProperty;
@@ -28,8 +29,9 @@ class PropertyBuilder
         DateProperty::class,
         StringEnumProperty::class,
         StringProperty::class,
-        PrimitiveArrayProperty::class,
         ObjectArrayProperty::class,
+        ReferenceArrayProperty::class,
+        PrimitiveArrayProperty::class,
         IntegerProperty::class,
         NumberProperty::class,
         NestedObjectProperty::class,
