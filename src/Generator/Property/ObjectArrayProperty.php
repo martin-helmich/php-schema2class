@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorException;
@@ -16,8 +17,8 @@ class ObjectArrayProperty extends AbstractProperty
 
     /**
      * ObjectArrayProperty constructor.
-     * @param string           $key
-     * @param array            $schema
+     * @param string $key
+     * @param array $schema
      * @param GeneratorRequest $generatorRequest
      */
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
@@ -31,9 +32,9 @@ class ObjectArrayProperty extends AbstractProperty
 
     public static function canHandleSchema(array $schema): bool
     {
-        $itemSchema = null;
+        $itemSchema         = null;
         $isAssociativeArray = isset($schema["additionalProperties"]);
-        $isArray = isset($schema["type"]) && $schema["type"] === "array";
+        $isArray            = isset($schema["type"]) && $schema["type"] === "array";
 
         if ($isAssociativeArray) {
             $itemSchema = $schema["additionalProperties"];
@@ -58,13 +59,13 @@ class ObjectArrayProperty extends AbstractProperty
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
         $key = $this->key;
-        $st = $this->subTypeName();
+        $st  = $this->subTypeName();
 
         return "\${$outputVarName}['$key'] = array_map(function($st \$i) { return \$i->toJson(); }, \$this->$key);";
     }
 
     /**
-     * @param SchemaToClass    $generator
+     * @param SchemaToClass $generator
      * @throws GeneratorException
      */
     public function generateSubTypes(SchemaToClass $generator): void
@@ -99,19 +100,30 @@ class ObjectArrayProperty extends AbstractProperty
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
         $sm = $this->itemType->generateInputMappingExpr('$i');
-        return "array_map(function(\$i) { return {$sm}; }, {$expr})";
+        if ($this->generatorRequest->isAtLeastPHP("7.4")) {
+            return "array_map(fn (\$i) => {$sm}, {$expr})";
+        }
+        return "array_map(function(\$i) use (\$validate) { return {$sm}; }, {$expr})";
     }
 
     public function generateOutputMappingExpr(string $expr): string
     {
         $st = $this->subTypeName();
         $sm = $this->itemType->generateOutputMappingExpr('$i');
+
+        if ($this->generatorRequest->isAtLeastPHP("7.4")) {
+            return "array_map(fn ($st \$i) => {$sm}, {$expr})";
+        }
         return "array_map(function($st \$i) { return {$sm} }, {$expr})";
     }
 
     public function generateCloneExpr(string $expr): string
     {
         $st = $this->subTypeName();
+
+        if ($this->generatorRequest->isAtLeastPHP("7.4")) {
+            return "array_map(fn ({$st} \$i) => clone \$i, {$expr})";
+        }
         return "array_map(function({$st} \$i) { return clone \$i; }, {$expr})";
     }
 

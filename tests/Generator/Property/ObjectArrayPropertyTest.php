@@ -68,7 +68,7 @@ class ObjectArrayPropertyTest extends TestCase
         $result = $underTest->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
-$myPropertyName = array_map(function($i) { return FooMyPropertyNameItem::buildFromInput($i); }, $variable['myPropertyName']);
+$myPropertyName = array_map(function($i) { return FooMyPropertyNameItem::buildFromInput($i, $validate); }, $variable['myPropertyName']);
 EOCODE;
 
         assertSame($expected, $result);
