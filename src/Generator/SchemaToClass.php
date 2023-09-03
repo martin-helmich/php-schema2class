@@ -53,7 +53,6 @@ class SchemaToClass
         }
 
         $properties = [$schemaProperty];
-        $methods    = [];
 
         if (!NestedObjectProperty::canHandleSchema($schema)) {
             throw new GeneratorException("cannot generate class for types other than 'object'");
@@ -76,16 +75,22 @@ class SchemaToClass
 
         $codeGenerator = new Generator($req);
 
-        $methods[] = $codeGenerator->generateConstructor($propertiesFromSchema);
+        $properties = [
+            ...$properties,
+            ...$codeGenerator->generateProperties($propertiesFromSchema),
+            ...$req->getAdditionalProperties(),
+        ];
 
-        $properties = array_merge($properties, $codeGenerator->generateProperties($propertiesFromSchema));
-        $methods    = array_merge($methods, $codeGenerator->generateGetterMethods($propertiesFromSchema));
-        $methods    = array_merge($methods, $codeGenerator->generateSetterMethods($propertiesFromSchema));
-
-        $methods[] = $codeGenerator->generateBuildMethod($propertiesFromSchema);
-        $methods[] = $codeGenerator->generateToJSONMethod($propertiesFromSchema);
-        $methods[] = $codeGenerator->generateValidateMethod();
-        $methods[] = $codeGenerator->generateCloneMethod($propertiesFromSchema);
+        $methods = [
+            $codeGenerator->generateConstructor($propertiesFromSchema),
+            ...$codeGenerator->generateGetterMethods($propertiesFromSchema),
+            ...$codeGenerator->generateSetterMethods($propertiesFromSchema),
+            $codeGenerator->generateBuildMethod($propertiesFromSchema),
+            $codeGenerator->generateToJSONMethod($propertiesFromSchema),
+            $codeGenerator->generateValidateMethod(),
+            $codeGenerator->generateCloneMethod($propertiesFromSchema),
+            ...$req->getAdditionalMethods(),
+        ];
 
         $cls = new ClassGenerator(
             $req->getTargetClass(),
