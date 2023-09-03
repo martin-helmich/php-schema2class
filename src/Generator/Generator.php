@@ -107,21 +107,30 @@ class Generator
             $paramType = "array|object";
         }
 
+        $validationParam = new ParameterGenerator(
+            name: "validate",
+            type: "bool",
+            defaultValue: true,
+        );
+
         $method = new MethodGenerator(
             'buildFromInput',
-            [new ParameterGenerator($inputVarName, $paramType)],
+            [new ParameterGenerator($inputVarName, $paramType), $validationParam],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             "\$$inputVarName = is_array(\$$inputVarName) ? \\JsonSchema\\Validator::arrayToObjectRecursive(\$$inputVarName) : \$$inputVarName;\n" .
-                "static::validateInput(\$$inputVarName);\n\n" .
-                $properties->generateJSONToTypeConversionCode($inputVarName, true) . "\n\n" .
-                '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
-                join("\n", $assignments) . "\n" .
-                'return $obj;',
+            "if (\$validate) {\n" .
+            "    static::validateInput(\$$inputVarName);\n" .
+            "}\n\n" .
+            $properties->generateJSONToTypeConversionCode($inputVarName, true) . "\n\n" .
+            '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
+            join("\n", $assignments) . "\n" .
+            'return $obj;',
             new DocBlockGenerator(
                 "Builds a new instance from an input array",
                 null,
                 [
                     new ParamTag($inputVarName, ["array|object"], "Input data"),
+                    new ParamTag("validate", ["bool"], "Set this to false to skip validation; use at own risk"),
                     new ReturnTag([$this->generatorRequest->getTargetClass()], "Created instance"),
                     new ThrowsTag("\\InvalidArgumentException"),
                 ]
@@ -146,8 +155,8 @@ class Generator
             [],
             MethodGenerator::FLAG_PUBLIC,
             '$output = [];' . "\n" .
-                $properties->generateTypeToJSONConversionCode('output') . "\n\n" .
-                'return $output;',
+            $properties->generateTypeToJSONConversionCode('output') . "\n\n" .
+            'return $output;',
             new DocBlockGenerator(
                 "Converts this object back to a simple array that can be JSON-serialized",
                 null,
@@ -177,17 +186,17 @@ class Generator
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = new \\JsonSchema\\Validator();' . "\n" .
-                '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
-                '$validator->validate($input, static::$schema);' . "\n\n" .
-                'if (!$validator->isValid() && !$return) {' . "\n" .
-                ($this->generatorRequest->isAtLeastPHP("7.0") ?
-                    '    $errors = array_map(function(array $e): string {' . "\n" :
-                    '    $errors = array_map(function($e) {' . "\n") .
-                '        return $e["property"] . ": " . $e["message"];' . "\n" .
-                '    }, $validator->getErrors());' . "\n" .
-                '    throw new \\InvalidArgumentException(join(", ", $errors));' . "\n" .
-                '}' . "\n\n" .
-                'return $validator->isValid();',
+            '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
+            '$validator->validate($input, static::$schema);' . "\n\n" .
+            'if (!$validator->isValid() && !$return) {' . "\n" .
+            ($this->generatorRequest->isAtLeastPHP("7.0") ?
+                '    $errors = array_map(function(array $e): string {' . "\n" :
+                '    $errors = array_map(function($e) {' . "\n") .
+            '        return $e["property"] . ": " . $e["message"];' . "\n" .
+            '    }, $validator->getErrors());' . "\n" .
+            '    throw new \\InvalidArgumentException(join(", ", $errors));' . "\n" .
+            '}' . "\n\n" .
+            'return $validator->isValid();',
             new DocBlockGenerator(
                 "Validates an input array",
                 null,
