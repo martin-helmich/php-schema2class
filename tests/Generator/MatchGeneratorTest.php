@@ -8,7 +8,7 @@ use function PHPUnit\Framework\equalTo;
 
 class MatchGeneratorTest extends TestCase
 {
-    public function testDefaultCaseHasItsOwnArm()
+    public function testDefaultCaseReplacesRedundantArms()
     {
         $generator = new MatchGenerator('$foo');
         $generator->addArm('1', '1');
@@ -18,7 +18,6 @@ class MatchGeneratorTest extends TestCase
         $expected = <<<CODE
 match (\$foo) {
     1 => 1,
-    2 => 2,
     default => 2,
 }
 CODE;
