@@ -70,8 +70,11 @@ class PropertyBuilder
 
     private static function testInvariants(array $definition): void
     {
-        if (isset($definition["properties"]) && isset($definition["additionalProperties"])) {
-            throw new GeneratorException("using 'properties' and 'additionalProperties in the same schema is currently not supported.");
+        $hasAdditionalProperties = isset($definition["additionalProperties"]) && is_array($definition["additionalProperties"]) && count($definition["additionalProperties"]) > 0;
+        $hasProperties = isset($definition["properties"]) && is_array($definition["properties"]) && count($definition["properties"]) > 0;
+
+        if ($hasProperties && $hasAdditionalProperties) {
+            throw new GeneratorException("using 'properties' and 'additionalProperties' in the same schema is currently not supported.");
         }
     }
 }

@@ -12,6 +12,7 @@ class ObjectArrayProperty extends AbstractProperty
     use TypeConvert;
 
     private PropertyInterface $itemType;
+    private array $itemSchema;
 
     /**
      * ObjectArrayProperty constructor.
@@ -21,7 +22,9 @@ class ObjectArrayProperty extends AbstractProperty
      */
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
-        $this->itemType = PropertyBuilder::buildPropertyFromSchema($generatorRequest, $key . "Item", $schema["items"], true);
+        $this->itemSchema = $schema["additionalProperties"] ?? $schema["items"];
+
+        $this->itemType = PropertyBuilder::buildPropertyFromSchema($generatorRequest, $key . "Item", $this->itemSchema, true);
         parent::__construct($key, $schema, $generatorRequest);
     }
 
@@ -66,10 +69,8 @@ class ObjectArrayProperty extends AbstractProperty
      */
     public function generateSubTypes(SchemaToClass $generator): void
     {
-        $def = $this->schema;
-
         $generator->schemaToClass(
-            $this->generatorRequest->withSchema($def["items"])->withClass($this->subTypeName())
+            $this->generatorRequest->withSchema($this->itemSchema)->withClass($this->subTypeName())
         );
     }
 
