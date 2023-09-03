@@ -1,35 +1,42 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Generator;
 
 use Composer\Semver\Comparator;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
+use Laminas\Code\Generator\MethodGenerator;
+use Laminas\Code\Generator\PropertyGenerator;
 
 class GeneratorRequest
 {
     private array $schema;
-
     private ValidatedSpecificationFilesItem $spec;
-
     private SpecificationOptions $opts;
-
     private ?ReferenceLookup $referenceLookup = null;
+
+    /** @var PropertyGenerator[] */
+    private array $additionalProperties = [];
+
+    /** @var MethodGenerator[] */
+    private array $additionalMethods = [];
 
     public function __construct(array $schema, ValidatedSpecificationFilesItem $spec, SpecificationOptions $opts)
     {
         $opts = $opts->withTargetPHPVersion(self::semversifyVersionNumber($opts->getTargetPHPVersion()));
 
         $this->schema = $schema;
-        $this->spec = $spec;
-        $this->opts = $opts;
+        $this->spec   = $spec;
+        $this->opts   = $opts;
     }
 
     /**
      * @param string|int $versionNumber
      * @return string
      */
-    private static function semversifyVersionNumber($versionNumber): string {
+    private static function semversifyVersionNumber($versionNumber): string
+    {
         if (is_int($versionNumber)) {
             return $versionNumber . ".0.0";
         }
@@ -43,7 +50,7 @@ class GeneratorRequest
 
     public function withReferenceLookup(ReferenceLookup $referenceLookup): self
     {
-        $clone = clone $this;
+        $clone                  = clone $this;
         $clone->referenceLookup = $referenceLookup;
 
         return $clone;
@@ -51,7 +58,7 @@ class GeneratorRequest
 
     public function withSchema(array $schema): self
     {
-        $clone = clone $this;
+        $clone         = clone $this;
         $clone->schema = $schema;
 
         return $clone;
@@ -59,7 +66,7 @@ class GeneratorRequest
 
     public function withClass(string $targetClass): self
     {
-        $clone = clone $this;
+        $clone       = clone $this;
         $clone->spec = $this->spec->withTargetClass($targetClass);
 
         return $clone;
@@ -67,15 +74,47 @@ class GeneratorRequest
 
     public function withPHPVersion(string $targetPHPVersion): self
     {
-        $clone = clone $this;
+        $clone       = clone $this;
         $clone->opts = $this->opts->withTargetPHPVersion(self::semversifyVersionNumber($targetPHPVersion));
+
+        return $clone;
+    }
+
+    public function withAdditionalProperty(PropertyGenerator $property): self
+    {
+        $clone = clone $this;
+        $clone->additionalProperties = [...$clone->additionalProperties, $property];
+
+        return $clone;
+    }
+
+    public function withAdditionalMethod(MethodGenerator $method): self
+    {
+        $clone = clone $this;
+        $clone->additionalMethods = [...$clone->additionalMethods, $method];
 
         return $clone;
     }
 
     public function getTargetPHPVersion(): string
     {
-        return (string) $this->opts->getTargetPHPVersion();
+        return (string)$this->opts->getTargetPHPVersion();
+    }
+
+    /**
+     * @return PropertyGenerator[]
+     */
+    public function getAdditionalProperties(): array
+    {
+        return $this->additionalProperties;
+    }
+
+    /**
+     * @return MethodGenerator[]
+     */
+    public function getAdditionalMethods(): array
+    {
+        return $this->additionalMethods;
     }
 
     /**
@@ -139,7 +178,8 @@ class GeneratorRequest
         return $this->opts;
     }
 
-    public function lookupReference(string $ref): ReferencedType {
+    public function lookupReference(string $ref): ReferencedType
+    {
         if ($this->referenceLookup === null) {
             return new ReferencedTypeUnknown();
         }
