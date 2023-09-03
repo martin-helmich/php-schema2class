@@ -1,0 +1,7 @@
+required:
+  - foo_bar
+properties:
+  foo:
+    type: array
+    items:
+      $ref: "#/properties/address"
