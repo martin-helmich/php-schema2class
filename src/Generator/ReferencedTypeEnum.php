@@ -38,7 +38,7 @@ readonly class ReferencedTypeEnum implements ReferencedType
         return "\\{$this->enumName}::tryFrom({$expr}) !== null";
     }
 
-    public function inputMappingExpr(GeneratorRequest $req, string $expr): string
+    public function inputMappingExpr(GeneratorRequest $req, string $expr, ?string $validateExpr): string
     {
         return "\\{$this->enumName}::from({$expr})";
     }

@@ -38,12 +38,13 @@ readonly class ReferencedTypeClass implements ReferencedType
         return "\\{$this->className}::validateInput({$expr}, true)";
     }
 
-    public function inputMappingExpr(GeneratorRequest $req, string $expr): string
+    public function inputMappingExpr(GeneratorRequest $req, string $expr, ?string $validateExpr): string
     {
+        $validateExpr = $validateExpr ?? '$validate';
         if ($req->isAtLeastPHP("8.0")) {
-            return "\\{$this->className}::buildFromInput({$expr}, validate: \$validate)";
+            return "\\{$this->className}::buildFromInput({$expr}, validate: {$validateExpr})";
         }
-        return "\\{$this->className}::buildFromInput({$expr}, \$validate)";
+        return "\\{$this->className}::buildFromInput({$expr}, {$validateExpr})";
     }
 
     public function outputMappingExpr(GeneratorRequest $req, string $expr): string
