@@ -68,7 +68,7 @@ class ObjectArrayPropertyTest extends TestCase
         $result = $underTest->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
-$myPropertyName = array_map(function($i) { return FooMyPropertyNameItem::buildFromInput($i, $validate); }, $variable['myPropertyName']);
+$myPropertyName = array_map(fn ($i) => FooMyPropertyNameItem::buildFromInput($i, $validate), $variable['myPropertyName']);
 EOCODE;
 
         assertSame($expected, $result);
@@ -81,7 +81,7 @@ EOCODE;
         $result = $underTest->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-$variable['myPropertyName'] = array_map(function(FooMyPropertyNameItem $i) { return $i->toJson(); }, $this->myPropertyName);
+$variable['myPropertyName'] = array_map(fn (FooMyPropertyNameItem $i) => $i->toJson(), $this->myPropertyName);
 EOCODE;
 
         assertSame($expected, $result);
@@ -92,7 +92,7 @@ EOCODE;
         $underTest = new ObjectArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['properties' => []]], $this->generatorRequest);
 
         $expected = <<<'EOCODE'
-$this->myPropertyName = array_map(function(FooMyPropertyNameItem $i) { return clone $i; }, $this->myPropertyName);
+$this->myPropertyName = array_map(fn (FooMyPropertyNameItem $i) => clone $i, $this->myPropertyName);
 EOCODE;
         assertSame($expected, $underTest->cloneProperty());
     }

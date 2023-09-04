@@ -61,6 +61,9 @@ class ObjectArrayProperty extends AbstractProperty
         $key = $this->key;
         $st  = $this->subTypeName();
 
+        if ($this->generatorRequest->isAtLeastPHP("7.4")) {
+            return "\${$outputVarName}['$key'] = array_map(fn ($st \$i) => \$i->toJson(), \$this->$key);";
+        }
         return "\${$outputVarName}['$key'] = array_map(function($st \$i) { return \$i->toJson(); }, \$this->$key);";
     }
 
