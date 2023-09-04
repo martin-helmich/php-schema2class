@@ -7,15 +7,13 @@ use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Writer\WriterInterface;
-use Laminas\Code\Generator\DocBlockGenerator;
-use Laminas\Code\Generator\EnumGenerator\Cases\BackedCases;
-use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
-use Laminas\Code\Generator\EnumGenerator\Name as EnumName;
-use Symfony\Component\Console\Output\OutputInterface;
 use Laminas\Code\DeclareStatement;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
+use Laminas\Code\Generator\DocBlockGenerator;
+use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class SchemaToClass
 {
@@ -127,7 +125,10 @@ class SchemaToClass
 
         $cases = [];
         foreach ($req->getSchema()["enum"] as $case) {
-            $cases[$case] = $case;
+            $name  = $case !== "" ? $case : "EMPTY";
+            $value = $case;
+
+            $cases[$name] = $value;
         }
 
         $type = $req->getSchema()["type"] === "string" ? "string" : "int";
