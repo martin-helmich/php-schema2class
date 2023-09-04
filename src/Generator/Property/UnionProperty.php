@@ -181,24 +181,13 @@ class UnionProperty extends AbstractProperty
 
     public function typeAnnotation(): string
     {
-        $types = [];
-        $def   = $this->schema;
-
-        foreach ($def["oneOf"] as $i => $subDef) {
-            $propertyTypeName = $this->subTypeName($i);
-            if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
-                $types[] = $propertyTypeName;
-            } else {
-                $types[] = $this->phpPrimitiveForSchemaType($subDef)[0];
-            }
-        }
-
+        $types = array_map(fn (PropertyInterface $prop): string => $prop->typeAnnotation(), $this->subProperties);
         return join("|", $types);
     }
 
     public function typeHint(string $phpVersion): ?string
     {
-        if (Semver::satisfies($phpVersion, ">=8.0")) {
+        if ($this->generatorRequest->isAtLeastPHP("8.0")) {
             $subTypeHints = [];
 
             foreach ($this->subProperties as $subProp) {
