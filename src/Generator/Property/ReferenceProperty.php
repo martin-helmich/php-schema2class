@@ -42,7 +42,7 @@ class ReferenceProperty extends AbstractProperty
 
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
-        return $this->type->inputMappingExpr($this->generatorRequest, $expr);
+        return $this->type->inputMappingExpr($this->generatorRequest, expr: $expr, validateExpr: null);
     }
 
     public function generateOutputMappingExpr(string $expr): string

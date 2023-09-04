@@ -42,7 +42,7 @@ readonly class ReferencedTypeUnknown implements ReferencedType
         return "true";
     }
 
-    public function inputMappingExpr(GeneratorRequest $req, string $expr): string
+    public function inputMappingExpr(GeneratorRequest $req, string $expr, ?string $validateExpr): string
     {
         return $expr;
     }
