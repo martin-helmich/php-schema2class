@@ -51,9 +51,9 @@ class UnionPropertyTest extends TestCase
 
         $expected = <<<'EOCODE'
 if ((FooMyPropertyNameAlternative1::validateInput($variable['myPropertyName'], true))) {
-    $myPropertyName = FooMyPropertyNameAlternative1::buildFromInput($variable['myPropertyName']);
+    $myPropertyName = FooMyPropertyNameAlternative1::buildFromInput($variable['myPropertyName'], $validate);
 } else if ((FooMyPropertyNameAlternative2::validateInput($variable['myPropertyName'], true))) {
-    $myPropertyName = FooMyPropertyNameAlternative2::buildFromInput($variable['myPropertyName']);
+    $myPropertyName = FooMyPropertyNameAlternative2::buildFromInput($variable['myPropertyName'], $validate);
 } else {
     $myPropertyName = $variable['myPropertyName'];
 }

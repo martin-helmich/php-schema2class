@@ -72,17 +72,20 @@ class Foo
      * Builds a new instance from an input array
      *
      * @param array|object $input Input data
+     * @param bool $validate Set this to false to skip validation; use at own risk
      * @return Foo Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input) : Foo
+    public static function buildFromInput(array|object $input, bool $validate = true) : Foo
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        static::validateInput($input);
+        if ($validate) {
+            static::validateInput($input);
+        }
 
         $foo = null;
         if (isset($input->{'foo'})) {
-            $foo = array_map(fn(array $i): \Helmich\Schema2Class\Example\CustomerAddress => \Helmich\Schema2Class\Example\CustomerAddress::buildFromInput($i), $input->{'foo'});
+            $foo = array_map(fn(array $i): \Helmich\Schema2Class\Example\CustomerAddress => \Helmich\Schema2Class\Example\CustomerAddress::buildFromInput($i, validate: $validate), $input->{'foo'});
         }
 
         $obj = new self();
