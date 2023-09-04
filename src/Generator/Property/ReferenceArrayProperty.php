@@ -22,7 +22,11 @@ class ReferenceArrayProperty extends AbstractProperty
 
     public function typeAnnotation(): string
     {
-        return $this->type->typeAnnotation($this->generatorRequest) . '[]';
+        $inner = $this->type->typeAnnotation($this->generatorRequest);
+        if (str_contains($inner, "|")) {
+            return "({$inner})[]";
+        }
+        return $inner . '[]';
     }
 
     public function typeHint(string $phpVersion): ?string
