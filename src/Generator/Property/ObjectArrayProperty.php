@@ -103,10 +103,13 @@ class ObjectArrayProperty extends AbstractProperty
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
         $sm = $this->itemType->generateInputMappingExpr('$i');
-        if ($this->generatorRequest->isAtLeastPHP("7.4")) {
-            return "array_map(fn (\$i) => {$sm}, {$expr})";
-        }
-        return "array_map(function(\$i) use (\$validate) { return {$sm}; }, {$expr})";
+        $typeHint = $this->itemType->typeHint($this->generatorRequest->getTargetPHPVersion());
+
+        return match(true) {
+            $this->generatorRequest->isAtLeastPHP("7.4") => "array_map(fn (array \$i): {$typeHint} => {$sm}, {$expr})",
+            $this->generatorRequest->isAtLeastPHP("7.0") => "array_map(function(array \$i): {$typeHint} use (\$validate) { return {$sm}; }, {$expr})",
+            default => "array_map(function(array \$i) use (\$validate) { return {$sm}; }, {$expr})",
+        };
     }
 
     public function generateOutputMappingExpr(string $expr): string
