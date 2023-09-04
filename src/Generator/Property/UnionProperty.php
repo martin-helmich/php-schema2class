@@ -169,7 +169,10 @@ class UnionProperty extends AbstractProperty
         foreach ($def["oneOf"] as $i => $subDef) {
             $propertyTypeName = $this->subTypeName($i);
 
-            if ((isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"])) {
+            $isObject = (isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"]);
+            $isEnum = isset($subDef["enum"]);
+
+            if ($isObject || $isEnum) {
                 $generator->schemaToClass(
                     $this->generatorRequest
                         ->withSchema($subDef)
