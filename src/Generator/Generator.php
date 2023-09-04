@@ -52,11 +52,14 @@ class Generator
                 }
             }
 
-            $prop->setDocBlock(new DocBlockGenerator(
+            $docBlock = new DocBlockGenerator(
                 isset($schema["description"]) ? $schema["description"] : null,
                 null,
-                [new GenericTag("var", $property->typeAnnotation())]
-            ));
+                [new GenericTag("var", trim($property->typeAnnotation()))]
+            );
+            $docBlock->setWordWrap(false);
+
+            $prop->setDocBlock($docBlock);
 
             $typeHint = $property->typeHint($this->generatorRequest->getTargetPHPVersion());
             if ($this->generatorRequest->isAtLeastPHP("7.4") && $typeHint) {
@@ -113,7 +116,19 @@ class Generator
             defaultValue: true,
         );
 
-        $method = new MethodGenerator(
+        $docBlock = new DocBlockGenerator(
+            "Builds a new instance from an input array",
+            null,
+            [
+                new ParamTag($inputVarName, ["array|object"], "Input data"),
+                new ParamTag("validate", ["bool"], "Set this to false to skip validation; use at own risk"),
+                new ReturnTag([$this->generatorRequest->getTargetClass()], "Created instance"),
+                new ThrowsTag("\\InvalidArgumentException"),
+            ]
+        );
+        $docBlock->setWordWrap(false);
+
+        $method   = new MethodGenerator(
             'buildFromInput',
             [new ParameterGenerator($inputVarName, $paramType), $validationParam],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
@@ -125,16 +140,7 @@ class Generator
             '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
             join("\n", $assignments) . "\n" .
             'return $obj;',
-            new DocBlockGenerator(
-                "Builds a new instance from an input array",
-                null,
-                [
-                    new ParamTag($inputVarName, ["array|object"], "Input data"),
-                    new ParamTag("validate", ["bool"], "Set this to false to skip validation; use at own risk"),
-                    new ReturnTag([$this->generatorRequest->getTargetClass()], "Created instance"),
-                    new ThrowsTag("\\InvalidArgumentException"),
-                ]
-            )
+            $docBlock
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -150,20 +156,21 @@ class Generator
      */
     public function generateToJSONMethod(PropertyCollection $properties): MethodGenerator
     {
-        $method = new MethodGenerator(
+        $docBlock = new DocBlockGenerator(
+            "Converts this object back to a simple array that can be JSON-serialized",
+            null,
+            [new ReturnTag(["array"], "Converted array")]
+        );
+        $docBlock->setWordWrap(false);
+
+        $method   = new MethodGenerator(
             'toJson',
             [],
             MethodGenerator::FLAG_PUBLIC,
             '$output = [];' . "\n" .
             $properties->generateTypeToJSONConversionCode('output') . "\n\n" .
             'return $output;',
-            new DocBlockGenerator(
-                "Converts this object back to a simple array that can be JSON-serialized",
-                null,
-                [
-                    new ReturnTag(["array"], "Converted array"),
-                ]
-            )
+            $docBlock
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -178,7 +185,19 @@ class Generator
      */
     public function generateValidateMethod(): MethodGenerator
     {
-        $method = new MethodGenerator(
+        $docBlock = new DocBlockGenerator(
+            "Validates an input array",
+            null,
+            [
+                new ParamTag("input", ["array|object"], "Input data"),
+                new ParamTag("return", ["bool"], "Return instead of throwing errors"),
+                new ReturnTag(["bool"], "Validation result"),
+                new ThrowsTag("\\InvalidArgumentException"),
+            ]
+        );
+        $docBlock->setWordWrap(false);
+
+        $method   = new MethodGenerator(
             'validateInput',
             [
                 new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("8.0") ? "array|object" : null),
@@ -197,16 +216,7 @@ class Generator
             '    throw new \\InvalidArgumentException(join(", ", $errors));' . "\n" .
             '}' . "\n\n" .
             'return $validator->isValid();',
-            new DocBlockGenerator(
-                "Validates an input array",
-                null,
-                [
-                    new ParamTag("input", ["array|object"], "Input data"),
-                    new ParamTag("return", ["bool"], "Return instead of throwing errors"),
-                    new ReturnTag(["bool"], "Validation result"),
-                    new ThrowsTag("\\InvalidArgumentException"),
-                ]
-            )
+            $docBlock
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -331,6 +341,12 @@ if (!\$validator->isValid()) {
 ";
         }
 
+        $docBlock  = new DocBlockGenerator(null, null, [
+            new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
+            new ReturnTag("self"),
+        ]);
+        $docBlock->setWordWrap(false);
+
         $setMethod = new MethodGenerator(
             'with' . $camelCaseName,
             [new ParameterGenerator($key, $typeHint)],
@@ -339,10 +355,7 @@ if (!\$validator->isValid()) {
 \$clone->$key = \$$key;
 
 return \$clone;",
-            new DocBlockGenerator(null, null, [
-                new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
-                new ReturnTag("self"),
-            ])
+            $docBlock
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -404,12 +417,15 @@ return \$clone;",
             $assignments[] = "\$this->{$requiredProperty->key()} = \${$paramName};";
         }
 
+        $docBlock = new DocBlockGenerator("", "", $tags);
+        $docBlock->setWordWrap(false);
+
         return new MethodGenerator(
             "__construct",
             $params,
             MethodGenerator::FLAG_PUBLIC,
             join("\n", $assignments),
-            new DocBlockGenerator("", "", $tags)
+            $docBlock
         );
     }
 }
