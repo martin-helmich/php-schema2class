@@ -11,8 +11,10 @@ class NestedObjectProperty extends AbstractProperty
 
     public static function canHandleSchema(array $schema): bool
     {
-        return isset($schema["type"]) && $schema["type"] === "object"
-            || isset($schema["properties"]);
+        $isObject = isset($schema["type"]) && $schema["type"] === "object" || isset($schema["properties"]);
+        $isAssociativeArray = isset($schema["additionalProperties"]) && is_array($schema["additionalProperties"]);
+
+        return $isObject && !$isAssociativeArray;
     }
 
     public function isComplex(): bool

@@ -11,7 +11,7 @@ class PrimitiveArrayProperty extends AbstractProperty
     public static function canHandleSchema(array $schema): bool
     {
         $itemSchema = null;
-        $isAssociativeArray = isset($schema["additionalProperties"]);
+        $isAssociativeArray = isset($schema["additionalProperties"]) && is_array($schema["additionalProperties"]);
         $isArray = isset($schema["type"]) && $schema["type"] === "array";
 
         if ($isAssociativeArray) {
