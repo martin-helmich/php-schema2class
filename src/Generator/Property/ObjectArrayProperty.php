@@ -106,8 +106,9 @@ class ObjectArrayProperty extends AbstractProperty
         $typeHint = $this->itemType->typeHint($this->generatorRequest->getTargetPHPVersion());
 
         return match(true) {
-            $this->generatorRequest->isAtLeastPHP("7.4") => "array_map(fn (array \$i): {$typeHint} => {$sm}, {$expr})",
-            $this->generatorRequest->isAtLeastPHP("7.0") => "array_map(function(array \$i): {$typeHint} use (\$validate) { return {$sm}; }, {$expr})",
+            $this->generatorRequest->isAtLeastPHP("8.0") => "array_map(fn (array|object \$i): {$typeHint} => {$sm}, {$expr})",
+            $this->generatorRequest->isAtLeastPHP("7.4") => "array_map(fn (\$i): {$typeHint} => {$sm}, {$expr})",
+            $this->generatorRequest->isAtLeastPHP("7.0") => "array_map(function(\$i): {$typeHint} use (\$validate) { return {$sm}; }, {$expr})",
             default => "array_map(function(array \$i) use (\$validate) { return {$sm}; }, {$expr})",
         };
     }
