@@ -123,9 +123,15 @@ class SchemaToClass
             throw new GeneratorException("cannot generate enum classes for PHP versions < 8.1");
         }
 
+        /** @var array<non-empty-string, string|int> $cases */
         $cases = [];
         foreach ($req->getSchema()["enum"] as $case) {
-            $name  = $case !== "" ? $case : "EMPTY";
+            if (!is_string($case) && !is_int($case)) {
+                throw new GeneratorException("cannot generate enum classes for non-string/non-int enum values");
+            }
+
+            /** @var non-empty-string $name */
+            $name  = $case !== "" ? "$case" : "EMPTY";
             $value = $case;
 
             $cases[$name] = $value;

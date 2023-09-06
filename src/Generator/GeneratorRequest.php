@@ -31,11 +31,7 @@ class GeneratorRequest
         $this->opts   = $opts;
     }
 
-    /**
-     * @param string|int $versionNumber
-     * @return string
-     */
-    private static function semversifyVersionNumber($versionNumber): string
+    private static function semversifyVersionNumber(string|int $versionNumber): string
     {
         if (is_int($versionNumber)) {
             return $versionNumber . ".0.0";
