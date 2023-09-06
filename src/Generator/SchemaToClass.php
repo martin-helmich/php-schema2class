@@ -76,7 +76,6 @@ class SchemaToClass
         $properties = [
             ...$properties,
             ...$codeGenerator->generateProperties($propertiesFromSchema),
-            ...$req->getAdditionalProperties(),
         ];
 
         $methods = [
@@ -87,7 +86,6 @@ class SchemaToClass
             $codeGenerator->generateToJSONMethod($propertiesFromSchema),
             $codeGenerator->generateValidateMethod(),
             $codeGenerator->generateCloneMethod($propertiesFromSchema),
-            ...$req->getAdditionalMethods(),
         ];
 
         $cls = new ClassGenerator(
@@ -101,8 +99,14 @@ class SchemaToClass
             null
         );
 
+        $req->onClassCreated($cls);
+
+        $filename = $req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php';
+
         $file = new FileGenerator();
         $file->setClasses([$cls]);
+
+        $req->onFileCreated($filename, $file);
 
         if ($req->isAtLeastPHP("7.0") && !$req->getOptions()->getDisableStrictTypes()) {
             $file->setDeclares([DeclareStatement::strictTypes(1)]);
@@ -114,7 +118,7 @@ class SchemaToClass
         $content = preg_replace('/ : \\\\self/', ' : self', $content);
         $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace()) . '\\\\/', '', $content);
 
-        $this->writer->writeFile($req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php', $content);
+        $this->writer->writeFile($filename, $content);
     }
 
     private function schemaToEnum(GeneratorRequest $req): void
