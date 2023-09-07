@@ -3,6 +3,7 @@
 namespace Helmich\Schema2Class\Generator;
 
 use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
 
 trait GeneratorHookRunner
@@ -22,6 +23,15 @@ trait GeneratorHookRunner
         foreach ($this->hooks as $hook) {
             if ($hook instanceof Hook\ClassCreatedHook) {
                 $hook->onClassCreated($class->getName(), $class);
+            }
+        }
+    }
+
+    public function onEnumCreated(string $enumName, EnumGenerator $enum): void
+    {
+        foreach ($this->hooks as $hook) {
+            if ($hook instanceof Hook\EnumCreatedHook) {
+                $hook->onEnumCreated($enumName, $enum);
             }
         }
     }

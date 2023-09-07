@@ -136,16 +136,22 @@ class SchemaToClass
         }
 
         $type = $req->getSchema()["type"] === "string" ? "string" : "int";
+        $enumName  = $req->getTargetNamespace() . "\\" . $req->getTargetClass();
         $enum = EnumGenerator::withConfig([
-            "name"        => $req->getTargetNamespace() . "\\" . $req->getTargetClass(),
+            "name"        => $enumName,
             "backedCases" => [
                 "type"  => $type,
                 "cases" => $cases,
             ],
         ]);
 
+        $req->onEnumCreated($enumName, $enum);
+
+        $filename = $req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php';
         $file = new FileGenerator();
         $file->setBody($enum->generate());
+
+        $req->onFileCreated($filename, $file);
 
         // No strict typings for enums, because Psalm shits itself in that case.
         // $file->setDeclares([DeclareStatement::strictTypes(1)]);
@@ -156,7 +162,7 @@ class SchemaToClass
         $content = preg_replace('/ : \\\\self/', ' : self', $content);
         $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace()) . '\\\\/', '', $content);
 
-        $this->writer->writeFile($req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php', $content);
+        $this->writer->writeFile($filename, $content);
     }
 
 }
