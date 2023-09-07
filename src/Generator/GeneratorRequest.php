@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Helmich\Schema2Class\Generator;
 
 use Composer\Semver\Comparator;
+use Helmich\Schema2Class\Generator\Hook\AddMethodHook;
+use Helmich\Schema2Class\Generator\Hook\AddPropertyHook;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Laminas\Code\Generator\MethodGenerator;
@@ -16,11 +18,7 @@ class GeneratorRequest
     private SpecificationOptions $opts;
     private ?ReferenceLookup $referenceLookup = null;
 
-    /** @var PropertyGenerator[] */
-    private array $additionalProperties = [];
-
-    /** @var MethodGenerator[] */
-    private array $additionalMethods = [];
+    use GeneratorHookRunner;
 
     public function __construct(array $schema, ValidatedSpecificationFilesItem $spec, SpecificationOptions $opts)
     {
@@ -78,39 +76,17 @@ class GeneratorRequest
 
     public function withAdditionalProperty(PropertyGenerator $property): self
     {
-        $clone = clone $this;
-        $clone->additionalProperties = [...$clone->additionalProperties, $property];
-
-        return $clone;
+        return $this->withHook(new AddPropertyHook($property));
     }
 
     public function withAdditionalMethod(MethodGenerator $method): self
     {
-        $clone = clone $this;
-        $clone->additionalMethods = [...$clone->additionalMethods, $method];
-
-        return $clone;
+        return $this->withHook(new AddMethodHook($method));
     }
 
     public function getTargetPHPVersion(): string
     {
         return (string)$this->opts->getTargetPHPVersion();
-    }
-
-    /**
-     * @return PropertyGenerator[]
-     */
-    public function getAdditionalProperties(): array
-    {
-        return $this->additionalProperties;
-    }
-
-    /**
-     * @return MethodGenerator[]
-     */
-    public function getAdditionalMethods(): array
-    {
-        return $this->additionalMethods;
     }
 
     /**
