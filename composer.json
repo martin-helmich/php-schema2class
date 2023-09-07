@@ -16,7 +16,7 @@
         "justinrainbow/json-schema": "^5.2",
         "ext-json": "*",
         "composer/semver": "^3.0",
-        "laminas/laminas-code": "^4.2"
+        "laminas/laminas-code": "^4.12"
     },
     "autoload": {
         "psr-4": {
