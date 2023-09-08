@@ -23,6 +23,11 @@ readonly class ReferencedTypeEnum implements ReferencedType
         return "\\" . $this->enumName;
     }
 
+    function serializedInputTypeHint(GeneratorRequest $req): ?string
+    {
+        return "string";
+    }
+
     public function serializedTypeHint(GeneratorRequest $req): ?string
     {
         return "string";

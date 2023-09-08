@@ -23,6 +23,11 @@ readonly class ReferencedTypeClass implements ReferencedType
         return "\\" . $this->className;
     }
 
+    public function serializedInputTypeHint(GeneratorRequest $req): ?string
+    {
+        return "array|object";
+    }
+
     public function serializedTypeHint(GeneratorRequest $req): ?string
     {
         return "array";

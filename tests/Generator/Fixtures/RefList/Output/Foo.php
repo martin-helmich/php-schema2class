@@ -85,7 +85,7 @@ class Foo
 
         $foo = null;
         if (isset($input->{'foo'})) {
-            $foo = array_map(fn(array $i): \Helmich\Schema2Class\Example\CustomerAddress => \Helmich\Schema2Class\Example\CustomerAddress::buildFromInput($i, validate: $validate), $input->{'foo'});
+            $foo = array_map(fn(array|object $i): \Helmich\Schema2Class\Example\CustomerAddress => \Helmich\Schema2Class\Example\CustomerAddress::buildFromInput($i, validate: $validate), $input->{'foo'});
         }
 
         $obj = new self();
