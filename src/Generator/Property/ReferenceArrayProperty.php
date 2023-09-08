@@ -42,13 +42,13 @@ class ReferenceArrayProperty extends AbstractProperty
 
     public function generateInputAssertionExpr(string $expr): string
     {
-        $map = "array_map(fn({$this->type->serializedTypeHint($this->generatorRequest)} \$i): bool => {$this->type->inputAssertionExpr($this->generatorRequest, '$i')}, {$expr})";
+        $map = "array_map(fn({$this->type->serializedInputTypeHint($this->generatorRequest)} \$i): bool => {$this->type->inputAssertionExpr($this->generatorRequest, '$i')}, {$expr})";
         return "array_reduce($map, fn(bool \$carry, bool \$item): bool => \$carry && \$item, true)";
     }
 
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
-        return "array_map(fn({$this->type->serializedTypeHint($this->generatorRequest)} \$i): {$this->type->typeHint($this->generatorRequest)} => {$this->type->inputMappingExpr($this->generatorRequest, expr: '$i', validateExpr: null)}, {$expr})";
+        return "array_map(fn({$this->type->serializedInputTypeHint($this->generatorRequest)} \$i): {$this->type->typeHint($this->generatorRequest)} => {$this->type->inputMappingExpr($this->generatorRequest, expr: '$i', validateExpr: null)}, {$expr})";
     }
 
     public function generateOutputMappingExpr(string $expr): string
