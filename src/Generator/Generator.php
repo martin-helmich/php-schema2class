@@ -41,19 +41,19 @@ class Generator
             $isOptional = false;
             $prop       = new PropertyGenerator(
                 $property->key(),
-                isset($schema["default"]) ? $schema["default"] : null,
+                $schema["default"] ?? null,
                 PropertyGenerator::FLAG_PRIVATE
             );
 
             if ($property instanceof OptionalPropertyDecorator) {
                 $isOptional = true;
-                if (isset($schema["default"]) && $schema["default"] !== null) {
+                if (isset($schema["default"])) {
                     $property = $property->unwrap();
                 }
             }
 
             $docBlock = new DocBlockGenerator(
-                isset($schema["description"]) ? $schema["description"] : null,
+                $schema["description"] ?? null,
                 null,
                 [new GenericTag("var", trim($property->typeAnnotation()))]
             );
