@@ -27,6 +27,9 @@ properties:
       disableStrictTypes:
         type: bool
         default: false
+      treatValuesWithDefaultAsOptional:
+        type: bool
+        default: false
       targetPHPVersion:
         oneOf:
           - type: integer

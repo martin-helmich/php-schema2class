@@ -61,6 +61,10 @@ class Specification
                         'type' => 'bool',
                         'default' => false,
                     ],
+                    'treatValuesWithDefaultAsOptional' => [
+                        'type' => 'bool',
+                        'default' => false,
+                    ],
                     'targetPHPVersion' => [
                         'oneOf' => [
                             [

@@ -57,7 +57,7 @@ class PropertyBuilder
                 /** @var PropertyInterface $property */
                 $property = new $propertyType($name, $definition, $req);
 
-                if (!$isRequired) {
+                if (!$isRequired || (isset($definition["default"]) && $req->getOptions()->getTreatValuesWithDefaultAsOptional())) {
                     $property = new OptionalPropertyDecorator($name, $property);
                 }
 
