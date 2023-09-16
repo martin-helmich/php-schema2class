@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Generator\Property\BooleanProperty;
+use Helmich\Schema2Class\Generator\Property\DefaultPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\NumberProperty;
 use Helmich\Schema2Class\Generator\Property\ObjectArrayProperty;
 use Helmich\Schema2Class\Generator\Property\PrimitiveArrayProperty;
@@ -57,7 +58,9 @@ class PropertyBuilder
                 /** @var PropertyInterface $property */
                 $property = new $propertyType($name, $definition, $req);
 
-                if (!$isRequired || (isset($definition["default"]) && $req->getOptions()->getTreatValuesWithDefaultAsOptional())) {
+                if (isset($definition["default"]) && $req->getOptions()->getTreatValuesWithDefaultAsOptional()) {
+                    $property = new DefaultPropertyDecorator($name, $property);
+                } else if (!$isRequired) {
                     $property = new OptionalPropertyDecorator($name, $property);
                 }
 
