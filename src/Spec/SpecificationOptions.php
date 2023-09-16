@@ -24,13 +24,14 @@ class SpecificationOptions
                         'enum' => [
                             5,
                             7,
+                            8,
                         ],
                     ],
                     [
                         'type' => 'string',
                     ],
                 ],
-                'default' => '7.4.0',
+                'default' => '8.2.0',
             ],
         ],
     ];
@@ -43,7 +44,7 @@ class SpecificationOptions
     /**
      * @var int|string
      */
-    private int|string $targetPHPVersion = '7.4.0';
+    private int|string $targetPHPVersion = '8.2.0';
 
     /**
      *
@@ -124,19 +125,22 @@ class SpecificationOptions
      * Builds a new instance from an input array
      *
      * @param array|object $input Input data
+     * @param bool $validate Set this to false to skip validation; use at own risk
      * @return SpecificationOptions Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input) : SpecificationOptions
+    public static function buildFromInput(array|object $input, bool $validate = true) : SpecificationOptions
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        static::validateInput($input);
+        if ($validate) {
+            static::validateInput($input);
+        }
 
         $disableStrictTypes = false;
         if (isset($input->{'disableStrictTypes'})) {
             $disableStrictTypes = (bool)($input->{'disableStrictTypes'});
         }
-        $targetPHPVersion = '7.4.0';
+        $targetPHPVersion = '8.2.0';
         if (isset($input->{'targetPHPVersion'})) {
             $targetPHPVersion = match (true) {
                 is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},

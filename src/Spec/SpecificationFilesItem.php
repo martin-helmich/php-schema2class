@@ -184,13 +184,16 @@ class SpecificationFilesItem
      * Builds a new instance from an input array
      *
      * @param array|object $input2 Input data
+     * @param bool $validate Set this to false to skip validation; use at own risk
      * @return SpecificationFilesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input2) : SpecificationFilesItem
+    public static function buildFromInput(array|object $input2, bool $validate = true) : SpecificationFilesItem
     {
         $input2 = is_array($input2) ? \JsonSchema\Validator::arrayToObjectRecursive($input2) : $input2;
-        static::validateInput($input2);
+        if ($validate) {
+            static::validateInput($input2);
+        }
 
         $input = $input2->{'input'};
         $className = $input2->{'className'};

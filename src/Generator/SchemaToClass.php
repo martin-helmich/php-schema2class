@@ -121,6 +121,19 @@ class SchemaToClass
         $this->writer->writeFile($filename, $content);
     }
 
+    /**
+     * @param string|int $value
+     * @return non-empty-string
+     */
+    private static function enumCaseName(string|int $value): string
+    {
+        return match (true) {
+            is_int($value) => "VALUE_$value",
+            $value === "" => "EMPTY",
+            default => $value,
+        };
+    }
+
     private function schemaToEnum(GeneratorRequest $req): void
     {
         if (!$req->isAtLeastPHP("8.1")) {
@@ -134,16 +147,15 @@ class SchemaToClass
                 throw new GeneratorException("cannot generate enum classes for non-string/non-int enum values");
             }
 
-            /** @var non-empty-string $name */
-            $name  = $case !== "" ? "$case" : "EMPTY";
+            $name  = self::enumCaseName($case);
             $value = $case;
 
             $cases[$name] = $value;
         }
 
-        $type = $req->getSchema()["type"] === "string" ? "string" : "int";
-        $enumName  = $req->getTargetNamespace() . "\\" . $req->getTargetClass();
-        $enum = EnumGenerator::withConfig([
+        $type     = $req->getSchema()["type"] === "string" ? "string" : "int";
+        $enumName = $req->getTargetNamespace() . "\\" . $req->getTargetClass();
+        $enum     = EnumGenerator::withConfig([
             "name"        => $enumName,
             "backedCases" => [
                 "type"  => $type,
@@ -154,7 +166,7 @@ class SchemaToClass
         $req->onEnumCreated($enumName, $enum);
 
         $filename = $req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php';
-        $file = new FileGenerator();
+        $file     = new FileGenerator();
         $file->setBody($enum->generate());
 
         $req->onFileCreated($filename, $file);
