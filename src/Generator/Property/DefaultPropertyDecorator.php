@@ -6,7 +6,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 
-class OptionalPropertyDecorator implements PropertyInterface
+class DefaultPropertyDecorator implements PropertyInterface
 {
     use CodeFormatting;
 
@@ -14,11 +14,6 @@ class OptionalPropertyDecorator implements PropertyInterface
 
     private PropertyInterface $inner;
 
-    /**
-     * OptionalPropertyDecorator constructor.
-     * @param                   $key
-     * @param PropertyInterface $inner
-     */
     public function __construct(string $key, PropertyInterface $inner)
     {
         $this->key   = $key;
@@ -42,6 +37,14 @@ class OptionalPropertyDecorator implements PropertyInterface
         return false;
     }
 
+    private function defaultExpr(): string
+    {
+        $default    = $this->schema()["default"];
+        $defaultExp = var_export($default, true);
+
+        return $defaultExp === "NULL" ? "null" : $defaultExp;
+    }
+
     /**
      * @param string $inputVarName
      * @param bool $object
@@ -52,14 +55,10 @@ class OptionalPropertyDecorator implements PropertyInterface
         $key   = $this->key;
         $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
-        $default = isset($this->schema()["default"]) ? $this->schema()["default"] : null;
-        $defaultExp = var_export($default, true);
-
-        $defaultExp = $defaultExp === "NULL" ? "null" : $defaultExp;
-
+        $defaultExp = $this->defaultExpr();
         $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
 
-        return "\$$key = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner,1) . "\n}";
+        return "\$$key = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner, 1) . "\n}";
     }
 
     /**
@@ -68,10 +67,7 @@ class OptionalPropertyDecorator implements PropertyInterface
      */
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
-        $key   = $this->key;
-        $inner = $this->inner->convertTypeToJSON($outputVarName);
-
-        return "if (isset(\$this->$key)) {\n" . $this->indentCode($inner, 1) . "\n}";
+        return $this->inner->convertTypeToJSON($outputVarName);
     }
 
     /**
@@ -88,58 +84,17 @@ class OptionalPropertyDecorator implements PropertyInterface
      */
     public function typeAnnotation(): string
     {
-        $inner = $this->inner->typeAnnotation();
-        if (!str_contains($inner, "|null")) {
-            $inner .= "|null";
-        }
-
-        return $inner;
+        return $this->inner->typeAnnotation();
     }
 
-    /**
-     * @param $phpVersion
-     * @return string|null
-     */
     public function typeHint(string $phpVersion): ?string
     {
-        $inner = $this->inner->typeHint($phpVersion);
-
-        if (Semver::satisfies($phpVersion, "<7.0")) {
-            return $inner;
-        }
-
-        if ($inner === null) {
-            return null;
-        }
-
-        if (Semver::satisfies($phpVersion, ">=8.0") && str_contains($inner, "|")) {
-            return "{$inner}|null";
-        }
-
-        if (Semver::satisfies($phpVersion, ">=7.1.0") && strpos($inner, "?") !== 0) {
-            if ($inner === "mixed" || $inner === "null") {
-                return $inner;
-            }
-
-            $inner = "?" . $inner;
-        }
-
-        return $inner;
+        return $this->inner->typeHint($phpVersion);
     }
 
-    /**
-     * @return string|null
-     */
     public function cloneProperty(): ?string
     {
-        $key   = $this->key();
-        $inner = $this->inner->cloneProperty();
-
-        if ($inner !== null) {
-            return "if (isset(\$this->$key)) {\n" . $this->indentCode($inner, 1) . "\n}";
-        }
-
-        return null;
+        return $this->inner->cloneProperty();
     }
 
     /**
@@ -168,7 +123,7 @@ class OptionalPropertyDecorator implements PropertyInterface
 
     public function generateTypeAssertionExpr(string $expr): string
     {
-        return "(({$expr}) === null) || ({$this->inner->generateTypeAssertionExpr($expr)})";
+        return $this->inner->generateTypeAssertionExpr($expr);
     }
 
     public function generateInputAssertionExpr(string $expr): string
@@ -179,18 +134,17 @@ class OptionalPropertyDecorator implements PropertyInterface
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
         $inner = $this->inner->generateInputMappingExpr($expr);
-        return "({$expr} !== null) ? ({$inner}) : null";
+        return "({$expr} !== null) ? ({$inner}) : {$this->defaultExpr()}";
     }
 
     public function generateOutputMappingExpr(string $expr): string
     {
-        $inner = $this->inner->generateOutputMappingExpr($expr);
-        return "({$expr} !== null) ? ({$inner}) : null";
+        return $this->inner->generateOutputMappingExpr($expr);
     }
 
     public function generateCloneExpr(string $expr): string
     {
-        return "isset({$expr}) ? (clone {$expr}) : null";
+        return $this->inner->generateCloneExpr($expr);
     }
 
 }
