@@ -14,7 +14,11 @@ class SpecificationOptions
     private static array $schema = [
         'properties' => [
             'disableStrictTypes' => [
-                'type' => 'bool',
+                'type' => 'boolean',
+                'default' => false,
+            ],
+            'treatValuesWithDefaultAsOptional' => [
+                'type' => 'boolean',
                 'default' => false,
             ],
             'targetPHPVersion' => [
@@ -42,6 +46,11 @@ class SpecificationOptions
     private bool $disableStrictTypes = false;
 
     /**
+     * @var bool
+     */
+    private bool $treatValuesWithDefaultAsOptional = false;
+
+    /**
      * @var int|string
      */
     private int|string $targetPHPVersion = '8.2.0';
@@ -59,6 +68,14 @@ class SpecificationOptions
     public function getDisableStrictTypes() : bool
     {
         return $this->disableStrictTypes;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getTreatValuesWithDefaultAsOptional() : bool
+    {
+        return $this->treatValuesWithDefaultAsOptional;
     }
 
     /**
@@ -94,6 +111,35 @@ class SpecificationOptions
     {
         $clone = clone $this;
         unset($clone->disableStrictTypes);
+
+        return $clone;
+    }
+
+    /**
+     * @param bool $treatValuesWithDefaultAsOptional
+     * @return self
+     */
+    public function withTreatValuesWithDefaultAsOptional(bool $treatValuesWithDefaultAsOptional) : self
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($treatValuesWithDefaultAsOptional, static::$schema['properties']['treatValuesWithDefaultAsOptional']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->treatValuesWithDefaultAsOptional = $treatValuesWithDefaultAsOptional;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutTreatValuesWithDefaultAsOptional() : self
+    {
+        $clone = clone $this;
+        unset($clone->treatValuesWithDefaultAsOptional);
 
         return $clone;
     }
@@ -140,6 +186,10 @@ class SpecificationOptions
         if (isset($input->{'disableStrictTypes'})) {
             $disableStrictTypes = (bool)($input->{'disableStrictTypes'});
         }
+        $treatValuesWithDefaultAsOptional = false;
+        if (isset($input->{'treatValuesWithDefaultAsOptional'})) {
+            $treatValuesWithDefaultAsOptional = (bool)($input->{'treatValuesWithDefaultAsOptional'});
+        }
         $targetPHPVersion = '8.2.0';
         if (isset($input->{'targetPHPVersion'})) {
             $targetPHPVersion = match (true) {
@@ -149,6 +199,7 @@ class SpecificationOptions
 
         $obj = new self();
         $obj->disableStrictTypes = $disableStrictTypes;
+        $obj->treatValuesWithDefaultAsOptional = $treatValuesWithDefaultAsOptional;
         $obj->targetPHPVersion = $targetPHPVersion;
         return $obj;
     }
@@ -163,6 +214,9 @@ class SpecificationOptions
         $output = [];
         if (isset($this->disableStrictTypes)) {
             $output['disableStrictTypes'] = $this->disableStrictTypes;
+        }
+        if (isset($this->treatValuesWithDefaultAsOptional)) {
+            $output['treatValuesWithDefaultAsOptional'] = $this->treatValuesWithDefaultAsOptional;
         }
         if (isset($this->targetPHPVersion)) {
             $output['targetPHPVersion'] = match (true) {
