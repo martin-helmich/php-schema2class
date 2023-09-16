@@ -14,11 +14,11 @@ class SpecificationOptions
     private static array $schema = [
         'properties' => [
             'disableStrictTypes' => [
-                'type' => 'bool',
+                'type' => 'boolean',
                 'default' => false,
             ],
             'treatValuesWithDefaultAsOptional' => [
-                'type' => 'bool',
+                'type' => 'boolean',
                 'default' => false,
             ],
             'targetPHPVersion' => [

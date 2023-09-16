@@ -58,11 +58,11 @@ class Specification
             'options' => [
                 'properties' => [
                     'disableStrictTypes' => [
-                        'type' => 'bool',
+                        'type' => 'boolean',
                         'default' => false,
                     ],
                     'treatValuesWithDefaultAsOptional' => [
-                        'type' => 'bool',
+                        'type' => 'boolean',
                         'default' => false,
                     ],
                     'targetPHPVersion' => [
