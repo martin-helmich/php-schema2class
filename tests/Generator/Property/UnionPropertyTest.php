@@ -50,13 +50,10 @@ class UnionPropertyTest extends TestCase
         $result = $underTest->convertJSONToType('variable');
 
         $expected = <<<'EOCODE'
-if ((FooMyPropertyNameAlternative1::validateInput($variable['myPropertyName'], true))) {
-    $myPropertyName = FooMyPropertyNameAlternative1::buildFromInput($variable['myPropertyName'], $validate);
-} else if ((FooMyPropertyNameAlternative2::validateInput($variable['myPropertyName'], true))) {
-    $myPropertyName = FooMyPropertyNameAlternative2::buildFromInput($variable['myPropertyName'], $validate);
-} else {
-    $myPropertyName = $variable['myPropertyName'];
-}
+$myPropertyName = match (true) {
+    FooMyPropertyNameAlternative1::validateInput($variable['myPropertyName'], true) => FooMyPropertyNameAlternative1::buildFromInput($variable['myPropertyName'], validate: $validate),
+    FooMyPropertyNameAlternative2::validateInput($variable['myPropertyName'], true) => FooMyPropertyNameAlternative2::buildFromInput($variable['myPropertyName'], validate: $validate),
+};
 EOCODE;
 
         assertSame($expected, $result);
@@ -69,9 +66,9 @@ EOCODE;
         $result = $underTest->convertTypeToJSON('variable');
 
         $expected = <<<'EOCODE'
-if (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) || ($this->myPropertyName instanceof FooMyPropertyNameAlternative2)) {
-    $variable['myPropertyName'] = ($this->myPropertyName)->toJson();
-}
+$variable['myPropertyName'] = match (true) {
+    $this->myPropertyName instanceof FooMyPropertyNameAlternative1, $this->myPropertyName instanceof FooMyPropertyNameAlternative2 => ($this->myPropertyName)->toJson(),
+};
 EOCODE;
 
         assertSame($expected, $result);
@@ -80,18 +77,32 @@ EOCODE;
     public function testCloneProperty()
     {
         $expected = <<<'EOCODE'
-$this->myPropertyName = ($this->myPropertyName instanceof FooMyPropertyNameAlternative2) ? (clone $this->myPropertyName) : (($this->myPropertyName instanceof FooMyPropertyNameAlternative1) ? (clone $this->myPropertyName) : ($this->myPropertyName));
+$this->myPropertyName = match (true) {
+    $this->myPropertyName instanceof FooMyPropertyNameAlternative1, $this->myPropertyName instanceof FooMyPropertyNameAlternative2 => clone $this->myPropertyName,
+};
 EOCODE;
         assertSame($expected, $this->property->cloneProperty());
     }
 
-    public function testGetAnnotationAndHintWithSimpleArray()
+    public function dataForAnnotationAndHintWithSimpleArray()
     {
-        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $this->generatorRequest);
+        return [
+            'php 8.2' => ['8.2.0', '\BarNs\FooMyPropertyNameAlternative1|\BarNs\FooMyPropertyNameAlternative2'],
+            'php 7.2' => ['7.2.0', null],
+            'php 5.6' => ['5.6.0', null],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAnnotationAndHintWithSimpleArray
+     */
+    public function testGetAnnotationAndHintWithSimpleArray(string $phpVersion, mixed $expected)
+    {
+        $request = $this->generatorRequest->withPHPVersion($phpVersion);
+        $underTest = new UnionProperty('myPropertyName', ['anyOf' => [['properties' => ['subFoo1' => ['type' => 'string']]], ['properties' => ['subFoo2' => ['type' => 'string']]]]], $request);
 
         assertSame('FooMyPropertyNameAlternative1|FooMyPropertyNameAlternative2', $underTest->typeAnnotation());
-        assertSame(null, $underTest->typeHint("7.2.0"));
-        assertSame(null, $underTest->typeHint("5.6.0"));
+        assertSame($expected, $underTest->typeHint("n/a"));
     }
 
     public function provideTestSchema()

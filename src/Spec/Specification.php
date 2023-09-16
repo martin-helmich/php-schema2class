@@ -23,6 +23,7 @@ class Specification
                         'enum' => [
                             5,
                             7,
+                            8,
                         ],
                     ],
                     [
@@ -67,13 +68,14 @@ class Specification
                                 'enum' => [
                                     5,
                                     7,
+                                    8,
                                 ],
                             ],
                             [
                                 'type' => 'string',
                             ],
                         ],
-                        'default' => '7.4.0',
+                        'default' => '8.2.0',
                     ],
                 ],
             ],
@@ -189,13 +191,16 @@ class Specification
      * Builds a new instance from an input array
      *
      * @param array|object $input Input data
+     * @param bool $validate Set this to false to skip validation; use at own risk
      * @return Specification Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input) : Specification
+    public static function buildFromInput(array|object $input, bool $validate = true) : Specification
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        static::validateInput($input);
+        if ($validate) {
+            static::validateInput($input);
+        }
 
         $targetPHPVersion = null;
         if (isset($input->{'targetPHPVersion'})) {
@@ -203,10 +208,10 @@ class Specification
                 is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
             };
         }
-        $files = array_map(function($i) { return SpecificationFilesItem::buildFromInput($i); }, $input->{'files'});
+        $files = array_map(fn (array|object $i): SpecificationFilesItem => SpecificationFilesItem::buildFromInput($i, validate: $validate), $input->{'files'});
         $options = null;
         if (isset($input->{'options'})) {
-            $options = SpecificationOptions::buildFromInput($input->{'options'});
+            $options = SpecificationOptions::buildFromInput($input->{'options'}, validate: $validate);
         }
 
         $obj = new self($files);
@@ -228,7 +233,7 @@ class Specification
                 is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
             };
         }
-        $output['files'] = array_map(function(SpecificationFilesItem $i) { return $i->toJson(); }, $this->files);
+        $output['files'] = array_map(fn (SpecificationFilesItem $i) => $i->toJson(), $this->files);
         if (isset($this->options)) {
             $output['options'] = ($this->options)->toJson();
         }
@@ -267,7 +272,7 @@ class Specification
                 is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
             };
         }
-        $this->files = array_map(function(SpecificationFilesItem $i) { return clone $i; }, $this->files);
+        $this->files = array_map(fn (SpecificationFilesItem $i) => clone $i, $this->files);
         if (isset($this->options)) {
             $this->options = clone $this->options;
         }
