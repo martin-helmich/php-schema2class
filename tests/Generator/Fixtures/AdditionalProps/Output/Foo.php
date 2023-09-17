@@ -138,7 +138,7 @@ class Foo
         }
         $params = null;
         if (isset($input->{'params'})) {
-            $params = $input->{'params'};
+            $params = (array)$input->{'params'};
         }
 
         $obj = new self();
