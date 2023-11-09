@@ -128,10 +128,41 @@ class SchemaToClass
     private static function enumCaseName(string|int $value): string
     {
         return match (true) {
-            is_int($value) => "VALUE_$value",
+            is_int($value), is_numeric($value[0]) => "VALUE_$value",
             $value === "" => "EMPTY",
             default => $value,
         };
+    }
+
+    /**
+     * @param array<non-empty-string, string|int> $cases
+     * @return array<non-empty-string, string|int>
+     */
+    private static function makeCaseNamesConsistent(array $cases): array
+    {
+        $hasValuePrefix = false;
+
+        foreach ($cases as $name => $value) {
+            if (str_starts_with($name, "VALUE_")) {
+                $hasValuePrefix = true;
+                break;
+            }
+        }
+
+        if (!$hasValuePrefix) {
+            return $cases;
+        }
+
+        $newCases = [];
+        foreach ($cases as $name => $value) {
+            if (str_starts_with($name, "VALUE_")) {
+                $newCases[$name] = $value;
+            } else {
+                $newCases["VALUE_$name"] = $value;
+            }
+        }
+
+        return $newCases;
     }
 
     private function schemaToEnum(GeneratorRequest $req): void
@@ -152,6 +183,8 @@ class SchemaToClass
 
             $cases[$name] = $value;
         }
+
+        $cases = self::makeCaseNamesConsistent($cases);
 
         $type     = $req->getSchema()["type"] === "string" ? "string" : "int";
         $enumName = $req->getTargetNamespace() . "\\" . $req->getTargetClass();
