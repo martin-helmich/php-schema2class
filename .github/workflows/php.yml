@@ -34,14 +34,13 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: Generate example code
-      run: ./cmd/s2c --class=Customer generate:fromschema tests/example.yaml src/Example
-
-    - name: Run type checker
-      run: ./vendor/bin/psalm --php-version=${{ matrix.php-versions }}
-
     - name: Run unit tests
       run: ./vendor/bin/phpunit --testdox
+
+    # Unit tests need to run before the type checker, because they generate code
+    # that the type checker needs to see.
+    - name: Run type checker
+      run: ./vendor/bin/psalm --php-version=${{ matrix.php-versions }}
     
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
