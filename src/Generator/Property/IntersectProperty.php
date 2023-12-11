@@ -124,6 +124,12 @@ class IntersectProperty extends AbstractProperty
                 $schema = $this->buildSchemaUnion($schema["anyOf"]);
             }
 
+            if (isset($schema['$ref'])) {
+                if ($this->generatorRequest->getOptions()->getInlineAllofReferences()) {
+                    $schema = $this->generatorRequest->lookupSchema($schema['$ref']);
+                }
+            }
+
             if (isset($schema["required"])) {
                 $combined["required"] = array_unique(array_merge($combined["required"], $schema["required"]));
             }

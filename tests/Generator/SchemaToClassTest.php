@@ -63,13 +63,23 @@ class SchemaToClassTest extends TestCase
             (new SpecificationOptions())->withTargetPHPVersion("8.2"),
         );
 
-        $req = $req->withReferenceLookup(new class implements ReferenceLookup {
+        $req = $req->withReferenceLookup(new class ($schema) implements ReferenceLookup {
+            public function __construct(private readonly array $schema) {}
+
             public function lookupReference(string $reference): ReferencedType
             {
                 if ($reference === "#/properties/address") {
                     return new ReferencedTypeClass(CustomerAddress::class);
                 }
                 return new ReferencedTypeUnknown();
+            }
+
+            public function lookupSchema(string $reference): array
+            {
+                if ($reference === "#/properties/address") {
+                    return $this->schema["properties"]["address"];
+                }
+                return [];
             }
         });
 

@@ -158,4 +158,13 @@ class GeneratorRequest
 
         return $this->referenceLookup->lookupReference($ref);
     }
+
+    public function lookupSchema(string $ref): array
+    {
+        if ($this->referenceLookup === null) {
+            return [];
+        }
+
+        return $this->referenceLookup->lookupSchema($ref);
+    }
 }

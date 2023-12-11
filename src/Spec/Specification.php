@@ -65,6 +65,10 @@ class Specification
                         'type' => 'boolean',
                         'default' => false,
                     ],
+                    'inlineAllofReferences' => [
+                        'type' => 'boolean',
+                        'default' => false,
+                    ],
                     'targetPHPVersion' => [
                         'oneOf' => [
                             [
