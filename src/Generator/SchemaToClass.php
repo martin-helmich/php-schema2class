@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
+use Helmich\Schema2Class\Generator\Property\IntersectProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Writer\WriterInterface;
@@ -39,6 +40,14 @@ class SchemaToClass
             return;
         }
 
+        if (IntersectProperty::canHandleSchema($schema)) {
+            $schema = (new IntersectProperty($req->getTargetClass(), $schema, $req))->buildSchemaIntersect();
+        }
+
+        if (!NestedObjectProperty::canHandleSchema($schema)) {
+            throw new GeneratorException("cannot generate class for types other than 'object'");
+        }
+
         $schemaProperty = new PropertyGenerator("schema", $schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
         $schemaProperty->setDocBlock(new DocBlockGenerator(
             "Schema used to validate input for creating instances of this class",
@@ -51,10 +60,6 @@ class SchemaToClass
         }
 
         $properties = [$schemaProperty];
-
-        if (!NestedObjectProperty::canHandleSchema($schema)) {
-            throw new GeneratorException("cannot generate class for types other than 'object'");
-        }
 
         $propertiesFromSchema = new PropertyCollection();
 

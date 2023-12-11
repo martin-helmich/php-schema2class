@@ -62,6 +62,13 @@ properties:
         type: string
   alternateAddress:
     $ref: '#/properties/address'
+  extendedAddress:
+    allOf:
+      - $ref: '#/properties/address'
+      - properties:
+          country:
+            type: string
+            maxLength: 2
   tags:
     type: array
     items:

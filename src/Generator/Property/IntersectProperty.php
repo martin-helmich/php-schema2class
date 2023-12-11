@@ -26,7 +26,7 @@ class IntersectProperty extends AbstractProperty
     public function generateSubTypes(SchemaToClass $generator): void
     {
         $propertyTypeName = $this->subTypeName();
-        $combined = $this->buildSchemaIntersect($this->schema["allOf"]);
+        $combined = $this->buildSchemaIntersect();
 
         $generator->schemaToClass(
             $this->generatorRequest
@@ -108,8 +108,9 @@ class IntersectProperty extends AbstractProperty
         return $combined;
     }
 
-    private function buildSchemaIntersect(array $schemas): array
+    public function buildSchemaIntersect(): array
     {
+        $schemas = $this->schema["allOf"];
         $combined = [
             "required" => [],
             "properties" => [],
@@ -122,6 +123,14 @@ class IntersectProperty extends AbstractProperty
 
             if (isset($schema["anyOf"])) {
                 $schema = $this->buildSchemaUnion($schema["anyOf"]);
+            }
+
+            if (isset($schema['$ref'])) {
+                if ($this->generatorRequest->getOptions()->getInlineAllofReferences()) {
+                    $schema = $this->generatorRequest->lookupSchema($schema['$ref']);
+                } else {
+                    throw new \Exception("unsupported '\$ref' in 'allOf' type definition");
+                }
             }
 
             if (isset($schema["required"])) {

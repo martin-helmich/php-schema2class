@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
@@ -21,7 +21,7 @@ class SchemaToClassTest extends TestCase
 
     public function loadCodeGenerationTestCases(): array
     {
-        $testCases = [];
+        $testCases   = [];
         $testCaseDir = join(DIRECTORY_SEPARATOR, [__DIR__, "Fixtures"]);
 
         $dir = opendir($testCaseDir);
@@ -32,11 +32,11 @@ class SchemaToClassTest extends TestCase
             }
 
             $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.yaml"]);
-            $outputDir = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "Output"]);
-            $output = opendir($outputDir);
+            $outputDir  = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "Output"]);
+            $output     = opendir($outputDir);
 
             $expectedFiles = [];
-            $schema = Yaml::parseFile($schemaFile);
+            $schema        = Yaml::parseFile($schemaFile);
 
             while ($outputEntry = readdir($output)) {
                 if (substr($outputEntry, -4) !== ".php") {
@@ -57,19 +57,49 @@ class SchemaToClassTest extends TestCase
      */
     public function testCodeGeneration(string $name, array $schema, array $expectedOutput): void
     {
+        $opts = (new SpecificationOptions)
+            ->withTargetPHPVersion("8.2")
+            ->withInlineAllofReferences(true);
+
         $req = new GeneratorRequest(
             $schema,
             new ValidatedSpecificationFilesItem("Ns\\{$name}", "Foo", __DIR__),
-            (new SpecificationOptions())->withTargetPHPVersion("8.2"),
+            $opts,
         );
 
-        $req = $req->withReferenceLookup(new class implements ReferenceLookup {
+        $req = $req->withReferenceLookup(new class ($schema) implements ReferenceLookup {
+            public function __construct(private readonly array $schema)
+            {
+            }
+
             public function lookupReference(string $reference): ReferencedType
             {
                 if ($reference === "#/properties/address") {
                     return new ReferencedTypeClass(CustomerAddress::class);
                 }
                 return new ReferencedTypeUnknown();
+            }
+
+            public function lookupSchema(string $reference): array
+            {
+                if ($reference === "#/properties/address") {
+                    return [
+                        'required' => [
+                            'city',
+                            'street',
+                        ],
+                        'properties' => [
+                            'city' => [
+                                'type' => 'string',
+                                'maxLength' => 32,
+                            ],
+                            'street' => [
+                                'type' => 'string',
+                            ],
+                        ],
+                    ];
+                }
+                return [];
             }
         });
 
@@ -79,8 +109,15 @@ class SchemaToClassTest extends TestCase
         (new SchemaToClassFactory())->build($writer, $output)->schemaToClass($req);
 
         foreach ($expectedOutput as $file => $content) {
-            $filename = join(DIRECTORY_SEPARATOR, [__DIR__, $file]);
-            assertThat($writer->getWrittenFiles()[$filename], equalTo($content));
+            $filename      = join(DIRECTORY_SEPARATOR, [__DIR__, $file]);
+            $actualContent = $writer->getWrittenFiles()[$filename];
+
+            if (getenv("UPDATE_SNAPSHOTS") === "1") {
+                $outputFilename = join(DIRECTORY_SEPARATOR, [__DIR__, "Fixtures", $name, "Output", $file]);
+                file_put_contents($outputFilename, $actualContent);
+            } else {
+                assertThat($actualContent, equalTo($content));
+            }
         }
     }
 }

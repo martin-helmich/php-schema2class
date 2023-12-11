@@ -21,6 +21,10 @@ class SpecificationOptions
                 'type' => 'boolean',
                 'default' => false,
             ],
+            'inlineAllofReferences' => [
+                'type' => 'boolean',
+                'default' => false,
+            ],
             'targetPHPVersion' => [
                 'oneOf' => [
                     [
@@ -51,6 +55,11 @@ class SpecificationOptions
     private bool $treatValuesWithDefaultAsOptional = false;
 
     /**
+     * @var bool
+     */
+    private bool $inlineAllofReferences = false;
+
+    /**
      * @var int|string
      */
     private int|string $targetPHPVersion = '8.2.0';
@@ -76,6 +85,14 @@ class SpecificationOptions
     public function getTreatValuesWithDefaultAsOptional() : bool
     {
         return $this->treatValuesWithDefaultAsOptional;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getInlineAllofReferences() : bool
+    {
+        return $this->inlineAllofReferences;
     }
 
     /**
@@ -145,6 +162,35 @@ class SpecificationOptions
     }
 
     /**
+     * @param bool $inlineAllofReferences
+     * @return self
+     */
+    public function withInlineAllofReferences(bool $inlineAllofReferences) : self
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($inlineAllofReferences, static::$schema['properties']['inlineAllofReferences']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->inlineAllofReferences = $inlineAllofReferences;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutInlineAllofReferences() : self
+    {
+        $clone = clone $this;
+        unset($clone->inlineAllofReferences);
+
+        return $clone;
+    }
+
+    /**
      * @param int|string $targetPHPVersion
      * @return self
      */
@@ -190,6 +236,10 @@ class SpecificationOptions
         if (isset($input->{'treatValuesWithDefaultAsOptional'})) {
             $treatValuesWithDefaultAsOptional = (bool)($input->{'treatValuesWithDefaultAsOptional'});
         }
+        $inlineAllofReferences = false;
+        if (isset($input->{'inlineAllofReferences'})) {
+            $inlineAllofReferences = (bool)($input->{'inlineAllofReferences'});
+        }
         $targetPHPVersion = '8.2.0';
         if (isset($input->{'targetPHPVersion'})) {
             $targetPHPVersion = match (true) {
@@ -200,6 +250,7 @@ class SpecificationOptions
         $obj = new self();
         $obj->disableStrictTypes = $disableStrictTypes;
         $obj->treatValuesWithDefaultAsOptional = $treatValuesWithDefaultAsOptional;
+        $obj->inlineAllofReferences = $inlineAllofReferences;
         $obj->targetPHPVersion = $targetPHPVersion;
         return $obj;
     }
@@ -217,6 +268,9 @@ class SpecificationOptions
         }
         if (isset($this->treatValuesWithDefaultAsOptional)) {
             $output['treatValuesWithDefaultAsOptional'] = $this->treatValuesWithDefaultAsOptional;
+        }
+        if (isset($this->inlineAllofReferences)) {
+            $output['inlineAllofReferences'] = $this->inlineAllofReferences;
         }
         if (isset($this->targetPHPVersion)) {
             $output['targetPHPVersion'] = match (true) {
