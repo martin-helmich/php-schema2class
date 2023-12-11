@@ -1,0 +1,7 @@
+allOf:
+  - $ref: '#/properties/address'
+  - required:
+      - country
+    properties:
+      country:
+        type: string

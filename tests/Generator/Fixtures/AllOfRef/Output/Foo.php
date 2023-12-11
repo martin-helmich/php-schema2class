@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\AdditionalProps;
+namespace Ns\AllOfRef;
 
 class Foo
 {
@@ -12,107 +12,126 @@ class Foo
      * @var array
      */
     private static array $schema = [
-        'type' => 'object',
+        'required' => [
+            'city',
+            'street',
+            'country',
+        ],
         'properties' => [
-            'name' => [
+            'city' => [
+                'type' => 'string',
+                'maxLength' => 32,
+            ],
+            'street' => [
                 'type' => 'string',
             ],
-            'params' => [
-                'type' => 'object',
-                'additionalProperties' => [
-                    
-                ],
+            'country' => [
+                'type' => 'string',
             ],
         ],
     ];
 
     /**
-     * @var string|null
+     * @var string
      */
-    private ?string $name = null;
+    private string $city;
 
     /**
-     * @var mixed[]|null
+     * @var string
      */
-    private ?array $params = null;
+    private string $street;
 
     /**
-     *
+     * @var string
      */
-    public function __construct()
+    private string $country;
+
+    /**
+     * @param string $city
+     * @param string $street
+     * @param string $country
+     */
+    public function __construct(string $city, string $street, string $country)
     {
+        $this->city = $city;
+        $this->street = $street;
+        $this->country = $country;
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getName() : ?string
+    public function getCity() : string
     {
-        return $this->name ?? null;
+        return $this->city;
     }
 
     /**
-     * @return mixed[]|null
+     * @return string
      */
-    public function getParams() : ?array
+    public function getStreet() : string
     {
-        return $this->params ?? null;
+        return $this->street;
     }
 
     /**
-     * @param string $name
+     * @return string
+     */
+    public function getCountry() : string
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param string $city
      * @return self
      */
-    public function withName(string $name) : self
+    public function withCity(string $city) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($name, static::$schema['properties']['name']);
+        $validator->validate($city, static::$schema['properties']['city']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->name = $name;
+        $clone->city = $city;
 
         return $clone;
     }
 
     /**
+     * @param string $street
      * @return self
      */
-    public function withoutName() : self
-    {
-        $clone = clone $this;
-        unset($clone->name);
-
-        return $clone;
-    }
-
-    /**
-     * @param mixed[] $params
-     * @return self
-     */
-    public function withParams(array $params) : self
+    public function withStreet(string $street) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($params, static::$schema['properties']['params']);
+        $validator->validate($street, static::$schema['properties']['street']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->params = $params;
+        $clone->street = $street;
 
         return $clone;
     }
 
     /**
+     * @param string $country
      * @return self
      */
-    public function withoutParams() : self
+    public function withCountry(string $country) : self
     {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($country, static::$schema['properties']['country']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
         $clone = clone $this;
-        unset($clone->params);
+        $clone->country = $country;
 
         return $clone;
     }
@@ -132,18 +151,12 @@ class Foo
             static::validateInput($input);
         }
 
-        $name = null;
-        if (isset($input->{'name'})) {
-            $name = $input->{'name'};
-        }
-        $params = null;
-        if (isset($input->{'params'})) {
-            $params = (array)$input->{'params'};
-        }
+        $city = $input->{'city'};
+        $street = $input->{'street'};
+        $country = $input->{'country'};
 
-        $obj = new self();
-        $obj->name = $name;
-        $obj->params = $params;
+        $obj = new self($city, $street, $country);
+
         return $obj;
     }
 
@@ -155,12 +168,9 @@ class Foo
     public function toJson() : array
     {
         $output = [];
-        if (isset($this->name)) {
-            $output['name'] = $this->name;
-        }
-        if (isset($this->params)) {
-            $output['params'] = $this->params;
-        }
+        $output['city'] = $this->city;
+        $output['street'] = $this->street;
+        $output['country'] = $this->country;
 
         return $output;
     }
