@@ -26,6 +26,8 @@ class CustomerTest extends TestCase
 {
     public function testCanBeGenerated()
     {
+        $targetDirectory = __DIR__ . "/../../src/Example";
+
         $schemaFile = __DIR__ . "/../example.yaml";
         $schema = (new SchemaLoader)->loadSchema($schemaFile);
 
@@ -33,8 +35,8 @@ class CustomerTest extends TestCase
 
         $writer = new FileWriter(new NullOutput());
 
-        $spec = new ValidatedSpecificationFilesItem($targetNamespace, "Customer", __DIR__ . "/../../src/Example");
-        $opts = (new SpecificationOptions())
+        $spec = new ValidatedSpecificationFilesItem($targetNamespace, "Customer", $targetDirectory);
+        $opts            = (new SpecificationOptions())
             ->withTargetPHPVersion($targetPHPVersion ?? "8.2.0")
             ->withInlineAllofReferences(true);
 
@@ -61,6 +63,8 @@ class CustomerTest extends TestCase
 
         $builder = new SchemaToClassFactory();
         $builder->build($writer, new NullOutput())->schemaToClass($request);
+
+        assertThat(class_exists(Customer::class), equalTo(true));
     }
 
     public function testCanBeCreatedWithRequiredProperties()
