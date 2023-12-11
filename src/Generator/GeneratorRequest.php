@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Helmich\Schema2Class\Generator;
 
 use Composer\Semver\Comparator;
+use Helmich\Schema2Class\Generator\Hook\AddInterfaceHook;
 use Helmich\Schema2Class\Generator\Hook\AddMethodHook;
 use Helmich\Schema2Class\Generator\Hook\AddPropertyHook;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
@@ -82,6 +83,16 @@ class GeneratorRequest
     public function withAdditionalMethod(MethodGenerator $method): self
     {
         return $this->withHook(new AddMethodHook($method));
+    }
+
+    /**
+     * @psalm-param class-string $interface
+     * @param string $interface
+     * @return self
+     */
+    public function withAdditionalInterface(string $interface): self
+    {
+        return $this->withHook(new AddInterfaceHook($interface));
     }
 
     public function getTargetPHPVersion(): string
