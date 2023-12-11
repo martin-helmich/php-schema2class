@@ -35,7 +35,7 @@
         "cmd/s2c"
     ],
     "require-dev": {
-        "phpunit/phpunit": "^9.6",
+        "phpunit/phpunit": "^10.5",
         "vimeo/psalm": "^5.12",
         "phpspec/prophecy": "^1.17",
         "phpspec/prophecy-phpunit": "^2.0"
