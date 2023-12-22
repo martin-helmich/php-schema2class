@@ -64,6 +64,8 @@ class GeneratorRequest
         $clone       = clone $this;
         $clone->spec = $this->spec->withTargetClass($targetClass);
 
+        $clone->clearNonPropagatingHooks();
+
         return $clone;
     }
 
@@ -75,24 +77,41 @@ class GeneratorRequest
         return $clone;
     }
 
-    public function withAdditionalProperty(PropertyGenerator $property): self
+    /**
+     * Adds a property to generated classes.
+     *
+     * @param PropertyGenerator $property The property to add to generated classes.
+     * @param bool $propagateToSubObjects Controls if the property should be added to sub-objects.
+     * @return self
+     */
+    public function withAdditionalProperty(PropertyGenerator $property, bool $propagateToSubObjects = false): self
     {
-        return $this->withHook(new AddPropertyHook($property));
-    }
-
-    public function withAdditionalMethod(MethodGenerator $method): self
-    {
-        return $this->withHook(new AddMethodHook($method));
+        return $this->withHook(new AddPropertyHook($property), $propagateToSubObjects);
     }
 
     /**
-     * @psalm-param class-string $interface
-     * @param string $interface
+     * Adds a method to generated classes.
+     *
+     * @param MethodGenerator $method The method to add to generated classes.
+     * @param bool $propagateToSubObjects Controls if the method should be added to sub-objects.
      * @return self
      */
-    public function withAdditionalInterface(string $interface): self
+    public function withAdditionalMethod(MethodGenerator $method, bool $propagateToSubObjects = false): self
     {
-        return $this->withHook(new AddInterfaceHook($interface));
+        return $this->withHook(new AddMethodHook($method), $propagateToSubObjects);
+    }
+
+    /**
+     * Adds an "implements" clause to generated classes.
+     *
+     * @psalm-param class-string $interface
+     * @param string $interface The interface to add to generated classes.
+     * @param bool $propagateToSubObjects Controls if the interface should be added to sub-objects.
+     * @return self
+     */
+    public function withAdditionalInterface(string $interface, bool $propagateToSubObjects = false): self
+    {
+        return $this->withHook(new AddInterfaceHook($interface), $propagateToSubObjects);
     }
 
     public function getTargetPHPVersion(): string
