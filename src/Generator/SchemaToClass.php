@@ -132,11 +132,25 @@ class SchemaToClass
      */
     private static function enumCaseName(string|int $value): string
     {
-        return match (true) {
-            is_int($value), is_numeric($value[0]) => "VALUE_$value",
-            $value === "" => "EMPTY",
-            default => $value,
-        };
+        if (is_int($value)) {
+            return "VALUE_$value";
+        }
+
+        $value = static::enumCaseNameString($value);
+        if ($value === "") {
+            return "EMPTY";
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    private static function enumCaseNameString(string $value): string
+    {
+        return preg_replace('/[^a-zA-Z0-9]/', '', $value);
     }
 
     /**
