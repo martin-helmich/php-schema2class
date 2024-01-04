@@ -2,4 +2,5 @@ enum:
   - Foo
   - Bar
   - Baz
+  - Foo-Bar
 type: string
