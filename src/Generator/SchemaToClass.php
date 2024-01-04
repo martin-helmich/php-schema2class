@@ -137,6 +137,11 @@ class SchemaToClass
         }
 
         $value = static::enumCaseNameString($value);
+
+        if (is_numeric($value[0])) {
+            return "VALUE_$value";
+        }
+
         if ($value === "") {
             return "EMPTY";
         }
