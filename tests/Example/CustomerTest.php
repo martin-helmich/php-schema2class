@@ -80,10 +80,12 @@ class CustomerTest extends TestCase
         $c = Customer::buildFromInput([
             "firstName" => "Max",
             "lastName" => "Mustermann",
+			"age" => 31,
         ]);
 
         assertThat($c->getFirstName(), equalTo("Max"));
         assertThat($c->getLastName(), equalTo("Mustermann"));
+		assertThat($c->getAge(), equalTo(31));
     }
 
     public function testCanBeBuildFromJsonInputWithEmbeddedAddress()
