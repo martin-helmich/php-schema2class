@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace Example;
 
 use Helmich\Schema2Class\Example\Customer;
@@ -36,13 +37,15 @@ class CustomerTest extends TestCase
         $writer = new FileWriter(new NullOutput());
 
         $spec = new ValidatedSpecificationFilesItem($targetNamespace, "Customer", $targetDirectory);
-        $opts            = (new SpecificationOptions())
+        $opts = (new SpecificationOptions())
             ->withTargetPHPVersion($targetPHPVersion ?? "8.2.0")
             ->withInlineAllofReferences(true);
 
         $request = new GeneratorRequest($schema, $spec, $opts);
         $request = $request->withReferenceLookup(new class ($schema) implements ReferenceLookup {
-            public function __construct(private readonly array $schema) {}
+            public function __construct(private readonly array $schema)
+            {
+            }
 
             public function lookupReference(string $reference): ReferencedType
             {
@@ -80,12 +83,12 @@ class CustomerTest extends TestCase
         $c = Customer::buildFromInput([
             "firstName" => "Max",
             "lastName" => "Mustermann",
-			"age" => 31,
+            "age" => 31,
         ]);
 
         assertThat($c->getFirstName(), equalTo("Max"));
         assertThat($c->getLastName(), equalTo("Mustermann"));
-		assertThat($c->getAge(), equalTo(31));
+        assertThat($c->getAge(), equalTo(31));
     }
 
     public function testCanBeBuildFromJsonInputWithEmbeddedAddress()
