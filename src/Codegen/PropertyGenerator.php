@@ -238,7 +238,7 @@ class PropertyGenerator extends ZendPropertyGenerator
         $output .= $this->indentation
             . $this->getVisibility()
             . ($this->isStatic() ? ' static' : '')
-            . ($this->typeHint ? ' ' . $this->typeHint : '')
+            . ($this->typeHint !== null ? ' ' . $this->typeHint : '')
             . ' $' . $name;
 
         if ($this->omitDefaultValue) {

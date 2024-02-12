@@ -56,11 +56,8 @@ class GenerateSpecCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var string|null $specFile */
-        $specFile = $input->getArgument("specfile");
-        if (!$specFile) {
-            $specFile = getcwd() . "/.s2c.yaml";
-        }
+        /** @var string $specFile */
+        $specFile = $input->getArgument("specfile") ?: getcwd() . "/.s2c.yaml";
 
         if (!file_exists($specFile)) {
             throw new LoadingException($specFile, "specification file not found");
@@ -96,7 +93,7 @@ class GenerateSpecCommand extends Command
             $output->writeln("loading schema from <comment>$schemaFile</comment>");
             $schema = $this->loader->loadSchema($schemaFile);
 
-            if (!$targetNamespace) {
+            if ($targetNamespace === null) {
                 $output->writeln("target namespace not given. trying to infer from target directory...");
                 $targetNamespace = $this->namespaceInferrer->inferNamespaceFromTargetDirectory($targetDirectory);
                 $file = $file->withTargetNamespace($targetNamespace);
