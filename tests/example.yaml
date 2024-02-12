@@ -18,6 +18,8 @@ properties:
   email:
     type: string
     format: email
+  age:
+    type: number
   billing:
     allOf:
       - required: [vatID]
