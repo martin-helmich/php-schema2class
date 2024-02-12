@@ -37,7 +37,6 @@ class NumberPropertyTest extends TestCase
     public function testCanHandleSchema()
     {
         assertTrue($this->property::canHandleSchema(['type' => 'number']));
-        assertTrue($this->property::canHandleSchema(['type' => 'number']));
 
         assertFalse($this->property::canHandleSchema([]));
 		assertFalse($this->property::canHandleSchema(['type' => 'integer']));
