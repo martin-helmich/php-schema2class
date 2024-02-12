@@ -62,7 +62,7 @@ class Generator
             $prop->setDocBlock($docBlock);
 
             $typeHint = $property->typeHint($this->generatorRequest->getTargetPHPVersion());
-            if ($this->generatorRequest->isAtLeastPHP("7.4") && $typeHint) {
+            if ($this->generatorRequest->isAtLeastPHP("7.4") && $typeHint !== null) {
                 $prop->setTypeHint($typeHint);
             }
 
@@ -288,7 +288,7 @@ class Generator
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
             $typeHint = $property->typeHint($this->generatorRequest->getTargetPHPVersion());
-            if ($typeHint) {
+            if ($typeHint !== null) {
                 $getMethod->setReturnType($typeHint);
 
                 if ($typeHint[0] === '?') {
