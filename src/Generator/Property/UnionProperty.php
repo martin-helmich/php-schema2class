@@ -98,7 +98,7 @@ class UnionProperty extends AbstractProperty
             $branches[] = ($ifs++ > 0 ? "else " : "") . "if ($condition) {\n    $assignment\n}";
         }
 
-        if ($fallback) {
+        if ($fallback !== null) {
             if (count($branches) > 0) {
                 $branches[] = "else {\n    $fallback\n}";
             } else {
