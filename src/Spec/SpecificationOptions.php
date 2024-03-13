@@ -41,6 +41,13 @@ class SpecificationOptions
                 ],
                 'default' => '8.2.0',
             ],
+            'newValidatorClassExpr' => [
+                'type' => 'string',
+                'description' => 'The expression to use to create a new instance of the validator class.
+This is useful if you want to use a custom validator class.
+',
+                'default' => 'new \\JsonSchema\\Validator()',
+            ],
         ],
     ];
 
@@ -63,6 +70,15 @@ class SpecificationOptions
      * @var int|string
      */
     private int|string $targetPHPVersion = '8.2.0';
+
+    /**
+     * The expression to use to create a new instance of the validator class.
+     * This is useful if you want to use a custom validator class.
+     *
+     *
+     * @var string
+     */
+    private string $newValidatorClassExpr = 'new \\JsonSchema\\Validator()';
 
     /**
      *
@@ -101,6 +117,14 @@ class SpecificationOptions
     public function getTargetPHPVersion() : int|string
     {
         return $this->targetPHPVersion;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNewValidatorClassExpr() : string
+    {
+        return $this->newValidatorClassExpr;
     }
 
     /**
@@ -214,6 +238,35 @@ class SpecificationOptions
     }
 
     /**
+     * @param string $newValidatorClassExpr
+     * @return self
+     */
+    public function withNewValidatorClassExpr(string $newValidatorClassExpr) : self
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($newValidatorClassExpr, static::$schema['properties']['newValidatorClassExpr']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->newValidatorClassExpr = $newValidatorClassExpr;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutNewValidatorClassExpr() : self
+    {
+        $clone = clone $this;
+        unset($clone->newValidatorClassExpr);
+
+        return $clone;
+    }
+
+    /**
      * Builds a new instance from an input array
      *
      * @param array|object $input Input data
@@ -246,12 +299,17 @@ class SpecificationOptions
                 is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
             };
         }
+        $newValidatorClassExpr = 'new \\JsonSchema\\Validator()';
+        if (isset($input->{'newValidatorClassExpr'})) {
+            $newValidatorClassExpr = $input->{'newValidatorClassExpr'};
+        }
 
         $obj = new self();
         $obj->disableStrictTypes = $disableStrictTypes;
         $obj->treatValuesWithDefaultAsOptional = $treatValuesWithDefaultAsOptional;
         $obj->inlineAllofReferences = $inlineAllofReferences;
         $obj->targetPHPVersion = $targetPHPVersion;
+        $obj->newValidatorClassExpr = $newValidatorClassExpr;
         return $obj;
     }
 
@@ -276,6 +334,9 @@ class SpecificationOptions
             $output['targetPHPVersion'] = match (true) {
                 is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
             };
+        }
+        if (isset($this->newValidatorClassExpr)) {
+            $output['newValidatorClassExpr'] = $this->newValidatorClassExpr;
         }
 
         return $output;
