@@ -85,6 +85,13 @@ class Specification
                         ],
                         'default' => '8.2.0',
                     ],
+                    'newValidatorClassExpr' => [
+                        'type' => 'string',
+                        'description' => 'The expression to use to create a new instance of the validator class.
+This is useful if you want to use a custom validator class.
+',
+                        'default' => 'new \\JsonSchema\\Validator()',
+                    ],
                 ],
             ],
         ],

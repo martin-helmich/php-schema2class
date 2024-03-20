@@ -197,14 +197,16 @@ class Generator
         );
         $docBlock->setWordWrap(false);
 
-        $method   = new MethodGenerator(
+        $newValidatorClassExpr = $this->generatorRequest->getOptions()->getNewValidatorClassExpr();
+
+        $method = new MethodGenerator(
             'validateInput',
             [
                 new ParameterGenerator("input", $this->generatorRequest->isAtLeastPHP("8.0") ? "array|object" : null),
                 new ParameterGenerator("return", $this->generatorRequest->isAtLeastPHP("7.0") ? "bool" : null, false),
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
-            '$validator = new \\JsonSchema\\Validator();' . "\n" .
+            '$validator = '. $newValidatorClassExpr .';' . "\n" .
             '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
             '$validator->validate($input, static::$schema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
