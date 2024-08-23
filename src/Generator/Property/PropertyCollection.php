@@ -19,23 +19,13 @@ class PropertyCollection implements \Iterator
 
     public function generateJSONToTypeConversionCode(string $inputVarName = 'input', bool $object = false): string
     {
-        $conv = [];
-
-        foreach ($this->properties as $generator) {
-            $conv[] = $generator->convertJSONToType($inputVarName, $object);
-        }
-
+        $conv = array_map(fn ($p) => $p->convertJSONToType($inputVarName, $object), $this->properties);
         return join("\n", $conv);
     }
 
     public function generateTypeToJSONConversionCode(string $outputVarName = 'output'): string
     {
-        $conv = [];
-
-        foreach ($this->properties as $generator) {
-            $conv[] = $generator->convertTypeToJSON($outputVarName);
-        }
-
+        $conv = array_map(fn ($p) => $p->convertTypeToJSON($outputVarName), $this->properties);
         return join("\n", $conv);
     }
 
@@ -55,9 +45,7 @@ class PropertyCollection implements \Iterator
      */
     public function filterRequired(): array
     {
-        return array_filter($this->properties, function($p) {
-            return !($p instanceof OptionalPropertyDecorator);
-        });
+        return array_filter($this->properties, fn ($p) => !$this->isOptional($p));
     }
 
     /**
@@ -65,9 +53,7 @@ class PropertyCollection implements \Iterator
      */
     public function filterOptional(): array
     {
-        return array_filter($this->properties, function($p) {
-            return $p instanceof OptionalPropertyDecorator;
-        });
+        return array_filter($this->properties, fn ($p) => $this->isOptional($p));
     }
 
     public function isOptional(PropertyInterface $prop): bool
