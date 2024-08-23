@@ -6,3 +6,6 @@ properties:
     deprecated: true
   fooBar:
     type: string
+  bar:
+    type: string
+    deprecated: true

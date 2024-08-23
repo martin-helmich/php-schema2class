@@ -23,6 +23,10 @@ class Foo
             'fooBar' => [
                 'type' => 'string',
             ],
+            'bar' => [
+                'type' => 'string',
+                'deprecated' => true,
+            ],
         ],
     ];
 
@@ -36,6 +40,12 @@ class Foo
      * @var string
      */
     private string $fooBar;
+
+    /**
+     * @var string|null
+     * @deprecated
+     */
+    private ?string $bar = null;
 
     /**
      * @param string $fooBar
@@ -54,6 +64,15 @@ class Foo
     }
 
     /**
+     * @return string|null
+     * @deprecated
+     */
+    public function getBar() : ?string
+    {
+        return $this->bar ?? null;
+    }
+
+    /**
      * @param string $fooBar
      * @return self
      */
@@ -67,6 +86,36 @@ class Foo
 
         $clone = clone $this;
         $clone->fooBar = $fooBar;
+
+        return $clone;
+    }
+
+    /**
+     * @param string $bar
+     * @return self
+     * @deprecated
+     */
+    public function withBar(string $bar) : self
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($bar, static::$schema['properties']['bar']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->bar = $bar;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutBar() : self
+    {
+        $clone = clone $this;
+        unset($clone->bar);
 
         return $clone;
     }
@@ -91,9 +140,14 @@ class Foo
             $foobar = $input->{'foobar'};
         }
         $fooBar = $input->{'fooBar'};
+        $bar = null;
+        if (isset($input->{'bar'})) {
+            $bar = $input->{'bar'};
+        }
 
         $obj = new self($fooBar);
         $obj->foobar = $foobar;
+        $obj->bar = $bar;
         return $obj;
     }
 
@@ -109,6 +163,9 @@ class Foo
             $output['foobar'] = $this->foobar;
         }
         $output['fooBar'] = $this->fooBar;
+        if (isset($this->bar)) {
+            $output['bar'] = $this->bar;
+        }
 
         return $output;
     }
