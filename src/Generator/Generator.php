@@ -8,7 +8,7 @@ use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
-use Helmich\Schema2Class\Generator\Property\PropertyCollectionFilter;
+use Helmich\Schema2Class\Generator\Property\PropertyCollectionFilterFactory;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlock\Tag\ParamTag;
@@ -83,8 +83,8 @@ class Generator
      */
     public function generateBuildMethod(PropertyCollection $properties): MethodGenerator
     {
-        $requiredProperties = $properties->filterRequired();
-        $optionalProperties = $properties->filterOptional();
+        $requiredProperties = $properties->filter(PropertyCollectionFilterFactory::required());
+        $optionalProperties = $properties->filter(PropertyCollectionFilterFactory::optional());
 
         $constructorParams = [];
         $assignments       = [];
@@ -260,7 +260,7 @@ class Generator
     {
         $methods = [];
 
-        $properties = PropertyCollectionFilter::filterWithoutDeprecatedAndSameName($properties);
+        $properties = $properties->filter(PropertyCollectionFilterFactory::withoutDeprecatedAndSameName($properties));
 
         foreach ($properties as $property) {
             $methods[] = $this->generateGetterMethod($property);
@@ -312,12 +312,12 @@ class Generator
     public function generateSetterMethods(PropertyCollection $properties): array
     {
         $methods = [];
-        $properties = PropertyCollectionFilter::filterWithoutDeprecatedAndSameName($properties);
+        $properties = $properties->filter(PropertyCollectionFilterFactory::withoutDeprecatedAndSameName($properties));
 
         foreach ($properties as $property) {
             $methods[] = $this->generateSetterMethod($property);
 
-            if (PropertyCollectionFilter::isOptional($property)) {
+            if ($property instanceof OptionalPropertyDecorator) {
                 $methods[] = $this->generateUnsetterMethod($property);
             }
         }
@@ -406,7 +406,7 @@ return \$clone;",
         $tags        = [];
         $assignments = [];
 
-        $requiredProperties = $properties->filterRequired();
+        $requiredProperties = $properties->filter(PropertyCollectionFilterFactory::required());
 
         foreach ($requiredProperties as $requiredProperty) {
             $paramName = $this->convertToLowerCamelCase($requiredProperty->key());

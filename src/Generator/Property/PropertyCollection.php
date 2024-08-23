@@ -15,7 +15,7 @@ class PropertyCollection implements \Iterator
     public static function fromArray(array $properties): PropertyCollection
     {
         $collection = new PropertyCollection();
-        $collection->properties = $properties;
+        $collection->properties = array_values($properties);
         return $collection;
     }
 
@@ -47,20 +47,17 @@ class PropertyCollection implements \Iterator
         return false;
     }
 
-    /**
-     * @return PropertyInterface[]
-     */
-    public function filterRequired(): array
+    public function filter(PropertyCollectionFilter $filter): PropertyCollection
     {
-        return array_filter($this->properties, fn ($p) => !$this->isOptional($p));
-    }
+        $matching = [];
 
-    /**
-     * @return PropertyInterface[]
-     */
-    public function filterOptional(): array
-    {
-        return array_filter($this->properties, fn ($p) => $this->isOptional($p));
+        foreach ($this->properties as $property) {
+            if ($filter->apply($property)) {
+                $matching[] = $property;
+            }
+        }
+
+        return PropertyCollection::fromArray($matching);
     }
 
     public function isOptional(PropertyInterface $prop): bool
