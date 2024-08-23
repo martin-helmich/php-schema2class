@@ -24,11 +24,8 @@
         }
     },
     "autoload-dev": {
-        "files": [
-            "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"
-        ],
         "psr-4": {
-            "Helmich\\Schema2Class\\Example\\": "tests/Example/"
+            "Helmich\\Schema2Class\\": "tests/"
         }
     },
     "bin": [
