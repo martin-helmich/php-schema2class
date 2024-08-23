@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\Basic;
+namespace Ns\DuplicateWithDifferentCasing;
 
 class Foo
 {
@@ -59,7 +59,7 @@ class Foo
     public function withFooBar(string $fooBar) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($fooBar, static::$schema['properties']['foo_bar']);
+        $validator->validate($fooBar, static::$schema['properties']['fooBar']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -85,10 +85,14 @@ class Foo
             static::validateInput($input);
         }
 
+        $foobar = null;
+        if (isset($input->{'foobar'})) {
+            $foobar = $input->{'foobar'};
+        }
         $fooBar = $input->{'fooBar'};
 
         $obj = new self($fooBar);
-        $obj->fooBar = $fooBar;
+        $obj->foobar = $foobar;
         return $obj;
     }
 
@@ -100,6 +104,9 @@ class Foo
     public function toJson() : array
     {
         $output = [];
+        if (isset($this->foobar)) {
+            $output['foobar'] = $this->foobar;
+        }
         $output['fooBar'] = $this->fooBar;
 
         return $output;

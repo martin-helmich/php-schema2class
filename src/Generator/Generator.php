@@ -8,6 +8,7 @@ use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
+use Helmich\Schema2Class\Generator\Property\PropertyCollectionFilter;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlock\Tag\ParamTag;
@@ -259,6 +260,8 @@ class Generator
     {
         $methods = [];
 
+        $properties = PropertyCollectionFilter::filterWithoutDeprecatedAndSameName($properties);
+
         foreach ($properties as $property) {
             $methods[] = $this->generateGetterMethod($property);
         }
@@ -309,11 +312,12 @@ class Generator
     public function generateSetterMethods(PropertyCollection $properties): array
     {
         $methods = [];
+        $properties = PropertyCollectionFilter::filterWithoutDeprecatedAndSameName($properties);
 
         foreach ($properties as $property) {
             $methods[] = $this->generateSetterMethod($property);
 
-            if ($property instanceof OptionalPropertyDecorator) {
+            if (PropertyCollectionFilter::isOptional($property)) {
                 $methods[] = $this->generateUnsetterMethod($property);
             }
         }

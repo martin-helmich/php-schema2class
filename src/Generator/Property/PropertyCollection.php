@@ -12,6 +12,13 @@ class PropertyCollection implements \Iterator
 
     private int $current = 0;
 
+    public static function fromArray(array $properties): PropertyCollection
+    {
+        $collection = new PropertyCollection();
+        $collection->properties = $properties;
+        return $collection;
+    }
+
     public function add(PropertyInterface $propertyGenerator): void
     {
         $this->properties[] = $propertyGenerator;
