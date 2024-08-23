@@ -5,6 +5,7 @@ namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertNotSame;
@@ -33,9 +34,7 @@ class GeneratorRequestTest extends TestCase
         );
     }
 
-    /**
-     * @testdox is PHP 7
-     */
+    #[TestDox("is PHP 7")]
     public function testIsPHP7()
     {
         $req = $this->request->withPHPVersion("7.1");
@@ -44,9 +43,7 @@ class GeneratorRequestTest extends TestCase
         assertFalse($req->isPhp(5));
     }
 
-    /**
-     * @testdox is PHP 5
-     */
+    #[TestDox("is PHP 5")]
     public function testIsPHP5()
     {
         $req = $this->request->withPHPVersion("5.6");

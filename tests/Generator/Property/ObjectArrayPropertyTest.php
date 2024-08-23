@@ -7,6 +7,7 @@ use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -28,32 +29,26 @@ class ObjectArrayPropertyTest extends TestCase
         $this->property = new ObjectArrayProperty('myPropertyName', ['type' => 'array', 'items' => ['type' => 'object']], $this->generatorRequest);
     }
 
-    public function allowedSchemas(): array {
+    public static function allowedSchemas(): array {
         return [
             "plain object" => [['type' => 'array', 'items' => ['type' => 'object']]]
         ];
     }
 
-    public function disallowedSchemas(): array {
+    public static function disallowedSchemas(): array {
         return [
             "non-array" => [['type' => 'string']],
             "primitive array" => [['type' => 'array', 'items' => ['type' => 'string']]],
         ];
     }
 
-    /**
-     * @dataProvider allowedSchemas
-     * @param array $schema
-     */
+    #[DataProvider('allowedSchemas')]
     public function testCanHandleSchema(array $schema)
     {
         assertTrue(ObjectArrayProperty::canHandleSchema($schema));
     }
 
-    /**
-     * @dataProvider disallowedSchemas
-     * @param array $schema
-     */
+    #[DataProvider('disallowedSchemas')]
     public function testCanNotHandleSchema(array $schema)
     {
         assertFalse(ObjectArrayProperty::canHandleSchema($schema));

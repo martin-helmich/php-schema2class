@@ -8,6 +8,7 @@ use Helmich\Schema2Class\Generator\SchemaToClass;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -84,7 +85,7 @@ EOCODE;
         assertSame($expected, $this->property->cloneProperty());
     }
 
-    public function dataForAnnotationAndHintWithSimpleArray()
+    public static function dataForAnnotationAndHintWithSimpleArray(): array
     {
         return [
             'php 8.2' => ['8.2.0', '\BarNs\FooMyPropertyNameAlternative1|\BarNs\FooMyPropertyNameAlternative2'],
@@ -93,9 +94,7 @@ EOCODE;
         ];
     }
 
-    /**
-     * @dataProvider dataForAnnotationAndHintWithSimpleArray
-     */
+    #[DataProvider('dataForAnnotationAndHintWithSimpleArray')]
     public function testGetAnnotationAndHintWithSimpleArray(string $phpVersion, mixed $expected)
     {
         $request = $this->generatorRequest->withPHPVersion($phpVersion);
@@ -105,7 +104,7 @@ EOCODE;
         assertSame($expected, $underTest->typeHint("n/a"));
     }
 
-    public function provideTestSchema()
+    public static function provideTestSchema(): array
     {
         return [
             'oneOf inside' => [
@@ -123,9 +122,7 @@ EOCODE;
         ];
     }
 
-    /**
-     * @dataProvider provideTestSchema
-     */
+    #[DataProvider('provideTestSchema')]
     public function testGenerateSubTypes($schema)
     {
         if (isset($schema['oneOf'])) {

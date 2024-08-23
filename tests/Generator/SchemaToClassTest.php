@@ -7,6 +7,7 @@ use Helmich\Schema2Class\Example\CustomerAddress;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Yaml\Yaml;
@@ -19,7 +20,7 @@ class SchemaToClassTest extends TestCase
     {
     }
 
-    public function loadCodeGenerationTestCases(): array
+    public static function loadCodeGenerationTestCases(): array
     {
         $testCases   = [];
         $testCaseDir = join(DIRECTORY_SEPARATOR, [__DIR__, "Fixtures"]);
@@ -56,9 +57,7 @@ class SchemaToClassTest extends TestCase
         return $testCases;
     }
 
-    /**
-     * @dataProvider loadCodeGenerationTestCases
-     */
+    #[DataProvider("loadCodeGenerationTestCases")]
     public function testCodeGeneration(string $name, array $schema, array $expectedOutput): void
     {
         $opts = (new SpecificationOptions)
