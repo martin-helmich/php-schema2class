@@ -8,6 +8,7 @@ use Helmich\Schema2Class\Generator\SchemaToClass;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -87,7 +88,7 @@ EOCODE;
     }
 
 
-    public function provideTestSchema()
+    public static function provideTestSchema()
     {
         return [
             'empty allOf' => [
@@ -126,9 +127,7 @@ EOCODE;
         ];
     }
 
-    /**
-     * @dataProvider provideTestSchema
-     */
+    #[DataProvider('provideTestSchema')]
     public function testGenerateSubTypes($schema, $subschema)
     {
         $underTest = new IntersectProperty('myPropertyName', $schema, $this->generatorRequest);
