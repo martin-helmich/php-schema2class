@@ -8,6 +8,7 @@ use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
+use Helmich\Schema2Class\Generator\Property\PropertyCollectionFilterFactory;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlock\Tag\ParamTag;
@@ -52,10 +53,15 @@ class Generator
                 }
             }
 
+            $tags = [new GenericTag("var", trim($property->typeAnnotation()))];
+            if (PropertyQuery::isDeprecated($property)) {
+                $tags[] = new GenericTag("deprecated");
+            }
+
             $docBlock = new DocBlockGenerator(
                 $schema["description"] ?? null,
                 null,
-                [new GenericTag("var", trim($property->typeAnnotation()))]
+                $tags
             );
             $docBlock->setWordWrap(false);
 
@@ -82,8 +88,8 @@ class Generator
      */
     public function generateBuildMethod(PropertyCollection $properties): MethodGenerator
     {
-        $requiredProperties = $properties->filterRequired();
-        $optionalProperties = $properties->filterOptional();
+        $requiredProperties = $properties->filter(PropertyCollectionFilterFactory::required());
+        $optionalProperties = $properties->filter(PropertyCollectionFilterFactory::optional());
 
         $constructorParams = [];
         $assignments       = [];
@@ -259,6 +265,8 @@ class Generator
     {
         $methods = [];
 
+        $properties = $properties->filter(PropertyCollectionFilterFactory::withoutDeprecatedAndSameName($properties));
+
         foreach ($properties as $property) {
             $methods[] = $this->generateGetterMethod($property);
         }
@@ -280,12 +288,17 @@ class Generator
         $camelCasedName = $this->convertToCamelCase($key);
         $annotatedType  = $property->typeAnnotation();
 
+        $tags = [new ReturnTag($annotatedType)];
+        if (PropertyQuery::isDeprecated($property)) {
+            $tags[] = new GenericTag("deprecated");
+        }
+
         $getMethod = new MethodGenerator(
             'get' . $camelCasedName,
             [],
             MethodGenerator::FLAG_PUBLIC,
             "return \$this->$key;",
-            new DocBlockGenerator(null, null, [new ReturnTag($annotatedType)])
+            new DocBlockGenerator(null, null, $tags)
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -309,6 +322,7 @@ class Generator
     public function generateSetterMethods(PropertyCollection $properties): array
     {
         $methods = [];
+        $properties = $properties->filter(PropertyCollectionFilterFactory::withoutDeprecatedAndSameName($properties));
 
         foreach ($properties as $property) {
             $methods[] = $this->generateSetterMethod($property);
@@ -343,10 +357,16 @@ if (!\$validator->isValid()) {
 ";
         }
 
-        $docBlock  = new DocBlockGenerator(null, null, [
+        $tags    = [
             new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
             new ReturnTag("self"),
-        ]);
+        ];
+
+        if (PropertyQuery::isDeprecated($property)) {
+            $tags[] = new GenericTag("deprecated");
+        }
+
+        $docBlock = new DocBlockGenerator(null, null, $tags);
         $docBlock->setWordWrap(false);
 
         $setMethod = new MethodGenerator(
@@ -402,7 +422,7 @@ return \$clone;",
         $tags        = [];
         $assignments = [];
 
-        $requiredProperties = $properties->filterRequired();
+        $requiredProperties = $properties->filter(PropertyCollectionFilterFactory::required());
 
         foreach ($requiredProperties as $requiredProperty) {
             $paramName = $this->convertToLowerCamelCase($requiredProperty->key());

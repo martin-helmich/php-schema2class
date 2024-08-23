@@ -12,46 +12,30 @@ class PropertyCollection implements \Iterator
 
     private int $current = 0;
 
+    public static function fromArray(array $properties): PropertyCollection
+    {
+        $collection = new PropertyCollection();
+        $collection->properties = array_values($properties);
+        return $collection;
+    }
+
     public function add(PropertyInterface $propertyGenerator): void
     {
         $this->properties[] = $propertyGenerator;
     }
 
-    /**
-     * @param string $inputVarName
-     * @param bool   $object
-     * @return string
-     */
     public function generateJSONToTypeConversionCode(string $inputVarName = 'input', bool $object = false): string
     {
-        $conv = [];
-
-        foreach ($this->properties as $generator) {
-            $conv[] = $generator->convertJSONToType($inputVarName, $object);
-        }
-
+        $conv = array_map(fn ($p) => $p->convertJSONToType($inputVarName, $object), $this->properties);
         return join("\n", $conv);
     }
 
-    /**
-     * @param string $outputVarName
-     * @return string
-     */
     public function generateTypeToJSONConversionCode(string $outputVarName = 'output'): string
     {
-        $conv = [];
-
-        foreach ($this->properties as $generator) {
-            $conv[] = $generator->convertTypeToJSON($outputVarName);
-        }
-
+        $conv = array_map(fn ($p) => $p->convertTypeToJSON($outputVarName), $this->properties);
         return join("\n", $conv);
     }
 
-    /**
-     * @param string $key
-     * @return bool
-     */
     public function hasPropertyWithKey(string $key): bool
     {
         foreach ($this->properties as $p) {
@@ -63,24 +47,17 @@ class PropertyCollection implements \Iterator
         return false;
     }
 
-    /**
-     * @return PropertyInterface[]
-     */
-    public function filterRequired(): array
+    public function filter(PropertyCollectionFilter $filter): PropertyCollection
     {
-        return array_filter($this->properties, function($p) {
-            return !($p instanceof OptionalPropertyDecorator);
-        });
-    }
+        $matching = [];
 
-    /**
-     * @return PropertyInterface[]
-     */
-    public function filterOptional(): array
-    {
-        return array_filter($this->properties, function($p) {
-            return $p instanceof OptionalPropertyDecorator;
-        });
+        foreach ($this->properties as $property) {
+            if ($filter->apply($property)) {
+                $matching[] = $property;
+            }
+        }
+
+        return PropertyCollection::fromArray($matching);
     }
 
     public function isOptional(PropertyInterface $prop): bool
