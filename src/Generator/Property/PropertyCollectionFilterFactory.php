@@ -7,18 +7,29 @@ readonly class PropertyCollectionFilterFactory
     public static function withoutDeprecatedAndSameName(PropertyCollection $properties): PropertyCollectionFilter
     {
         return new class($properties) implements PropertyCollectionFilter {
-            private array $propertyNamesCaseInsensitive;
+            private array $propertyNamesCaseInsensitive = [];
 
             public function __construct(PropertyCollection $properties)
             {
-                /** @var PropertyInterface[] $properties */
-                $properties                         = iterator_to_array($properties);
-                $this->propertyNamesCaseInsensitive = array_unique(array_map(fn(PropertyInterface $p) => strtolower($p->key()), $properties));
+                foreach ($properties as $property) {
+                    $caseInsensitiveName = strtolower($property->key());
+                    if (!isset($this->propertyNamesCaseInsensitive[$caseInsensitiveName])) {
+                        $this->propertyNamesCaseInsensitive[$caseInsensitiveName] = [];
+                    }
+
+                    $this->propertyNamesCaseInsensitive[$caseInsensitiveName][] = $property->key();
+                }
             }
 
             public function apply(PropertyInterface $property): bool
             {
-                if ($property->schema()["deprecated"] && in_array(strtolower($property->key()), $this->propertyNamesCaseInsensitive)) {
+                $schema = $property->schema();
+
+                $isDeprecated = isset($schema["deprecated"]) && $schema["deprecated"];
+                $matchingProperties = $this->propertyNamesCaseInsensitive[strtolower($property->key())];
+                $matchingPropertiesWithDifferentCase = array_filter($matchingProperties, fn($name) => $name !== $property->key());
+
+                if ($isDeprecated && count($matchingPropertiesWithDifferentCase) > 0) {
                     return false;
                 }
 
