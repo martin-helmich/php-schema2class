@@ -17,11 +17,6 @@ class PropertyCollection implements \Iterator
         $this->properties[] = $propertyGenerator;
     }
 
-    /**
-     * @param string $inputVarName
-     * @param bool   $object
-     * @return string
-     */
     public function generateJSONToTypeConversionCode(string $inputVarName = 'input', bool $object = false): string
     {
         $conv = [];
@@ -33,10 +28,6 @@ class PropertyCollection implements \Iterator
         return join("\n", $conv);
     }
 
-    /**
-     * @param string $outputVarName
-     * @return string
-     */
     public function generateTypeToJSONConversionCode(string $outputVarName = 'output'): string
     {
         $conv = [];
@@ -48,10 +39,6 @@ class PropertyCollection implements \Iterator
         return join("\n", $conv);
     }
 
-    /**
-     * @param string $key
-     * @return bool
-     */
     public function hasPropertyWithKey(string $key): bool
     {
         foreach ($this->properties as $p) {
