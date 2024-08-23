@@ -53,10 +53,15 @@ class Generator
                 }
             }
 
+            $tags = [new GenericTag("var", trim($property->typeAnnotation()))];
+            if (PropertyQuery::isDeprecated($property)) {
+                $tags[] = new GenericTag("deprecated");
+            }
+
             $docBlock = new DocBlockGenerator(
                 $schema["description"] ?? null,
                 null,
-                [new GenericTag("var", trim($property->typeAnnotation()))]
+                $tags
             );
             $docBlock->setWordWrap(false);
 
@@ -283,12 +288,17 @@ class Generator
         $camelCasedName = $this->convertToCamelCase($key);
         $annotatedType  = $property->typeAnnotation();
 
+        $tags = [new ReturnTag($annotatedType)];
+        if (PropertyQuery::isDeprecated($property)) {
+            $tags[] = new GenericTag("deprecated");
+        }
+
         $getMethod = new MethodGenerator(
             'get' . $camelCasedName,
             [],
             MethodGenerator::FLAG_PUBLIC,
             "return \$this->$key;",
-            new DocBlockGenerator(null, null, [new ReturnTag($annotatedType)])
+            new DocBlockGenerator(null, null, $tags)
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -347,10 +357,16 @@ if (!\$validator->isValid()) {
 ";
         }
 
-        $docBlock  = new DocBlockGenerator(null, null, [
+        $tags    = [
             new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
             new ReturnTag("self"),
-        ]);
+        ];
+
+        if (PropertyQuery::isDeprecated($property)) {
+            $tags[] = new GenericTag("deprecated");
+        }
+
+        $docBlock = new DocBlockGenerator(null, null, $tags);
         $docBlock->setWordWrap(false);
 
         $setMethod = new MethodGenerator(

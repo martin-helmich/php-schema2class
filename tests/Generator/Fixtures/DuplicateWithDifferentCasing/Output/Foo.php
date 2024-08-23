@@ -28,6 +28,7 @@ class Foo
 
     /**
      * @var string|null
+     * @deprecated
      */
     private ?string $foobar = null;
 

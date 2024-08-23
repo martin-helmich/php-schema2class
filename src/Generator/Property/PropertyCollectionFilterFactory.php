@@ -2,6 +2,8 @@
 
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Helmich\Schema2Class\Generator\PropertyQuery;
+
 readonly class PropertyCollectionFilterFactory
 {
     public static function withoutDeprecatedAndSameName(PropertyCollection $properties): PropertyCollectionFilter
@@ -23,13 +25,10 @@ readonly class PropertyCollectionFilterFactory
 
             public function apply(PropertyInterface $property): bool
             {
-                $schema = $property->schema();
-
-                $isDeprecated = isset($schema["deprecated"]) && $schema["deprecated"];
                 $matchingProperties = $this->propertyNamesCaseInsensitive[strtolower($property->key())];
                 $matchingPropertiesWithDifferentCase = array_filter($matchingProperties, fn($name) => $name !== $property->key());
 
-                if ($isDeprecated && count($matchingPropertiesWithDifferentCase) > 0) {
+                if (PropertyQuery::isDeprecated($property) && count($matchingPropertiesWithDifferentCase) > 0) {
                     return false;
                 }
 
