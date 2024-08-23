@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Example;
+namespace Helmich\Schema2Class\Example;
 
 use Helmich\Schema2Class\Example\Customer;
 use Helmich\Schema2Class\Example\CustomerAddress;

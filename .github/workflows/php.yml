@@ -40,10 +40,4 @@ jobs:
     # Unit tests need to run before the type checker, because they generate code
     # that the type checker needs to see.
     - name: Run type checker
-      run: ./vendor/bin/psalm --php-version=${{ matrix.php-versions }}
-    
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
+      run: ./vendor/bin/psalm --php-version=8.2

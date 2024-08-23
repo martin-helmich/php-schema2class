@@ -33,7 +33,11 @@ class SchemaToClassTest extends TestCase
 
             $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.yaml"]);
             $outputDir  = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "Output"]);
-            $output     = opendir($outputDir);
+            $output     = @opendir($outputDir);
+
+            if ($output === false) {
+                throw new \Exception("Could not open output directory for test case '{$entry}'");
+            }
 
             $expectedFiles = [];
             $schema        = Yaml::parseFile($schemaFile);
