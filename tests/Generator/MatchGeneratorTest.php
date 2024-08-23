@@ -1,5 +1,5 @@
 <?php
-namespace Generator;
+namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Generator\MatchGenerator;
 use PHPUnit\Framework\TestCase;
