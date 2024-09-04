@@ -6,6 +6,7 @@ namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
+use Helmich\Schema2Class\Generator\Property\DefaultPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Generator\Property\PropertyCollectionFilterFactory;
@@ -46,7 +47,7 @@ class Generator
                 PropertyGenerator::FLAG_PRIVATE
             );
 
-            if ($property instanceof OptionalPropertyDecorator) {
+            if ($property instanceof OptionalPropertyDecorator || $property instanceof DefaultPropertyDecorator) {
                 $isOptional = true;
                 if (isset($schema["default"])) {
                     $property = $property->unwrap();

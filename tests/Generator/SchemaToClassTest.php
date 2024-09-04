@@ -33,6 +33,7 @@ class SchemaToClassTest extends TestCase
             }
 
             $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.yaml"]);
+            $optionsFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "options.yaml"]);
             $outputDir  = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "Output"]);
             $output     = @opendir($outputDir);
 
@@ -43,6 +44,14 @@ class SchemaToClassTest extends TestCase
             $expectedFiles = [];
             $schema        = Yaml::parseFile($schemaFile);
 
+            $opts = (new SpecificationOptions)
+                ->withTargetPHPVersion("8.2")
+                ->withInlineAllofReferences(true);
+            if (file_exists($optionsFile)) {
+                $optsYaml = Yaml::parseFile($optionsFile);
+                $opts = SpecificationOptions::buildFromInput($optsYaml);
+            }
+
             while ($outputEntry = readdir($output)) {
                 if (substr($outputEntry, -4) !== ".php") {
                     continue;
@@ -51,19 +60,15 @@ class SchemaToClassTest extends TestCase
                 $expectedFiles[$outputEntry] = trim(file_get_contents(join(DIRECTORY_SEPARATOR, [$outputDir, $outputEntry])));
             }
 
-            $testCases[$entry] = [$entry, $schema, $expectedFiles];
+            $testCases[$entry] = [$entry, $schema, $expectedFiles, $opts];
         }
 
         return $testCases;
     }
 
     #[DataProvider("loadCodeGenerationTestCases")]
-    public function testCodeGeneration(string $name, array $schema, array $expectedOutput): void
+    public function testCodeGeneration(string $name, array $schema, array $expectedOutput, SpecificationOptions $opts): void
     {
-        $opts = (new SpecificationOptions)
-            ->withTargetPHPVersion("8.2")
-            ->withInlineAllofReferences(true);
-
         $req = new GeneratorRequest(
             $schema,
             new ValidatedSpecificationFilesItem("Ns\\{$name}", "Foo", __DIR__),

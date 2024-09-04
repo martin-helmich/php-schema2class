@@ -62,7 +62,7 @@ class PropertyCollection implements \Iterator
 
     public function isOptional(PropertyInterface $prop): bool
     {
-        return $prop instanceof OptionalPropertyDecorator;
+        return $prop instanceof OptionalPropertyDecorator || $prop instanceof DefaultPropertyDecorator;
     }
 
     public function current(): PropertyInterface
