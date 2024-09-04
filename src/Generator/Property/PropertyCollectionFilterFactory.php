@@ -25,7 +25,7 @@ readonly class PropertyCollectionFilterFactory
 
             public function apply(PropertyInterface $property): bool
             {
-                $matchingProperties = $this->propertyNamesCaseInsensitive[strtolower($property->key())];
+                $matchingProperties                  = $this->propertyNamesCaseInsensitive[strtolower($property->key())];
                 $matchingPropertiesWithDifferentCase = array_filter($matchingProperties, fn($name) => $name !== $property->key());
 
                 if (PropertyQuery::isDeprecated($property) && count($matchingPropertiesWithDifferentCase) > 0) {
@@ -42,17 +42,21 @@ readonly class PropertyCollectionFilterFactory
         return new class implements PropertyCollectionFilter {
             public function apply(PropertyInterface $property): bool
             {
-                return $property instanceof OptionalPropertyDecorator;
+                return $property instanceof OptionalPropertyDecorator || $property instanceof DefaultPropertyDecorator;
             }
         };
     }
 
     public static function required(): PropertyCollectionFilter
     {
-        return new class implements PropertyCollectionFilter {
+        return new class(self::optional()) implements PropertyCollectionFilter {
+            public function __construct(private PropertyCollectionFilter $optional)
+            {
+            }
+
             public function apply(PropertyInterface $property): bool
             {
-                return !($property instanceof OptionalPropertyDecorator);
+                return !$this->optional->apply($property);
             }
         };
     }
