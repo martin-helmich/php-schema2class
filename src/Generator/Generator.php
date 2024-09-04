@@ -134,7 +134,7 @@ class Generator
         );
         $docBlock->setWordWrap(false);
 
-        $method   = new MethodGenerator(
+        $method = new MethodGenerator(
             'buildFromInput',
             [new ParameterGenerator($inputVarName, $paramType), $validationParam],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
@@ -169,7 +169,7 @@ class Generator
         );
         $docBlock->setWordWrap(false);
 
-        $method   = new MethodGenerator(
+        $method = new MethodGenerator(
             'toJson',
             [],
             MethodGenerator::FLAG_PUBLIC,
@@ -212,7 +212,7 @@ class Generator
                 new ParameterGenerator("return", $this->generatorRequest->isAtLeastPHP("7.0") ? "bool" : null, false),
             ],
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
-            '$validator = '. $newValidatorClassExpr .';' . "\n" .
+            '$validator = ' . $newValidatorClassExpr . ';' . "\n" .
             '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
             '$validator->validate($input, static::$schema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
@@ -321,7 +321,7 @@ class Generator
      */
     public function generateSetterMethods(PropertyCollection $properties): array
     {
-        $methods = [];
+        $methods    = [];
         $properties = $properties->filter(PropertyCollectionFilterFactory::withoutDeprecatedAndSameName($properties));
 
         foreach ($properties as $property) {
@@ -357,7 +357,7 @@ if (!\$validator->isValid()) {
 ";
         }
 
-        $tags    = [
+        $tags = [
             new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
             new ReturnTag("self"),
         ];
@@ -396,14 +396,20 @@ return \$clone;",
         $key            = $property->key();
         $camelCasedName = $this->convertToCamelCase($key);
 
+        $body = "\$clone = clone \$this;\n";
+        if (isset($property->schema()["default"])) {
+            $body .= "\$clone->$key = " . var_export($property->schema()["default"], true) . ";\n";
+        } else {
+            $body .= "unset(\$clone->$key);\n";
+        }
+
+        $body .= "\nreturn \$clone;";
+
         $unsetMethod = new MethodGenerator(
             'without' . $camelCasedName,
             [],
             MethodGenerator::FLAG_PUBLIC,
-            "\$clone = clone \$this;
-unset(\$clone->$key);
-
-return \$clone;",
+            $body,
             new DocBlockGenerator(null, null, [
                 new ReturnTag("self"),
             ])
