@@ -1,0 +1,9 @@
+required: []
+properties:
+  limit:
+    type: integer
+    default: 10000
+    minimum: 1
+  skip:
+    type: integer
+    default: 0
