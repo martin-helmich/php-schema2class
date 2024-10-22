@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Example\CustomerAddress;
+use Helmich\Schema2Class\Loader\SchemaLoader;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
@@ -33,6 +34,10 @@ class SchemaToClassTest extends TestCase
             }
 
             $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.yaml"]);
+            if (!file_exists($schemaFile)) {
+                $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.json"]);
+            }
+
             $optionsFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "options.yaml"]);
             $outputDir  = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "Output"]);
             $output     = @opendir($outputDir);
@@ -42,7 +47,7 @@ class SchemaToClassTest extends TestCase
             }
 
             $expectedFiles = [];
-            $schema        = Yaml::parseFile($schemaFile);
+            $schema        = (new SchemaLoader())->loadSchema($schemaFile);
 
             $opts = (new SpecificationOptions)
                 ->withTargetPHPVersion("8.2")
