@@ -120,7 +120,7 @@ class SchemaToClassTest extends TestCase
             expectedCount: count($expectedOutput),
             haystack: $writer->getWrittenFiles(),
             message: sprintf(
-                'Expected files [%s] does not match count written files [%s]',
+                'Expected file count [%s] does not match the written file count [%s]',
                 implode(', ', array_keys($expectedOutput)),
                 implode(', ', array_keys($writer->getWrittenFiles())),
             ),
