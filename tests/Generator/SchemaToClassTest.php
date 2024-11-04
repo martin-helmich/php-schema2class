@@ -75,7 +75,18 @@ class SchemaToClassTest extends TestCase
             $opts,
         );
 
-        $req = $req->withReferenceLookup(new class ($schema) implements ReferenceLookup {
+        $req = $req->withReferenceLookup(new class implements ReferenceLookup {
+            public function lookupReference(string $reference): ReferencedType
+            {
+                return new ReferencedTypeUnknown();
+            }
+
+            public function lookupSchema(string $reference): array
+            {
+                return [];
+            }
+        });
+        $req = $req->withAdditionalReferenceLookup(new class ($schema) implements ReferenceLookup {
             public function __construct(private readonly array $schema)
             {
             }

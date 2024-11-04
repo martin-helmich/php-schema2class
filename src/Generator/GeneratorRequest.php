@@ -17,7 +17,8 @@ class GeneratorRequest
     private array $schema;
     private ValidatedSpecificationFilesItem $spec;
     private SpecificationOptions $opts;
-    private ?ReferenceLookup $referenceLookup = null;
+    /** @var ReferenceLookup[] */
+    private array $referenceLookup = [];
 
     use GeneratorHookRunner;
 
@@ -46,7 +47,15 @@ class GeneratorRequest
     public function withReferenceLookup(ReferenceLookup $referenceLookup): self
     {
         $clone                  = clone $this;
-        $clone->referenceLookup = $referenceLookup;
+        $clone->referenceLookup = [$referenceLookup];
+
+        return $clone;
+    }
+
+    public function withAdditionalReferenceLookup(ReferenceLookup $referenceLookup): self
+    {
+        $clone                  = clone $this;
+        $clone->referenceLookup[] = $referenceLookup;
 
         return $clone;
     }
@@ -182,19 +191,33 @@ class GeneratorRequest
 
     public function lookupReference(string $ref): ReferencedType
     {
-        if ($this->referenceLookup === null) {
+        if (empty($this->referenceLookup)) {
             return new ReferencedTypeUnknown();
         }
 
-        return $this->referenceLookup->lookupReference($ref);
+        foreach ($this->referenceLookup as $referenceLookup) {
+            $reference = $referenceLookup->lookupReference($ref);
+            if (!$reference instanceof ReferencedTypeUnknown) {
+                return $reference;
+            }
+        }
+
+        return new ReferencedTypeUnknown();
     }
 
     public function lookupSchema(string $ref): array
     {
-        if ($this->referenceLookup === null) {
+        if (empty($this->referenceLookup)) {
             return [];
         }
 
-        return $this->referenceLookup->lookupSchema($ref);
+        foreach ($this->referenceLookup as $referenceLookup) {
+            $schema = $referenceLookup->lookupSchema($ref);
+            if (!empty($schema)) {
+                return $schema;
+            }
+        }
+
+        return [];
     }
 }
