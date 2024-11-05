@@ -1,5 +1,5 @@
 {
-    "name": "simivar/schema2class",
+    "name": "helmich/schema2class",
     "description": "Build PHP classes from JSON schema definitions",
     "type": "project",
     "license": "MIT",
