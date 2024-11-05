@@ -3,12 +3,16 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use FilesystemIterator;
 use Helmich\Schema2Class\Example\CustomerAddress;
+use Helmich\Schema2Class\Loader\SchemaLoader;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Yaml\Yaml;
 use function PHPUnit\Framework\assertThat;
@@ -33,16 +37,22 @@ class SchemaToClassTest extends TestCase
             }
 
             $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.yaml"]);
+            if (!file_exists($schemaFile)) {
+                $schemaFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "schema.json"]);
+            }
+
             $optionsFile = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "options.yaml"]);
             $outputDir  = join(DIRECTORY_SEPARATOR, [$testCaseDir, $entry, "Output"]);
-            $output     = @opendir($outputDir);
 
-            if ($output === false) {
+            try {
+                $outputDirectoryIterator = new RecursiveDirectoryIterator($outputDir, FilesystemIterator::SKIP_DOTS);
+                $outputIterator = new RecursiveIteratorIterator($outputDirectoryIterator);
+            } catch (\UnexpectedValueException) {
                 throw new \Exception("Could not open output directory for test case '{$entry}'");
             }
 
             $expectedFiles = [];
-            $schema        = Yaml::parseFile($schemaFile);
+            $schema        = (new SchemaLoader())->loadSchema($schemaFile);
 
             $opts = (new SpecificationOptions)
                 ->withTargetPHPVersion("8.2")
@@ -52,12 +62,20 @@ class SchemaToClassTest extends TestCase
                 $opts = SpecificationOptions::buildFromInput($optsYaml);
             }
 
-            while ($outputEntry = readdir($output)) {
-                if (substr($outputEntry, -4) !== ".php") {
+            /** @var \SplFileInfo $fileInfo */
+            foreach ($outputIterator as $fileInfo) {
+                if ($fileInfo->getExtension() !== 'php') {
                     continue;
                 }
 
-                $expectedFiles[$outputEntry] = trim(file_get_contents(join(DIRECTORY_SEPARATOR, [$outputDir, $outputEntry])));
+                $outputEntry = $fileInfo->getBasename();
+
+                /** @var RecursiveDirectoryIterator $directoryIterator */
+                $directoryIterator = $outputIterator->getInnerIterator();
+                if ($directoryIterator->getSubPath()) {
+                    $outputEntry = join([$directoryIterator->getSubPath(), DIRECTORY_SEPARATOR, $outputEntry]);
+                }
+                $expectedFiles[$outputEntry] = trim(file_get_contents($fileInfo->getPathname()));
             }
 
             $testCases[$entry] = [$entry, $schema, $expectedFiles, $opts];
@@ -75,18 +93,7 @@ class SchemaToClassTest extends TestCase
             $opts,
         );
 
-        $req = $req->withReferenceLookup(new class implements ReferenceLookup {
-            public function lookupReference(string $reference): ReferencedType
-            {
-                return new ReferencedTypeUnknown();
-            }
-
-            public function lookupSchema(string $reference): array
-            {
-                return [];
-            }
-        });
-        $req = $req->withAdditionalReferenceLookup(new class ($schema) implements ReferenceLookup {
+        $req = $req->withReferenceLookup(new class ($schema) implements ReferenceLookup {
             public function __construct(private readonly array $schema)
             {
             }

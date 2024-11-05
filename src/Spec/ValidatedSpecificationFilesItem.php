@@ -62,4 +62,20 @@ class ValidatedSpecificationFilesItem
         return $c;
     }
 
+    public function withTargetNamespace(string $targetNamespace): self
+    {
+        $c              = clone $this;
+        $c->targetNamespace = $targetNamespace;
+
+        return $c;
+    }
+
+    public function withTargetDirectory(string $targetDirectory): self
+    {
+        $c              = clone $this;
+        $c->targetDirectory = $targetDirectory;
+
+        return $c;
+    }
+
 }
