@@ -31,4 +31,10 @@ class StringUtilsTest extends TestCase
         $capitalized = StringUtils::capitalizeName("content-disposition");
         assertThat($capitalized, equalTo("ContentDisposition"));
     }
+
+    public function testCamelCaseCamelCases()
+    {
+        $camelCased = StringUtils::camelCase("content-disposition");
+        assertThat($camelCased, equalTo("contentDisposition"));
+    }
 }

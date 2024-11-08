@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
@@ -11,6 +12,8 @@ abstract class AbstractProperty implements PropertyInterface
 
     protected string $key;
 
+    protected string $name;
+
     protected array $schema;
 
     protected string $capitalizedName;
@@ -19,9 +22,10 @@ abstract class AbstractProperty implements PropertyInterface
 
     public function __construct(string $key, array $schema, GeneratorRequest $generatorRequest)
     {
-        $this->key = $key;
-        $this->schema = $schema;
-        $this->capitalizedName = StringUtils::capitalizeName($this->key);
+        $this->key              = $key;
+        $this->name             = StringUtils::camelCase($key);
+        $this->schema           = $schema;
+        $this->capitalizedName  = StringUtils::capitalizeName($this->key);
         $this->generatorRequest = $generatorRequest;
     }
 
@@ -40,17 +44,22 @@ abstract class AbstractProperty implements PropertyInterface
         return $this->key;
     }
 
+    public function name(): string
+    {
+        return $this->name;
+    }
+
     /**
      * @return string|null
      */
     public function cloneProperty(): ?string
     {
-        $key = $this->key;
-        $expr = "\$this->{$key}";
+        $name       = $this->name;
+        $expr      = "\$this->{$name}";
         $exprClone = $this->generateCloneExpr($expr);
 
         if ($expr !== $exprClone) {
-            return "\$this->$key = {$exprClone};";
+            return "\$this->$name = {$exprClone};";
         }
 
         return null;
@@ -58,7 +67,8 @@ abstract class AbstractProperty implements PropertyInterface
 
     public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
-        $key = $this->key;
+        $name = $this->name;
+        $key  = $this->key;
         $keyS = var_export($key, true);
 
         if ($object) {
@@ -67,14 +77,14 @@ abstract class AbstractProperty implements PropertyInterface
             $map = $this->generateInputMappingExpr("\${$inputVarName}[{$keyS}]");
         }
 
-        return "\$$key = {$map};";
+        return "\${$name} = {$map};";
     }
 
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
-        $key = $this->key;
+        $key    = $this->key;
         $keyStr = var_export($key, true);
-        $map = $this->generateOutputMappingExpr("\$this->{$key}");
+        $map    = $this->generateOutputMappingExpr("\$this->{$this->name}");
         return "\${$outputVarName}[{$keyStr}] = {$map};";
     }
 

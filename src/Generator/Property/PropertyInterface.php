@@ -24,6 +24,15 @@ interface PropertyInterface
     public function key(): string;
 
     /**
+     * Gets the desired PHP property name. In most cases, this should be identical
+     * to `key()`, except in cases when the key contains characters that are not
+     * allowed in a PHP property key.
+     *
+     * @return string
+     */
+    public function name(): string;
+
+    /**
      * @return bool
      */
     public function isComplex(): bool;

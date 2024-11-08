@@ -58,13 +58,14 @@ class ObjectArrayProperty extends AbstractProperty
 
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
-        $key = $this->key;
-        $st  = $this->subTypeName();
+        $name = $this->name;
+        $key  = $this->key;
+        $st   = $this->subTypeName();
 
         if ($this->generatorRequest->isAtLeastPHP("7.4")) {
-            return "\${$outputVarName}['$key'] = array_map(fn ($st \$i) => \$i->toJson(), \$this->$key);";
+            return "\${$outputVarName}['$key'] = array_map(fn ($st \$i) => \$i->toJson(), \$this->{$name});";
         }
-        return "\${$outputVarName}['$key'] = array_map(function($st \$i) { return \$i->toJson(); }, \$this->$key);";
+        return "\${$outputVarName}['$key'] = array_map(function($st \$i) { return \$i->toJson(); }, \$this->{$name});";
     }
 
     /**
@@ -102,10 +103,10 @@ class ObjectArrayProperty extends AbstractProperty
 
     public function generateInputMappingExpr(string $expr, bool $asserted = false): string
     {
-        $sm = $this->itemType->generateInputMappingExpr('$i');
+        $sm       = $this->itemType->generateInputMappingExpr('$i');
         $typeHint = $this->subTypeName();
 
-        return match(true) {
+        return match (true) {
             $this->generatorRequest->isAtLeastPHP("8.0") => "array_map(fn (array|object \$i): {$typeHint} => {$sm}, {$expr})",
             $this->generatorRequest->isAtLeastPHP("7.4") => "array_map(fn (\$i): {$typeHint} => {$sm}, {$expr})",
             $this->generatorRequest->isAtLeastPHP("7.0") => "array_map(function(\$i): {$typeHint} use (\$validate) { return {$sm}; }, {$expr})",
