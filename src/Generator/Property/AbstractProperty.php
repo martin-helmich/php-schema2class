@@ -4,6 +4,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Util\StringUtils;
 
 abstract class AbstractProperty implements PropertyInterface
 {
@@ -20,7 +21,7 @@ abstract class AbstractProperty implements PropertyInterface
     {
         $this->key = $key;
         $this->schema = $schema;
-        $this->capitalizedName = strtoupper($this->key[0]) . substr($this->key, 1);
+        $this->capitalizedName = StringUtils::capitalizeName($this->key);
         $this->generatorRequest = $generatorRequest;
     }
 
