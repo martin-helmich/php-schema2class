@@ -13,23 +13,6 @@ trait CodeFormatting
         return join("\n", $lines);
     }
 
-    protected function convertToCamelCase(string $str): string
-    {
-        $parts = explode("_", $str);
-        $parts = array_map(fn($p) => $this->capitalize($p), $parts);
-
-        return join("", $parts);
-    }
-
-    protected function convertToLowerCamelCase(string $str): string
-    {
-        $parts = explode("_", $str);
-        $first = array_shift($parts);
-        $parts = array_map(fn($p) => $this->capitalize($p), $parts);
-
-        return $first . join("", $parts);
-    }
-
     protected function capitalize(string $str): string
     {
         return strtoupper($str[0]) . substr($str, 1);

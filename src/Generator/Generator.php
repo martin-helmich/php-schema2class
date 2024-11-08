@@ -11,6 +11,7 @@ use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
 use Helmich\Schema2Class\Generator\Property\PropertyCollectionFilterFactory;
 use Helmich\Schema2Class\Generator\Property\PropertyInterface;
+use Helmich\Schema2Class\Util\StringUtils;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlock\Tag\ParamTag;
 use Laminas\Code\Generator\DocBlock\Tag\ReturnTag;
@@ -42,7 +43,7 @@ class Generator
             $schema     = $property->schema();
             $isOptional = false;
             $prop       = new PropertyGenerator(
-                $property->key(),
+                $property->name(),
                 $schema["default"] ?? null,
                 PropertyGenerator::FLAG_PRIVATE
             );
@@ -96,11 +97,11 @@ class Generator
         $assignments       = [];
 
         foreach ($requiredProperties as $requiredProperty) {
-            $constructorParams[] = '$' . $requiredProperty->key();
+            $constructorParams[] = '$' . $requiredProperty->name();
         }
 
         foreach ($optionalProperties as $optionalProperty) {
-            $assignments[] = "\$obj->{$optionalProperty->key()} = \${$optionalProperty->key()};";
+            $assignments[] = "\$obj->{$optionalProperty->name()} = \${$optionalProperty->name()};";
         }
 
         $inputVarName = 'input';
@@ -286,7 +287,8 @@ class Generator
         }
 
         $key            = $property->key();
-        $camelCasedName = $this->convertToCamelCase($key);
+        $name           = $property->name();
+        $camelCasedName = StringUtils::capitalizeWord($property->name());
         $annotatedType  = $property->typeAnnotation();
 
         $tags = [new ReturnTag($annotatedType)];
@@ -298,7 +300,7 @@ class Generator
             'get' . $camelCasedName,
             [],
             MethodGenerator::FLAG_PUBLIC,
-            "return \$this->$key;",
+            "return \$this->$name;",
             new DocBlockGenerator(null, null, $tags)
         );
 
@@ -308,7 +310,7 @@ class Generator
                 $getMethod->setReturnType($typeHint);
 
                 if ($typeHint[0] === '?') {
-                    $getMethod->setBody("return \$this->{$key} ?? null;");
+                    $getMethod->setBody("return \$this->{$name} ?? null;");
                 }
             }
         }
@@ -339,7 +341,8 @@ class Generator
     public function generateSetterMethod(PropertyInterface $property): MethodGenerator
     {
         $key           = $property->key();
-        $camelCaseName = $this->convertToCamelCase($key);
+        $name          = $property->name();
+        $camelCaseName = StringUtils::capitalizeWord($name);
 
         $requiredProperty = ($property instanceof OptionalPropertyDecorator) ? $property->unwrap() : $property;
 
@@ -350,7 +353,7 @@ class Generator
             $setterValidation = "";
         } else {
             $setterValidation = "\$validator = new \JsonSchema\Validator();
-\$validator->validate(\$$key, static::\$schema['properties']['$key']);
+\$validator->validate(\$$name, static::\$schema['properties']['$key']);
 if (!\$validator->isValid()) {
     throw new \InvalidArgumentException(\$validator->getErrors()[0]['message']);
 }
@@ -359,7 +362,7 @@ if (!\$validator->isValid()) {
         }
 
         $tags = [
-            new ParamTag($key, [str_replace("|null", "", $annotatedType)]),
+            new ParamTag($name, [str_replace("|null", "", $annotatedType)]),
             new ReturnTag("self"),
         ];
 
@@ -372,10 +375,10 @@ if (!\$validator->isValid()) {
 
         $setMethod = new MethodGenerator(
             'with' . $camelCaseName,
-            [new ParameterGenerator($key, $typeHint)],
+            [new ParameterGenerator($name, $typeHint)],
             MethodGenerator::FLAG_PUBLIC,
             $setterValidation . "\$clone = clone \$this;
-\$clone->$key = \$$key;
+\$clone->$name = \$$name;
 
 return \$clone;",
             $docBlock
@@ -394,14 +397,14 @@ return \$clone;",
      */
     public function generateUnsetterMethod(PropertyInterface $property): MethodGenerator
     {
-        $key            = $property->key();
-        $camelCasedName = $this->convertToCamelCase($key);
+        $name           = $property->name();
+        $camelCasedName = StringUtils::capitalizeWord($name);
 
         $body = "\$clone = clone \$this;\n";
         if (isset($property->schema()["default"])) {
-            $body .= "\$clone->$key = " . var_export($property->schema()["default"], true) . ";\n";
+            $body .= "\$clone->$name = " . var_export($property->schema()["default"], true) . ";\n";
         } else {
-            $body .= "unset(\$clone->$key);\n";
+            $body .= "unset(\$clone->$name);\n";
         }
 
         $body .= "\nreturn \$clone;";
@@ -432,7 +435,7 @@ return \$clone;",
         $requiredProperties = $properties->filter(PropertyCollectionFilterFactory::required());
 
         foreach ($requiredProperties as $requiredProperty) {
-            $paramName = $this->convertToLowerCamelCase($requiredProperty->key());
+            $paramName = $requiredProperty->name();
             $params[]  = new ParameterGenerator(
                 $paramName,
                 $requiredProperty->typeHint($this->generatorRequest->getTargetPHPVersion())
@@ -443,7 +446,7 @@ return \$clone;",
                 [$requiredProperty->typeAnnotation()]
             );
 
-            $assignments[] = "\$this->{$requiredProperty->key()} = \${$paramName};";
+            $assignments[] = "\$this->{$requiredProperty->name()} = \${$paramName};";
         }
 
         $docBlock = new DocBlockGenerator("", "", $tags);

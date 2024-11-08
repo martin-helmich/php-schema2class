@@ -33,14 +33,14 @@ class Foo
     /**
      * @var string
      */
-    private string $foo_bar;
+    private string $fooBar;
 
     /**
      * @param string $fooBar
      */
     public function __construct(string $fooBar)
     {
-        $this->foo_bar = $fooBar;
+        $this->fooBar = $fooBar;
     }
 
     /**
@@ -56,7 +56,7 @@ class Foo
      */
     public function getFooBar() : string
     {
-        return $this->foo_bar;
+        return $this->fooBar;
     }
 
     /**
@@ -89,19 +89,19 @@ class Foo
     }
 
     /**
-     * @param string $foo_bar
+     * @param string $fooBar
      * @return self
      */
-    public function withFooBar(string $foo_bar) : self
+    public function withFooBar(string $fooBar) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($foo_bar, static::$schema['properties']['foo_bar']);
+        $validator->validate($fooBar, static::$schema['properties']['foo_bar']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->foo_bar = $foo_bar;
+        $clone->fooBar = $fooBar;
 
         return $clone;
     }
@@ -125,9 +125,9 @@ class Foo
         if (isset($input->{'foo'})) {
             $foo = $input->{'foo'};
         }
-        $foo_bar = $input->{'foo_bar'};
+        $fooBar = $input->{'foo_bar'};
 
-        $obj = new self($foo_bar);
+        $obj = new self($fooBar);
         $obj->foo = $foo;
         return $obj;
     }
@@ -143,7 +143,7 @@ class Foo
         if (isset($this->foo)) {
             $output['foo'] = $this->foo;
         }
-        $output['foo_bar'] = $this->foo_bar;
+        $output['foo_bar'] = $this->fooBar;
 
         return $output;
     }

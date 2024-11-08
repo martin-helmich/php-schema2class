@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\MatchGenerator;
@@ -67,6 +66,7 @@ class UnionProperty extends AbstractProperty
             return $this->convertJSONToTypeMatch($inputVarName, $object);
         }
 
+        $name   = $this->name;
         $key    = $this->key;
         $keyStr = var_export($key, true);
 
@@ -76,7 +76,7 @@ class UnionProperty extends AbstractProperty
 
         foreach ($this->subProperties as $i => $subProp) {
             $mapping       = $subProp->generateInputMappingExpr($accessor, true);
-            $assignment    = "\$$key = {$mapping};";
+            $assignment    = "\$$name = {$mapping};";
             $discriminator = $subProp->generateInputAssertionExpr($accessor);
 
             if (!isset($conversions[$assignment])) {
@@ -111,13 +111,14 @@ class UnionProperty extends AbstractProperty
 
     private function convertTypeToJSONMatch(string $outputVarName = 'output'): string
     {
+        $name   = $this->name;
         $key    = $this->key;
         $keyStr = var_export($key, true);
         $match  = new MatchGenerator("true");
 
         foreach ($this->subProperties as $subProperty) {
-            $mapping       = $subProperty->generateOutputMappingExpr("\$this->{$key}");
-            $discriminator = $subProperty->generateTypeAssertionExpr("\$this->{$key}");
+            $mapping       = $subProperty->generateOutputMappingExpr("\$this->{$name}");
+            $discriminator = $subProperty->generateTypeAssertionExpr("\$this->{$name}");
 
             $match->addArm($discriminator, $mapping);
         }
@@ -131,14 +132,15 @@ class UnionProperty extends AbstractProperty
             return $this->convertTypeToJSONMatch($outputVarName);
         }
 
+        $name        = $this->name;
         $key         = $this->key;
         $keyStr      = var_export($key, true);
         $conversions = [];
 
         foreach ($this->subProperties as $subProperty) {
-            $mapping       = $subProperty->generateOutputMappingExpr("\$this->{$key}");
+            $mapping       = $subProperty->generateOutputMappingExpr("\$this->{$name}");
             $assignment    = "\${$outputVarName}[{$keyStr}] = {$mapping};";
-            $discriminator = $subProperty->generateTypeAssertionExpr("\$this->{$key}");
+            $discriminator = $subProperty->generateTypeAssertionExpr("\$this->{$name}");
 
             if (!isset($conversions[$assignment])) {
                 $conversions[$assignment] = ["discriminators" => []];
@@ -170,7 +172,7 @@ class UnionProperty extends AbstractProperty
             $propertyTypeName = $this->subTypeName($i);
 
             $isObject = (isset($subDef["type"]) && $subDef["type"] === "object") || isset($subDef["properties"]);
-            $isEnum = isset($subDef["enum"]);
+            $isEnum   = isset($subDef["enum"]);
 
             if ($isObject || $isEnum) {
                 $generator->schemaToClass(
@@ -184,7 +186,7 @@ class UnionProperty extends AbstractProperty
 
     public function typeAnnotation(): string
     {
-        $types = array_map(fn (PropertyInterface $prop): string => $prop->typeAnnotation(), $this->subProperties);
+        $types = array_map(fn(PropertyInterface $prop): string => $prop->typeAnnotation(), $this->subProperties);
         return join("|", $types);
     }
 

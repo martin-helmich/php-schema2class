@@ -113,6 +113,11 @@ class DefaultPropertyDecorator implements PropertyInterface
         return $this->inner->key();
     }
 
+    public function name(): string
+    {
+        return $this->inner->name();
+    }
+
     /**
      * @return PropertyInterface
      */

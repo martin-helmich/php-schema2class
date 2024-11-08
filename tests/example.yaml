@@ -84,3 +84,5 @@ properties:
           type: string
   emptyProperty:
     type: object
+  "dashed-property":
+    type: string
