@@ -50,16 +50,17 @@ class OptionalPropertyDecorator implements PropertyInterface
     public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
         $key   = $this->key;
+        $name  = $this->inner->name();
         $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
-        $default = isset($this->schema()["default"]) ? $this->schema()["default"] : null;
+        $default    = isset($this->schema()["default"]) ? $this->schema()["default"] : null;
         $defaultExp = var_export($default, true);
 
         $defaultExp = $defaultExp === "NULL" ? "null" : $defaultExp;
 
         $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
 
-        return "\$$key = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner,1) . "\n}";
+        return "\${$name} = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner, 1) . "\n}";
     }
 
     /**
@@ -68,10 +69,10 @@ class OptionalPropertyDecorator implements PropertyInterface
      */
     public function convertTypeToJSON(string $outputVarName = 'output'): string
     {
-        $key   = $this->key;
+        $name  = $this->inner->name();
         $inner = $this->inner->convertTypeToJSON($outputVarName);
 
-        return "if (isset(\$this->$key)) {\n" . $this->indentCode($inner, 1) . "\n}";
+        return "if (isset(\$this->{$name})) {\n" . $this->indentCode($inner, 1) . "\n}";
     }
 
     /**
@@ -132,11 +133,11 @@ class OptionalPropertyDecorator implements PropertyInterface
      */
     public function cloneProperty(): ?string
     {
-        $key   = $this->key();
+        $name  = $this->name();
         $inner = $this->inner->cloneProperty();
 
         if ($inner !== null) {
-            return "if (isset(\$this->$key)) {\n" . $this->indentCode($inner, 1) . "\n}";
+            return "if (isset(\$this->{$name})) {\n" . $this->indentCode($inner, 1) . "\n}";
         }
 
         return null;
@@ -156,6 +157,11 @@ class OptionalPropertyDecorator implements PropertyInterface
     public function key(): string
     {
         return $this->inner->key();
+    }
+
+    public function name(): string
+    {
+        return $this->inner->name();
     }
 
     /**

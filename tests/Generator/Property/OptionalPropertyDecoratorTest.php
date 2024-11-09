@@ -39,6 +39,7 @@ class OptionalPropertyDecoratorTest extends TestCase
 
     public function testConvertJsonToType()
     {
+        $this->innerProperty->name()->shouldBeCalled()->willReturn('myPropertyName');
         $this->innerProperty->convertJSONToType('variable', Argument::any())->shouldBeCalled()->willReturn('echo "InnerCode";');
 
         $result = $this->decorator->convertJSONToType('variable');
@@ -55,6 +56,7 @@ EOCODE;
 
     public function testConvertTypeToJson()
     {
+        $this->innerProperty->name()->shouldBeCalled()->willReturn('myPropertyName');
         $this->innerProperty->convertTypeToJSON('variable')->shouldBeCalled()->willReturn('echo "InnerCode";');
 
         $result = $this->decorator->convertTypeToJSON('variable');
@@ -70,7 +72,7 @@ EOCODE;
 
     public function testClonePropertyWithoutInnerCode()
     {
-        $this->innerProperty->key()->shouldBeCalled()->willReturn('innerPropertyName');
+        $this->innerProperty->name()->shouldBeCalled()->willReturn('innerPropertyName');
         $this->innerProperty->cloneProperty()->shouldBeCalled()->willReturn(null);
 
         assertNull($this->decorator->cloneProperty());
@@ -78,7 +80,7 @@ EOCODE;
 
     public function testClonePropertyWithInnerCode()
     {
-        $this->innerProperty->key()->shouldBeCalled()->willReturn('innerPropertyName');
+        $this->innerProperty->name()->shouldBeCalled()->willReturn('innerPropertyName');
         $this->innerProperty->cloneProperty()->shouldBeCalled()->willReturn('echo "InnerCode";');
         $expected = <<<'EOCODE'
 if (isset($this->innerPropertyName)) {

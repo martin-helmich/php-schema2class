@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\Basic;
+namespace Ns\JsonFile;
 
 class Foo
 {
@@ -12,96 +12,56 @@ class Foo
      * @var array
      */
     private static array $schema = [
-        'required' => [
-            'foo_bar',
-        ],
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'http://json-schema.org/draft-07/schema#',
+        'title' => 'definitions test',
+        'type' => 'object',
+        'additionalProperties' => false,
         'properties' => [
-            'foo' => [
-                'type' => 'string',
+            'id' => [
+                'type' => 'integer',
             ],
-            'foo_bar' => [
-                'type' => 'string',
-            ],
+        ],
+        'required' => [
+            'id',
         ],
     ];
 
     /**
-     * @var string|null
+     * @var int
      */
-    private ?string $foo = null;
+    private int $id;
 
     /**
-     * @var string
+     * @param int $id
      */
-    private string $fooBar;
-
-    /**
-     * @param string $fooBar
-     */
-    public function __construct(string $fooBar)
+    public function __construct(int $id)
     {
-        $this->fooBar = $fooBar;
+        $this->id = $id;
     }
 
     /**
-     * @return string|null
+     * @return int
      */
-    public function getFoo() : ?string
+    public function getId() : int
     {
-        return $this->foo ?? null;
+        return $this->id;
     }
 
     /**
-     * @return string
-     */
-    public function getFooBar() : string
-    {
-        return $this->fooBar;
-    }
-
-    /**
-     * @param string $foo
+     * @param int $id
      * @return self
      */
-    public function withFoo(string $foo) : self
+    public function withId(int $id) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($foo, static::$schema['properties']['foo']);
+        $validator->validate($id, static::$schema['properties']['id']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->foo = $foo;
-
-        return $clone;
-    }
-
-    /**
-     * @return self
-     */
-    public function withoutFoo() : self
-    {
-        $clone = clone $this;
-        unset($clone->foo);
-
-        return $clone;
-    }
-
-    /**
-     * @param string $fooBar
-     * @return self
-     */
-    public function withFooBar(string $fooBar) : self
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($fooBar, static::$schema['properties']['foo_bar']);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->fooBar = $fooBar;
+        $clone->id = $id;
 
         return $clone;
     }
@@ -121,14 +81,10 @@ class Foo
             static::validateInput($input);
         }
 
-        $foo = null;
-        if (isset($input->{'foo'})) {
-            $foo = $input->{'foo'};
-        }
-        $fooBar = $input->{'foo_bar'};
+        $id = (int)($input->{'id'});
 
-        $obj = new self($fooBar);
-        $obj->foo = $foo;
+        $obj = new self($id);
+
         return $obj;
     }
 
@@ -140,10 +96,7 @@ class Foo
     public function toJson() : array
     {
         $output = [];
-        if (isset($this->foo)) {
-            $output['foo'] = $this->foo;
-        }
-        $output['foo_bar'] = $this->fooBar;
+        $output['id'] = $this->id;
 
         return $output;
     }
