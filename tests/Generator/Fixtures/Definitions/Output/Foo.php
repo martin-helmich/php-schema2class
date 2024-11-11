@@ -62,9 +62,9 @@ class Foo
     private int $id;
 
     /**
-     * @var mixed|null
+     * @var Definitions\Address|null
      */
-    private mixed $address = null;
+    private ?Definitions\Address $address = null;
 
     /**
      * @param int $id
@@ -83,11 +83,11 @@ class Foo
     }
 
     /**
-     * @return mixed|null
+     * @return Definitions\Address|null
      */
-    public function getAddress() : mixed
+    public function getAddress() : ?Definitions\Address
     {
-        return $this->address;
+        return $this->address ?? null;
     }
 
     /**
@@ -109,10 +109,10 @@ class Foo
     }
 
     /**
-     * @param mixed $address
+     * @param Definitions\Address $address
      * @return self
      */
-    public function withAddress(mixed $address) : self
+    public function withAddress(Definitions\Address $address) : self
     {
         $clone = clone $this;
         $clone->address = $address;
@@ -149,7 +149,7 @@ class Foo
         $id = (int)($input->{'id'});
         $address = null;
         if (isset($input->{'address'})) {
-            $address = $input->{'address'};
+            $address = Definitions\Address::buildFromInput($input->{'address'}, validate: $validate);
         }
 
         $obj = new self($id);
@@ -167,7 +167,7 @@ class Foo
         $output = [];
         $output['id'] = $this->id;
         if (isset($this->address)) {
-            $output['address'] = $this->address;
+            $output['address'] = $this->address->toJson();
         }
 
         return $output;

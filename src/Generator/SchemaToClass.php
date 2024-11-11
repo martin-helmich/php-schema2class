@@ -245,7 +245,7 @@ class SchemaToClass
         $this->writer->writeFile($filename, $content);
     }
 
-    private function definitionsToSchemas(GeneratorRequest $req): void
+    private function definitionsToSchemas(GeneratorRequest &$req): void
     {
         if ($req->hasReferenceLookup(DefinitionsReferenceLookup::class)) {
             return;

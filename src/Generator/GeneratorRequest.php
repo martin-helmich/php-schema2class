@@ -48,7 +48,7 @@ class GeneratorRequest
     {
         $clone                  = clone $this;
         $clone->referenceLookup = [];
-        $clone = $clone->withAdditionalReferenceLookup($referenceLookup);
+        $clone->referenceLookup[$referenceLookup::class] = $referenceLookup;
 
         return $clone;
     }
