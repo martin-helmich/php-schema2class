@@ -37,9 +37,9 @@ class Address
     ];
 
     /**
-     * @var \Definitions\Address\Defs\Name|null
+     * @var Address\Defs\Name|null
      */
-    private ?\Definitions\Address\Defs\Name $name = null;
+    private ?Address\Defs\Name $name = null;
 
     /**
      * @var string
@@ -55,9 +55,9 @@ class Address
     }
 
     /**
-     * @return \Definitions\Address\Defs\Name|null
+     * @return Address\Defs\Name|null
      */
-    public function getName() : ?\Definitions\Address\Defs\Name
+    public function getName() : ?Address\Defs\Name
     {
         return $this->name ?? null;
     }
@@ -71,10 +71,10 @@ class Address
     }
 
     /**
-     * @param \Definitions\Address\Defs\Name $name
+     * @param Address\Defs\Name $name
      * @return self
      */
-    public function withName(\Definitions\Address\Defs\Name $name) : self
+    public function withName(Address\Defs\Name $name) : self
     {
         $clone = clone $this;
         $clone->name = $name;
@@ -128,7 +128,7 @@ class Address
 
         $name = null;
         if (isset($input->{'name'})) {
-            $name = \Definitions\Address\Defs\Name::buildFromInput($input->{'name'}, validate: $validate);
+            $name = Address\Defs\Name::buildFromInput($input->{'name'}, validate: $validate);
         }
         $city = $input->{'city'};
 

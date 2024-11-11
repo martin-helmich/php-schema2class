@@ -251,7 +251,7 @@ class SchemaToClass
             return;
         }
 
-        $collector = new DefinitionsCollector();
+        $collector = new DefinitionsCollector($req);
         $collectedDefinitions = iterator_to_array($collector->collect($req->getSchema()));
 
         $req = $req->withReferenceLookup(new DefinitionsReferenceLookup(

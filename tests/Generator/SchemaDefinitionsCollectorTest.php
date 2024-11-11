@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Generator\Definitions\DefinitionsCollector;
+use Helmich\Schema2Class\Spec\SpecificationOptions;
+use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use PHPUnit\Framework\TestCase;
 
 final class SchemaDefinitionsCollectorTest extends TestCase
@@ -44,7 +46,11 @@ final class SchemaDefinitionsCollectorTest extends TestCase
             ]
         ];
 
-        $definitionsGenerator = new DefinitionsCollector();
+        $definitionsGenerator = new DefinitionsCollector(new GeneratorRequest(
+            schema: $schema,
+            spec: new ValidatedSpecificationFilesItem('TargetNamespace', 'TargetClass', 'targetDirectory'),
+            opts: new SpecificationOptions(),
+        ));
         $definitions = $definitionsGenerator->collect($schema);
 
         $this->assertSame([], []);

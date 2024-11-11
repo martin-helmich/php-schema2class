@@ -23,8 +23,8 @@ class DefinitionsGenerator
         foreach ($definitions as $definition) {
             $newRequest = $generatorRequest->withClass($definition->className)
                 ->withSchema($definition->schema)
-                ->withNamespace(join('\\', [$generatorRequest->getTargetNamespace(), $definition->namespace]))
-                ->withDirectory(join('/', [$generatorRequest->getTargetDirectory(), $definition->directory]))
+                ->withNamespace($definition->namespace)
+                ->withDirectory($definition->directory)
             ;
 
             $this->schemaToClass->schemaToClass($newRequest);

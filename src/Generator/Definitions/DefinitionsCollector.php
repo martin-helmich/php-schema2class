@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator\Definitions;
 
+use Helmich\Schema2Class\Generator\GeneratorRequest;
+
 class DefinitionsCollector
 {
+    public function __construct(protected readonly GeneratorRequest $generatorRequest)
+    {
+    }
+
     /**
      * @return \Generator<string, Definition>
      */
@@ -40,13 +46,13 @@ class DefinitionsCollector
             return str_replace(' ', '', ucwords(str_replace('_', ' ', $part)));
         }, $parts);
 
-        $classFQN = implode('\\', $classNameParts);
+        $classFQN = $this->generatorRequest->getTargetNamespace() . '\\' . implode('\\', $classNameParts);
         $className = array_pop($classNameParts);
 
         // Joins the parts back into a string with slashes (to represent namespace hierarchy)
         return new Definition(
-            namespace: implode('\\', $classNameParts),
-            directory: implode('/', $classNameParts),
+            namespace: $this->generatorRequest->getTargetNamespace() . '\\' . implode('\\', $classNameParts),
+            directory: $this->generatorRequest->getTargetDirectory() . '/' . implode('/', $classNameParts),
             classFQN: $classFQN,
             className: $className,
             schema: $schema,
