@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ns\EnumConsistent;
 
 enum Foo: string {
