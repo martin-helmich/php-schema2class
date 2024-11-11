@@ -37,23 +37,19 @@ class DefinitionsCollector
     }
 
     private function pathToClassName(string $path, array $schema): Definition {
-        $path = str_replace('$defs', 'Defs', $path);
-        // Strips out the `#` symbol and splits the path into parts
-        $parts = explode('/', ltrim($path, '#/'));
+        $parts = array_map(
+            fn ($part) => str_replace(' ', '', ucwords(str_replace('_', ' ', $part))),
+            explode('/', ltrim(str_replace('$defs', 'Defs', $path), '#/'))
+        );
 
-        // Maps each part of the path to a StudlyCase (or PascalCase) conversion
-        $classNameParts = array_map(function ($part) {
-            return str_replace(' ', '', ucwords(str_replace('_', ' ', $part)));
-        }, $parts);
+        $className = array_pop($parts);
+        $namespace = $this->generatorRequest->getTargetNamespace() . '\\' . implode('\\', $parts);
+        $directory = $this->generatorRequest->getTargetDirectory() . '/' . implode('/', $parts);
 
-        $classFQN = $this->generatorRequest->getTargetNamespace() . '\\' . implode('\\', $classNameParts);
-        $className = array_pop($classNameParts);
-
-        // Joins the parts back into a string with slashes (to represent namespace hierarchy)
         return new Definition(
-            namespace: $this->generatorRequest->getTargetNamespace() . '\\' . implode('\\', $classNameParts),
-            directory: $this->generatorRequest->getTargetDirectory() . '/' . implode('/', $classNameParts),
-            classFQN: $classFQN,
+            namespace: $namespace,
+            directory: $directory,
+            classFQN: $namespace . '\\' . $className,
             className: $className,
             schema: $schema,
         );

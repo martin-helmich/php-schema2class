@@ -254,7 +254,7 @@ class SchemaToClass
         $collector = new DefinitionsCollector($req);
         $collectedDefinitions = iterator_to_array($collector->collect($req->getSchema()));
 
-        $req = $req->withReferenceLookup(new DefinitionsReferenceLookup(
+        $req = $req->withAdditionalReferenceLookup(new DefinitionsReferenceLookup(
             $collectedDefinitions,
         ));
 
