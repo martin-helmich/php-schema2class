@@ -53,12 +53,13 @@ class DefaultPropertyDecorator implements PropertyInterface
     public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
         $key   = $this->key;
+        $name  = $this->name();
         $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
         $defaultExp = $this->defaultExpr();
         $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
 
-        return "\$$key = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner, 1) . "\n}";
+        return "\${$name} = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner, 1) . "\n}";
     }
 
     /**
