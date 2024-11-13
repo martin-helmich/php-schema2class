@@ -55,7 +55,7 @@ class OptionalPropertyDecorator implements PropertyInterface
         $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
         $default    = isset($this->schema()["default"]) ? $this->schema()["default"] : null;
-        $defaultExp = rtrim($this->formatValue($default)?->generate() ?? "null", ";");
+        $defaultExp = rtrim($this->formatValue($default)->generate(), ";");
 
         $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
 
@@ -198,7 +198,7 @@ class OptionalPropertyDecorator implements PropertyInterface
         return "isset({$expr}) ? (clone {$expr}) : null";
     }
 
-    public function formatValue(mixed $value): PropertyValueGenerator|null
+    public function formatValue(mixed $value): PropertyValueGenerator
     {
         return $this->inner->formatValue($value);
     }

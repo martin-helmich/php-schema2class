@@ -113,11 +113,8 @@ abstract class AbstractProperty implements PropertyInterface
     {
     }
 
-    public function formatValue(mixed $value): PropertyValueGenerator|null
+    public function formatValue(mixed $value): PropertyValueGenerator
     {
-        if ($value === null) {
-            return null;
-        }
         return new PropertyValueGenerator($value);
     }
 

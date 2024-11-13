@@ -402,7 +402,7 @@ return \$clone;",
 
         $body = "\$clone = clone \$this;\n";
         if (isset($property->schema()["default"])) {
-            $value = $property->formatValue($property->schema()["default"])?->generate() ?? "null;";
+            $value = $property->formatValue($property->schema()["default"])->generate();
             $body .= "\$clone->$name = " . $value . "\n";
         } else {
             $body .= "unset(\$clone->$name);\n";

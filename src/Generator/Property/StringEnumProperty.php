@@ -76,10 +76,10 @@ class StringEnumProperty extends AbstractProperty
         return $this->generatorRequest->getTargetClass() . $this->capitalizedName;
     }
 
-    public function formatValue(mixed $value): PropertyValueGenerator|null
+    public function formatValue(mixed $value): PropertyValueGenerator
     {
         if ($value === null) {
-            return null;
+            return new PropertyValueGenerator(null);
         }
 
         // Using TYPE_CONSTANT is a dirty workaround to bypass PropertyValueGenerator's formatting.

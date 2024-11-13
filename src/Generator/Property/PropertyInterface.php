@@ -104,6 +104,6 @@ interface PropertyInterface
      */
     public function cloneProperty(): ?string;
 
-    public function formatValue(mixed $value): PropertyValueGenerator|null;
+    public function formatValue(mixed $value): PropertyValueGenerator;
 
 }

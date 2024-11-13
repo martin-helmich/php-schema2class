@@ -40,7 +40,7 @@ class DefaultPropertyDecorator implements PropertyInterface
     private function defaultExpr(): string
     {
         $default = $this->schema()["default"];
-        return rtrim($this->formatValue($default)?->generate() ?? "null", ";");
+        return rtrim($this->formatValue($default)->generate(), ";");
     }
 
     /**
@@ -151,7 +151,7 @@ class DefaultPropertyDecorator implements PropertyInterface
         return $this->inner->generateCloneExpr($expr);
     }
 
-    public function formatValue(mixed $value): PropertyValueGenerator|null
+    public function formatValue(mixed $value): PropertyValueGenerator
     {
         return $this->inner->formatValue($value);
     }
