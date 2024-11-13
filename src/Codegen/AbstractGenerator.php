@@ -17,7 +17,7 @@ abstract class AbstractGenerator
 
     public function insert(int $index, Node $node): self
     {
-        array_splice($this->nodes, $index, 0, $node);
+        array_splice($this->nodes, $index, 0, [$node]);
 
         return $this;
     }
@@ -39,7 +39,7 @@ abstract class AbstractGenerator
             throw new \OutOfRangeException();
         }
 
-        return array_splice($this->nodes, $index, 1, null)[0];
+        return array_splice($this->nodes, $index, 1)[0];
     }
 
     public function clear(): self
@@ -52,18 +52,22 @@ abstract class AbstractGenerator
     /**
      * @psalm-param callable(Node): Node $callback
      */
-    public function apply(callable $callback): self
+    public function walk(callable $callback): self
     {
-        foreach ($this->nodes as &$value) {
-            $value = $callback($value);
-        }
+        array_walk($this->nodes, $callback);
 
         return $this;
     }
 
-    public function filter(callable $callback = null): self
+    /**
+     * @psalm-param ($mode is 0 ? callable(Node) : callable(Node, int) ) $callback
+     */
+    public function filter(callable $callback, int $mode = 0): self
     {
-        return new static(array_filter($this->nodes, $callback ?: 'boolval'));
+        $this->nodes = array_filter($this->nodes, $callback, $mode);
+        $this->nodes = array_values($this->nodes);
+
+        return $this;
     }
 
     public function find(Node $value): ?int
@@ -91,9 +95,18 @@ abstract class AbstractGenerator
         return $this->nodes[$index];
     }
 
-    public function last(): Node
+    public function last(): ?Node
     {
+        if (empty($this->nodes)) {
+            return null;
+        }
+
         return $this->nodes[array_key_last($this->nodes)];
+    }
+
+    public function count(): int
+    {
+        return count($this->nodes);
     }
 
     protected function isValidIndex(int $index): bool

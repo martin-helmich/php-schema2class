@@ -16,7 +16,7 @@ use PhpParser\PrettyPrinter\Standard;
 
 class EnumGenerator extends AbstractGenerator
 {
-    /** @var array<non-empty-string, EnumCase> */
+    /** @var array<string, EnumCase> */
     protected array $cases = [];
 
     public function __construct(
