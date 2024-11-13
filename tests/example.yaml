@@ -86,3 +86,9 @@ properties:
     type: object
   "dashed-property":
     type: string
+  "enum-with-default":
+    type: string
+    enum:
+      - foo
+      - bar
+    default: bar

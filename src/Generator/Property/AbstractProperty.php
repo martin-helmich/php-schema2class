@@ -6,6 +6,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\SchemaToClass;
 use Helmich\Schema2Class\Util\StringUtils;
+use Laminas\Code\Generator\PropertyValueGenerator;
 
 abstract class AbstractProperty implements PropertyInterface
 {
@@ -110,6 +111,11 @@ abstract class AbstractProperty implements PropertyInterface
 
     public function generateSubTypes(SchemaToClass $generator): void
     {
+    }
+
+    public function formatValue(mixed $value): PropertyValueGenerator
+    {
+        return new PropertyValueGenerator($value);
     }
 
 }

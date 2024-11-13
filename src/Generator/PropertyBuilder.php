@@ -23,7 +23,7 @@ use Helmich\Schema2Class\Generator\Property\UnionProperty;
 
 class PropertyBuilder
 {
-    /** @var string[] */
+    /** @var class-string[] */
     private static array $propertyTypes = [
         IntersectProperty::class,
         UnionProperty::class,
