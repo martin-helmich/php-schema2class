@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Codegen\EnumGenerator;
 use Helmich\Schema2Class\Example\CustomerAddress;
+use Helmich\Schema2Class\Generator\Hook\EnumCreatedHook;
 use Helmich\Schema2Class\Loader\SchemaLoader;
 use Helmich\Schema2Class\Spec\SpecificationOptions;
 use Helmich\Schema2Class\Spec\ValidatedSpecificationFilesItem;
 use Helmich\Schema2Class\Writer\DebugWriter;
+use PhpParser\Builder\Enum_;
+use PhpParser\Builder\EnumCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\NullOutput;
@@ -80,6 +84,21 @@ class SchemaToClassTest extends TestCase
             $opts,
         );
 
+        $req = $req->withHook(new class () implements EnumCreatedHook {
+            function onEnumCreated(string $enumName, EnumGenerator $enum): void
+            {
+                if ($enumName !== 'Ns\EnumHook\Foo') {
+                    return;
+                }
+
+                $enum->withAdditionalEnumCase((new EnumCase('blue'))->setValue('blue')->getNode());
+                $enum->withEnum_((new Enum_('Foo'))
+                    ->setScalarType('string')
+                    ->setDocComment('/** Doc comment */')
+                    ->getNode()
+                );
+            }
+        });
         $req = $req->withReferenceLookup(new class ($schema) implements ReferenceLookup {
             public function __construct(private readonly array $schema)
             {

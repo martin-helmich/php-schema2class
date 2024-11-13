@@ -12,7 +12,6 @@ use Laminas\Code\DeclareStatement;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
-use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Symfony\Component\Console\Output\OutputInterface;
 
