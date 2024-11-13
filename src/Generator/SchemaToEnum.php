@@ -3,6 +3,7 @@
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Writer\WriterInterface;
+use Laminas\Code\DeclareStatement;
 use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
 
@@ -54,8 +55,7 @@ class SchemaToEnum
 
         $req->onFileCreated($filename, $file);
 
-        // No strict typings for enums, because Psalm shits itself in that case.
-        // $file->setDeclares([DeclareStatement::strictTypes(1)]);
+        $file->setDeclares([DeclareStatement::strictTypes(1)]);
 
         $content = $file->generate();
 
