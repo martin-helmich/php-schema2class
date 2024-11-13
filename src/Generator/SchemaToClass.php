@@ -228,8 +228,7 @@ class SchemaToClass
 
         $req->onFileCreated($filename, $file);
 
-        // No strict typings for enums, because Psalm shits itself in that case.
-        // $file->setDeclares([DeclareStatement::strictTypes(1)]);
+        $file->setDeclares([DeclareStatement::strictTypes(1)]);
 
         $content = $file->generate();
 
