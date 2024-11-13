@@ -12,6 +12,24 @@ use PHPUnit\Framework\TestCase;
 
 final class AbstractGeneratorTest extends TestCase
 {
+    public function test_last_throws_exception_on_empty_nodes(): void
+    {
+        $generator = new class([]) extends AbstractGenerator {};
+
+        $this->expectException(\UnderflowException::class);
+
+        $generator->last();
+    }
+
+    public function test_first_throws_exception_on_empty_nodes(): void
+    {
+        $generator = new class([]) extends AbstractGenerator {};
+
+        $this->expectException(\UnderflowException::class);
+
+        $generator->last();
+    }
+
     public function test_remove_and_set(): void
     {
         $firstNode = (new Namespace_('TestNamespace'))->getNode();

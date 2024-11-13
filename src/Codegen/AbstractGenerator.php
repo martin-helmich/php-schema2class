@@ -95,10 +95,10 @@ abstract class AbstractGenerator
         return $this->nodes[$index];
     }
 
-    public function last(): ?Node
+    public function last(): Node
     {
         if (empty($this->nodes)) {
-            return null;
+            throw new \UnderflowException();
         }
 
         return $this->nodes[array_key_last($this->nodes)];
