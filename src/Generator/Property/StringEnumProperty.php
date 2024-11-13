@@ -5,6 +5,9 @@ namespace Helmich\Schema2Class\Generator\Property;
 use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Helmich\Schema2Class\Generator\SchemaToEnum;
+use Laminas\Code\Generator\PropertyValueGenerator;
+use Laminas\Code\Generator\ValueGenerator;
 
 class StringEnumProperty extends AbstractProperty
 {
@@ -71,6 +74,21 @@ class StringEnumProperty extends AbstractProperty
     private function subTypeName(): string
     {
         return $this->generatorRequest->getTargetClass() . $this->capitalizedName;
+    }
+
+    public function formatValue(mixed $value): PropertyValueGenerator|null
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // Using TYPE_CONSTANT is a dirty workaround to bypass PropertyValueGenerator's formatting.
+        // Ideally, we would want to use TYPE_ENUM, but this requires the referenced enum to exist
+        // as a class WHILE generating.
+        return new PropertyValueGenerator(
+            $this->subTypeName() . "::" . SchemaToEnum::enumCaseName($value),
+            ValueGenerator::TYPE_CONSTANT,
+        );
     }
 
 }

@@ -44,7 +44,7 @@ class Generator
             $isOptional = false;
             $prop       = new PropertyGenerator(
                 $property->name(),
-                $schema["default"] ?? null,
+                $property->formatValue($schema["default"] ?? null),
                 PropertyGenerator::FLAG_PRIVATE
             );
 

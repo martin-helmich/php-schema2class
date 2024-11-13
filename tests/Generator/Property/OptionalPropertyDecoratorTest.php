@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
+use Laminas\Code\Generator\PropertyValueGenerator;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -23,6 +24,7 @@ class OptionalPropertyDecoratorTest extends TestCase
     {
         $this->innerProperty = $this->prophesize(PropertyInterface::class);
         $this->innerProperty->schema()->willReturn([]);
+        $this->innerProperty->formatValue(Argument::any())->willReturn(new PropertyValueGenerator(null));
         $this->decorator     = new OptionalPropertyDecorator('myPropertyName', $this->innerProperty->reveal());
     }
 

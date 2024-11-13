@@ -5,6 +5,7 @@ namespace Helmich\Schema2Class\Generator\Property;
 
 use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Laminas\Code\Generator\PropertyValueGenerator;
 
 class OptionalPropertyDecorator implements PropertyInterface
 {
@@ -54,9 +55,7 @@ class OptionalPropertyDecorator implements PropertyInterface
         $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
         $default    = isset($this->schema()["default"]) ? $this->schema()["default"] : null;
-        $defaultExp = var_export($default, true);
-
-        $defaultExp = $defaultExp === "NULL" ? "null" : $defaultExp;
+        $defaultExp = rtrim($this->formatValue($default)?->generate() ?? "null", ";");
 
         $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
 
@@ -197,6 +196,11 @@ class OptionalPropertyDecorator implements PropertyInterface
     public function generateCloneExpr(string $expr): string
     {
         return "isset({$expr}) ? (clone {$expr}) : null";
+    }
+
+    public function formatValue(mixed $value): PropertyValueGenerator|null
+    {
+        return $this->inner->formatValue($value);
     }
 
 }
