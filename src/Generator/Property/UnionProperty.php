@@ -187,6 +187,7 @@ class UnionProperty extends AbstractProperty
     public function typeAnnotation(): string
     {
         $types = array_map(fn(PropertyInterface $prop): string => $prop->typeAnnotation(), $this->subProperties);
+        $types = array_unique($types);
         return join("|", $types);
     }
 

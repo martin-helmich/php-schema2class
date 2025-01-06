@@ -92,3 +92,9 @@ properties:
       - foo
       - bar
     default: bar
+  stringUnion:
+    oneOf:
+      - type: string
+        format: uuid
+      - type: string
+        maxLength: 0
