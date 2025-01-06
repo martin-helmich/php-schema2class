@@ -13,6 +13,7 @@ class MatchGenerator
     public function addArm(string $conditionExpr, string $returnExpr): void
     {
         $this->arms[$returnExpr][] = $conditionExpr;
+        $this->arms[$returnExpr] = array_unique($this->arms[$returnExpr]);
     }
 
     public function generate(): string
