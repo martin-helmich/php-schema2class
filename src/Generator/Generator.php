@@ -286,7 +286,6 @@ class Generator
             $property = $property->unwrap();
         }
 
-        $key            = $property->key();
         $name           = $property->name();
         $camelCasedName = StringUtils::capitalizeWord($property->name());
         $annotatedType  = $property->typeAnnotation();
@@ -296,12 +295,15 @@ class Generator
             $tags[] = new GenericTag("deprecated");
         }
 
+        $docBlockGenerator = new DocBlockGenerator(null, null, $tags);
+        $docBlockGenerator->setWordWrap(false);  // needs to be disabled because its fundamentally broken
+
         $getMethod = new MethodGenerator(
-            'get' . $camelCasedName,
-            [],
-            MethodGenerator::FLAG_PUBLIC,
-            "return \$this->$name;",
-            new DocBlockGenerator(null, null, $tags)
+            name: 'get' . $camelCasedName,
+            parameters: [],
+            flags: MethodGenerator::FLAG_PUBLIC,
+            body: "return \$this->$name;",
+            docBlock: $docBlockGenerator,
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
