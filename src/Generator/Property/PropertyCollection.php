@@ -2,8 +2,6 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Helmich\Schema2Class\Util\StringUtils;
-
 /**
  * @template-implements \Iterator<PropertyInterface>
  */
@@ -29,24 +27,7 @@ class PropertyCollection implements \Iterator
     public function generateJSONToTypeConversionCode(string $inputVarName = 'input', bool $object = false): string
     {
         $conv = array_map(fn ($p) => $p->convertJSONToType($inputVarName, $object), $this->properties);
-        $convStr = join("\n", $conv);
-
-        // This is crude, but: Some of the generated code contains incomplete
-        // "match" statements (because it is the syntactically easiest solution
-        // for some of the type mapping requirements).
-        //
-        // However, some type checkers like PHPStan may (rightfully so) complain
-        // about the potentially incomplete match statements. So if the mapping
-        // code contains a "match (true)", we catch the resulting UnhandledMatchErrors
-        // in the generated code and convert it to an InvalidArgumentException
-        // (because due to the nature of the mapping code, any unhandled match
-        // is caused by invalid input).
-        if (str_contains($convStr, "match (true)")) {
-            $convStr = StringUtils::indentMultiline($convStr);
-            $convStr = "try {\n" . $convStr . "\n} catch (\\UnhandledMatchError \$err) {\n    throw new \\InvalidArgumentException(\$err->getMessage(), 0, \$err);\n}";
-        }
-
-        return $convStr;
+        return join("\n", $conv);
     }
 
     public function generateTypeToJSONConversionCode(string $outputVarName = 'output'): string

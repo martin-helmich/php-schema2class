@@ -79,13 +79,10 @@ class Foo
             static::validateInput($input);
         }
 
-        try {
-            $foo = match (true) {
-                is_string($input->{'foo'}) => $input->{'foo'},
-            };
-        } catch (\UnhandledMatchError $err) {
-            throw new \InvalidArgumentException($err->getMessage(), 0, $err);
-        }
+        $foo = match (true) {
+            is_string($input->{'foo'}) => $input->{'foo'},
+            default => throw new \InvalidArgumentException("could not build property 'foo' from JSON"),
+        };
 
         $obj = new self($foo);
 

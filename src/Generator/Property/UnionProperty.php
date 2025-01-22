@@ -57,6 +57,8 @@ class UnionProperty extends AbstractProperty
             $match->addArm($discriminator, $mapping);
         }
 
+        $match->addArm("default", "throw new \\InvalidArgumentException(\"could not build property '$key' from JSON\")");
+
         return "\${$key} = {$match->generate()};";
     }
 
