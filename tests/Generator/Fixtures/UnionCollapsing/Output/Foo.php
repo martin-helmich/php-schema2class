@@ -79,9 +79,13 @@ class Foo
             static::validateInput($input);
         }
 
-        $foo = match (true) {
-            is_string($input->{'foo'}) => $input->{'foo'},
-        };
+        try {
+            $foo = match (true) {
+                is_string($input->{'foo'}) => $input->{'foo'},
+            };
+        } catch (\UnhandledMatchError $err) {
+            throw new \InvalidArgumentException($err->getMessage(), 0, $err);
+        }
 
         $obj = new self($foo);
 

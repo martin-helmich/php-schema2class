@@ -144,7 +144,7 @@ class Generator
             "if (\$validate) {\n" .
             "    static::validateInput(\$$inputVarName);\n" .
             "}\n\n" .
-            $properties->generateJSONToTypeConversionCode($inputVarName, true) . "\n\n" .
+            $properties->generateJSONToTypeConversionCode($inputVarName, object: true) . "\n\n" .
             '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
             join("\n", $assignments) . "\n" .
             'return $obj;',

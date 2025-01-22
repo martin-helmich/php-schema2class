@@ -25,4 +25,12 @@ class StringUtils
 
         return $first . join("", array_map(fn (string $w) => self::capitalizeWord($w), $rest));
     }
+
+    public static function indentMultiline(string $input, string $indent = "    "): string
+    {
+        $lines = explode("\n", $input);
+        $lines = array_map(fn (string $line) => $indent . $line, $lines);
+
+        return implode("\n", $lines);
+    }
 }
