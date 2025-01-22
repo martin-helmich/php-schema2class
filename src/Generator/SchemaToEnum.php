@@ -61,7 +61,7 @@ class SchemaToEnum
 
         // Do some corrections because the Zend code generation library is stupid.
         $content = preg_replace('/ : \\\\self/', ' : self', $content);
-        $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace()) . '\\\\/', '', $content);
+        $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace(), '/') . '\\\\/', '', $content);
 
         $this->writer->writeFile($filename, $content);
     }
@@ -109,7 +109,7 @@ class SchemaToEnum
             return "VALUE_$value";
         }
 
-        $value = static::enumCaseNameString($value);
+        $value = self::enumCaseNameString($value);
 
         if (is_numeric($value[0])) {
             return "VALUE_$value";

@@ -51,9 +51,9 @@ class PropertyBuilder
      */
     public static function buildPropertyFromSchema(GeneratorRequest $req, string $name, array $definition, bool $isRequired): PropertyInterface
     {
-        static::testInvariants($definition);
+        self::testInvariants($definition);
 
-        foreach (static::$propertyTypes as $propertyType) {
+        foreach (self::$propertyTypes as $propertyType) {
             if ($propertyType::canHandleSchema($definition)) {
                 /** @var PropertyInterface $property */
                 $property = new $propertyType($name, $definition, $req);

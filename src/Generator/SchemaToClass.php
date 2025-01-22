@@ -21,6 +21,9 @@ class SchemaToClass
     private WriterInterface $writer;
     private SchemaToEnum $enumGenerator;
 
+    /**
+     * @phpstan-ignore constructor.unusedParameter (kept for backwards compatibility)
+     */
     public function __construct(WriterInterface $writer, OutputInterface $output)
     {
         $this->writer = $writer;
@@ -121,7 +124,7 @@ class SchemaToClass
 
         // Do some corrections because the Zend code generation library is stupid.
         $content = preg_replace('/ : \\\\self/', ' : self', $content);
-        $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace()) . '\\\\/', '', $content);
+        $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace(), '/') . '\\\\/', '', $content);
 
         $this->writer->writeFile($filename, $content);
     }
