@@ -89,7 +89,7 @@ class Foo
     public function withCity(string $city) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($city, static::$schema['properties']['city']);
+        $validator->validate($city, self::$schema['properties']['city']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -107,7 +107,7 @@ class Foo
     public function withStreet(string $street) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($street, static::$schema['properties']['street']);
+        $validator->validate($street, self::$schema['properties']['street']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -125,7 +125,7 @@ class Foo
     public function withCountry(string $country) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($country, static::$schema['properties']['country']);
+        $validator->validate($country, self::$schema['properties']['country']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -187,7 +187,7 @@ class Foo
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, static::$schema);
+        $validator->validate($input, self::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

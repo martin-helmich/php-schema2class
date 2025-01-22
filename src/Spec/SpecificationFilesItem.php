@@ -104,7 +104,7 @@ class SpecificationFilesItem
     public function withInput(string $input) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($input, static::$schema['properties']['input']);
+        $validator->validate($input, self::$schema['properties']['input']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -122,7 +122,7 @@ class SpecificationFilesItem
     public function withClassName(string $className) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($className, static::$schema['properties']['className']);
+        $validator->validate($className, self::$schema['properties']['className']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -140,7 +140,7 @@ class SpecificationFilesItem
     public function withTargetDirectory(string $targetDirectory) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($targetDirectory, static::$schema['properties']['targetDirectory']);
+        $validator->validate($targetDirectory, self::$schema['properties']['targetDirectory']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -158,7 +158,7 @@ class SpecificationFilesItem
     public function withTargetNamespace(string $targetNamespace) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($targetNamespace, static::$schema['properties']['targetNamespace']);
+        $validator->validate($targetNamespace, self::$schema['properties']['targetNamespace']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -238,7 +238,7 @@ class SpecificationFilesItem
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, static::$schema);
+        $validator->validate($input, self::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {
