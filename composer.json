@@ -16,7 +16,8 @@
         "justinrainbow/json-schema": "^6.0",
         "ext-json": "*",
         "composer/semver": "^3.0",
-        "laminas/laminas-code": "^4.12"
+        "laminas/laminas-code": "^4.12",
+        "nikic/php-parser": "^4.19"
     },
     "autoload": {
         "psr-4": {

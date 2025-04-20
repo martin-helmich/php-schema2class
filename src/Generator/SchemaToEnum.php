@@ -2,10 +2,12 @@
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Codegen\EnumGenerator;
 use Helmich\Schema2Class\Writer\WriterInterface;
-use Laminas\Code\DeclareStatement;
-use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
+use PhpParser\Builder\Enum_;
+use PhpParser\Builder\EnumCase;
+use PhpParser\Builder\Namespace_;
 
 class SchemaToEnum
 {
@@ -39,23 +41,21 @@ class SchemaToEnum
 
         $type     = $req->getSchema()["type"] === "string" ? "string" : "int";
         $enumName = $req->getTargetNamespace() . "\\" . $req->getTargetClass();
-        $enum     = EnumGenerator::withConfig([
-            "name"        => $enumName,
-            "backedCases" => [
-                "type"  => $type,
-                "cases" => $cases,
-            ],
-        ]);
+        $enumGenerator = new EnumGenerator(
+            enum_: (new Enum_($req->getTargetClass()))->setScalarType($type)->getNode(),
+            namespace_: (new Namespace_($req->getTargetNamespace()))->getNode(),
+        );
+        foreach ($cases as $name => $value) {
+            $enumGenerator->withAdditionalEnumCase((new EnumCase($name))->setValue($value)->getNode());
+        }
 
-        $req->onEnumCreated($enumName, $enum);
+        $req->onEnumCreated($enumName, $enumGenerator);
 
         $filename = $req->getTargetDirectory() . '/' . $req->getTargetClass() . '.php';
         $file     = new FileGenerator();
-        $file->setBody($enum->generate());
+        $file->setBody($enumGenerator->generate());
 
         $req->onFileCreated($filename, $file);
-
-        $file->setDeclares([DeclareStatement::strictTypes(1)]);
 
         $content = $file->generate();
 
