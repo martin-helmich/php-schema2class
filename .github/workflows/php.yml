@@ -39,5 +39,8 @@ jobs:
 
     # Unit tests need to run before the type checker, because they generate code
     # that the type checker needs to see.
-    - name: Run type checker
+    - name: Run type checker (psalm)
       run: ./vendor/bin/psalm --php-version=8.2
+
+    - name: Run type checker (PHPStan)
+      run: ./vendor/bin/phpstan analyze

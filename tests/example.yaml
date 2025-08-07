@@ -86,3 +86,15 @@ properties:
     type: object
   "dashed-property":
     type: string
+  "enum-with-default":
+    type: string
+    enum:
+      - foo
+      - bar
+    default: bar
+  stringUnion:
+    oneOf:
+      - type: string
+        format: uuid
+      - type: string
+        maxLength: 0

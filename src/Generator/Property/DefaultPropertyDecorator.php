@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator\Property;
 
-use Composer\Semver\Semver;
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Laminas\Code\Generator\PropertyValueGenerator;
 
 class DefaultPropertyDecorator implements PropertyInterface
 {
@@ -39,10 +39,8 @@ class DefaultPropertyDecorator implements PropertyInterface
 
     private function defaultExpr(): string
     {
-        $default    = $this->schema()["default"];
-        $defaultExp = var_export($default, true);
-
-        return $defaultExp === "NULL" ? "null" : $defaultExp;
+        $default = $this->schema()["default"];
+        return rtrim($this->formatValue($default)->generate(), ";");
     }
 
     /**
@@ -53,12 +51,13 @@ class DefaultPropertyDecorator implements PropertyInterface
     public function convertJSONToType(string $inputVarName = 'input', bool $object = false): string
     {
         $key   = $this->key;
+        $name  = $this->name();
         $inner = $this->inner->convertJSONToType($inputVarName, $object);
 
         $defaultExp = $this->defaultExpr();
-        $accessor = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
+        $accessor   = $object ? "\${$inputVarName}->{'$key'}" : "\${$inputVarName}['$key']";
 
-        return "\$$key = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner, 1) . "\n}";
+        return "\${$name} = {$defaultExp};\nif (isset($accessor)) {\n" . $this->indentCode($inner, 1) . "\n}";
     }
 
     /**
@@ -150,6 +149,11 @@ class DefaultPropertyDecorator implements PropertyInterface
     public function generateCloneExpr(string $expr): string
     {
         return $this->inner->generateCloneExpr($expr);
+    }
+
+    public function formatValue(mixed $value): PropertyValueGenerator
+    {
+        return $this->inner->formatValue($value);
     }
 
 }

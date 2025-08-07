@@ -221,6 +221,7 @@ This is useful if you want to use a custom validator class.
         if (isset($input->{'targetPHPVersion'})) {
             $targetPHPVersion = match (true) {
                 is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
+                default => throw new \InvalidArgumentException("could not build property 'targetPHPVersion' from JSON"),
             };
         }
         $files = array_map(fn (array|object $i): SpecificationFilesItem => SpecificationFilesItem::buildFromInput($i, validate: $validate), $input->{'files'});
@@ -268,7 +269,7 @@ This is useful if you want to use a custom validator class.
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, static::$schema);
+        $validator->validate($input, self::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

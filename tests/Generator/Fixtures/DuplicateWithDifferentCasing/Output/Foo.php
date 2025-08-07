@@ -79,7 +79,7 @@ class Foo
     public function withFooBar(string $fooBar) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($fooBar, static::$schema['properties']['fooBar']);
+        $validator->validate($fooBar, self::$schema['properties']['fooBar']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -98,7 +98,7 @@ class Foo
     public function withBar(string $bar) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($bar, static::$schema['properties']['bar']);
+        $validator->validate($bar, self::$schema['properties']['bar']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -182,7 +182,7 @@ class Foo
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, static::$schema);
+        $validator->validate($input, self::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

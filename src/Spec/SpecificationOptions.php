@@ -134,7 +134,7 @@ This is useful if you want to use a custom validator class.
     public function withDisableStrictTypes(bool $disableStrictTypes) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($disableStrictTypes, static::$schema['properties']['disableStrictTypes']);
+        $validator->validate($disableStrictTypes, self::$schema['properties']['disableStrictTypes']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -151,7 +151,7 @@ This is useful if you want to use a custom validator class.
     public function withoutDisableStrictTypes() : self
     {
         $clone = clone $this;
-        unset($clone->disableStrictTypes);
+        $clone->disableStrictTypes = false;
 
         return $clone;
     }
@@ -163,7 +163,7 @@ This is useful if you want to use a custom validator class.
     public function withTreatValuesWithDefaultAsOptional(bool $treatValuesWithDefaultAsOptional) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($treatValuesWithDefaultAsOptional, static::$schema['properties']['treatValuesWithDefaultAsOptional']);
+        $validator->validate($treatValuesWithDefaultAsOptional, self::$schema['properties']['treatValuesWithDefaultAsOptional']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -180,7 +180,7 @@ This is useful if you want to use a custom validator class.
     public function withoutTreatValuesWithDefaultAsOptional() : self
     {
         $clone = clone $this;
-        unset($clone->treatValuesWithDefaultAsOptional);
+        $clone->treatValuesWithDefaultAsOptional = false;
 
         return $clone;
     }
@@ -192,7 +192,7 @@ This is useful if you want to use a custom validator class.
     public function withInlineAllofReferences(bool $inlineAllofReferences) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($inlineAllofReferences, static::$schema['properties']['inlineAllofReferences']);
+        $validator->validate($inlineAllofReferences, self::$schema['properties']['inlineAllofReferences']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -209,7 +209,7 @@ This is useful if you want to use a custom validator class.
     public function withoutInlineAllofReferences() : self
     {
         $clone = clone $this;
-        unset($clone->inlineAllofReferences);
+        $clone->inlineAllofReferences = false;
 
         return $clone;
     }
@@ -232,7 +232,7 @@ This is useful if you want to use a custom validator class.
     public function withoutTargetPHPVersion() : self
     {
         $clone = clone $this;
-        unset($clone->targetPHPVersion);
+        $clone->targetPHPVersion = '8.2.0';
 
         return $clone;
     }
@@ -244,7 +244,7 @@ This is useful if you want to use a custom validator class.
     public function withNewValidatorClassExpr(string $newValidatorClassExpr) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($newValidatorClassExpr, static::$schema['properties']['newValidatorClassExpr']);
+        $validator->validate($newValidatorClassExpr, self::$schema['properties']['newValidatorClassExpr']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -261,7 +261,7 @@ This is useful if you want to use a custom validator class.
     public function withoutNewValidatorClassExpr() : self
     {
         $clone = clone $this;
-        unset($clone->newValidatorClassExpr);
+        $clone->newValidatorClassExpr = 'new \\JsonSchema\\Validator()';
 
         return $clone;
     }
@@ -297,6 +297,7 @@ This is useful if you want to use a custom validator class.
         if (isset($input->{'targetPHPVersion'})) {
             $targetPHPVersion = match (true) {
                 is_int($input->{'targetPHPVersion'}), is_string($input->{'targetPHPVersion'}) => $input->{'targetPHPVersion'},
+                default => throw new \InvalidArgumentException("could not build property 'targetPHPVersion' from JSON"),
             };
         }
         $newValidatorClassExpr = 'new \\JsonSchema\\Validator()';
@@ -354,7 +355,7 @@ This is useful if you want to use a custom validator class.
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, static::$schema);
+        $validator->validate($input, self::$schema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

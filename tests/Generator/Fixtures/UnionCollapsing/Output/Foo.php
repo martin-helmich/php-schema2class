@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\RefList;
+namespace Ns\UnionCollapsing;
 
 class Foo
 {
@@ -13,57 +13,53 @@ class Foo
      */
     private static array $schema = [
         'required' => [
-            'foo_bar',
+            'foo',
         ],
         'properties' => [
             'foo' => [
-                'type' => 'array',
-                'items' => [
-                    '$ref' => '#/properties/address',
+                'oneOf' => [
+                    [
+                        'type' => 'string',
+                        'format' => 'uuid',
+                    ],
+                    [
+                        'type' => 'string',
+                        'maxLength' => 0,
+                    ],
                 ],
             ],
         ],
     ];
 
     /**
-     * @var \Helmich\Schema2Class\Example\CustomerAddress[]|null
+     * @var string
      */
-    private ?array $foo = null;
+    private string $foo;
 
     /**
-     *
+     * @param string $foo
      */
-    public function __construct()
+    public function __construct(string $foo)
     {
+        $this->foo = $foo;
     }
 
     /**
-     * @return \Helmich\Schema2Class\Example\CustomerAddress[]|null
+     * @return string
      */
-    public function getFoo() : ?array
+    public function getFoo() : string
     {
-        return $this->foo ?? null;
+        return $this->foo;
     }
 
     /**
-     * @param \Helmich\Schema2Class\Example\CustomerAddress[] $foo
+     * @param string $foo
      * @return self
      */
-    public function withFoo(array $foo) : self
+    public function withFoo(string $foo) : self
     {
         $clone = clone $this;
         $clone->foo = $foo;
-
-        return $clone;
-    }
-
-    /**
-     * @return self
-     */
-    public function withoutFoo() : self
-    {
-        $clone = clone $this;
-        unset($clone->foo);
 
         return $clone;
     }
@@ -83,13 +79,13 @@ class Foo
             static::validateInput($input);
         }
 
-        $foo = null;
-        if (isset($input->{'foo'})) {
-            $foo = array_map(fn(array|object $i): \Helmich\Schema2Class\Example\CustomerAddress => \Helmich\Schema2Class\Example\CustomerAddress::buildFromInput($i, validate: $validate), $input->{'foo'});
-        }
+        $foo = match (true) {
+            is_string($input->{'foo'}) => $input->{'foo'},
+            default => throw new \InvalidArgumentException("could not build property 'foo' from JSON"),
+        };
 
-        $obj = new self();
-        $obj->foo = $foo;
+        $obj = new self($foo);
+
         return $obj;
     }
 
@@ -101,9 +97,9 @@ class Foo
     public function toJson() : array
     {
         $output = [];
-        if (isset($this->foo)) {
-            $output['foo'] = array_map(fn(\Helmich\Schema2Class\Example\CustomerAddress $i): array => $i->toJson(), $this->foo);
-        }
+        $output['foo'] = match (true) {
+            is_string($this->foo) => $this->foo,
+        };
 
         return $output;
     }
@@ -134,5 +130,8 @@ class Foo
 
     public function __clone()
     {
+        $this->foo = match (true) {
+            is_string($this->foo) => $this->foo,
+        };
     }
 }

@@ -44,7 +44,7 @@ class Generator
             $isOptional = false;
             $prop       = new PropertyGenerator(
                 $property->name(),
-                $schema["default"] ?? null,
+                $property->formatValue($schema["default"] ?? null),
                 PropertyGenerator::FLAG_PRIVATE
             );
 
@@ -144,7 +144,7 @@ class Generator
             "if (\$validate) {\n" .
             "    static::validateInput(\$$inputVarName);\n" .
             "}\n\n" .
-            $properties->generateJSONToTypeConversionCode($inputVarName, true) . "\n\n" .
+            $properties->generateJSONToTypeConversionCode($inputVarName, object: true) . "\n\n" .
             '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
             join("\n", $assignments) . "\n" .
             'return $obj;',
@@ -216,7 +216,7 @@ class Generator
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = ' . $newValidatorClassExpr . ';' . "\n" .
             '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
-            '$validator->validate($input, static::$schema);' . "\n\n" .
+            '$validator->validate($input, self::$schema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
             ($this->generatorRequest->isAtLeastPHP("7.0") ?
                 '    $errors = array_map(function(array $e): string {' . "\n" :
@@ -286,7 +286,6 @@ class Generator
             $property = $property->unwrap();
         }
 
-        $key            = $property->key();
         $name           = $property->name();
         $camelCasedName = StringUtils::capitalizeWord($property->name());
         $annotatedType  = $property->typeAnnotation();
@@ -296,12 +295,15 @@ class Generator
             $tags[] = new GenericTag("deprecated");
         }
 
+        $docBlockGenerator = new DocBlockGenerator(null, null, $tags);
+        $docBlockGenerator->setWordWrap(false);  // needs to be disabled because its fundamentally broken
+
         $getMethod = new MethodGenerator(
-            'get' . $camelCasedName,
-            [],
-            MethodGenerator::FLAG_PUBLIC,
-            "return \$this->$name;",
-            new DocBlockGenerator(null, null, $tags)
+            name: 'get' . $camelCasedName,
+            parameters: [],
+            flags: MethodGenerator::FLAG_PUBLIC,
+            body: "return \$this->$name;",
+            docBlock: $docBlockGenerator,
         );
 
         if ($this->generatorRequest->isAtLeastPHP("7.0")) {
@@ -353,7 +355,7 @@ class Generator
             $setterValidation = "";
         } else {
             $setterValidation = "\$validator = new \JsonSchema\Validator();
-\$validator->validate(\$$name, static::\$schema['properties']['$key']);
+\$validator->validate(\$$name, self::\$schema['properties']['$key']);
 if (!\$validator->isValid()) {
     throw new \InvalidArgumentException(\$validator->getErrors()[0]['message']);
 }
@@ -402,7 +404,8 @@ return \$clone;",
 
         $body = "\$clone = clone \$this;\n";
         if (isset($property->schema()["default"])) {
-            $body .= "\$clone->$name = " . var_export($property->schema()["default"], true) . ";\n";
+            $value = $property->formatValue($property->schema()["default"])->generate();
+            $body .= "\$clone->$name = " . $value . "\n";
         } else {
             $body .= "unset(\$clone->$name);\n";
         }

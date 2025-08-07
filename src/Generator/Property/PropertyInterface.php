@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Helmich\Schema2Class\Generator\Property;
 
 use Helmich\Schema2Class\Generator\SchemaToClass;
+use Laminas\Code\Generator\PropertyValueGenerator;
 
 interface PropertyInterface
 {
@@ -102,5 +103,7 @@ interface PropertyInterface
      * @return string|null
      */
     public function cloneProperty(): ?string;
+
+    public function formatValue(mixed $value): PropertyValueGenerator;
 
 }
