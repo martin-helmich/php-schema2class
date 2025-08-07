@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace Helmich\Schema2Class\Generator;
 
 use Helmich\Schema2Class\Codegen\PropertyGenerator;
+use Helmich\Schema2Class\Generator\Definitions\DefinitionsCollector;
+use Helmich\Schema2Class\Generator\Definitions\DefinitionsGenerator;
+use Helmich\Schema2Class\Generator\Definitions\DefinitionsReferenceLookup;
 use Helmich\Schema2Class\Generator\Property\IntersectProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
@@ -37,6 +40,8 @@ class SchemaToClass
     public function schemaToClass(GeneratorRequest $req): void
     {
         $schema = $req->getSchema();
+
+        $this->definitionsToSchemas($req);
 
         if (isset($schema["enum"])) {
             $this->enumGenerator->schemaToEnum($req);
@@ -127,6 +132,23 @@ class SchemaToClass
         $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace(), '/') . '\\\\/', '', $content);
 
         $this->writer->writeFile($filename, $content);
+    }
+
+    private function definitionsToSchemas(GeneratorRequest &$req): void
+    {
+        if ($req->hasReferenceLookup(DefinitionsReferenceLookup::class)) {
+            return;
+        }
+
+        $collector = new DefinitionsCollector($req);
+        $collectedDefinitions = iterator_to_array($collector->collect($req->getSchema()));
+
+        $req = $req->withAdditionalReferenceLookup(new DefinitionsReferenceLookup(
+            $collectedDefinitions,
+        ));
+
+        $generator = new DefinitionsGenerator($this);
+        $generator->generate($collectedDefinitions, $req);
     }
 
 }

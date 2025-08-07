@@ -17,7 +17,8 @@ class GeneratorRequest
     private array $schema;
     private ValidatedSpecificationFilesItem $spec;
     private SpecificationOptions $opts;
-    private ?ReferenceLookup $referenceLookup = null;
+    /** @var array<class-string, ReferenceLookup> */
+    private array $referenceLookup = [];
 
     use GeneratorHookRunner;
 
@@ -46,9 +47,26 @@ class GeneratorRequest
     public function withReferenceLookup(ReferenceLookup $referenceLookup): self
     {
         $clone                  = clone $this;
-        $clone->referenceLookup = $referenceLookup;
+        $clone->referenceLookup = [];
+        $clone->referenceLookup[$referenceLookup::class] = $referenceLookup;
 
         return $clone;
+    }
+
+    public function withAdditionalReferenceLookup(ReferenceLookup $referenceLookup): self
+    {
+        $clone                  = clone $this;
+        $clone->referenceLookup[$referenceLookup::class] = $referenceLookup;
+
+        return $clone;
+    }
+
+    /**
+     * @param class-string $referenceLookup
+     */
+    public function hasReferenceLookup(string $referenceLookup): bool
+    {
+        return isset($this->referenceLookup[$referenceLookup]);
     }
 
     public function withSchema(array $schema): self
@@ -63,6 +81,26 @@ class GeneratorRequest
     {
         $clone       = clone $this;
         $clone->spec = $this->spec->withTargetClass($targetClass);
+
+        $clone->clearNonPropagatingHooks();
+
+        return $clone;
+    }
+
+    public function withNamespace(string $targetNamespace): self
+    {
+        $clone       = clone $this;
+        $clone->spec = $this->spec->withTargetNamespace($targetNamespace);
+
+        $clone->clearNonPropagatingHooks();
+
+        return $clone;
+    }
+
+    public function withDirectory(string $targetDirectory): self
+    {
+        $clone       = clone $this;
+        $clone->spec = $this->spec->withTargetDirectory($targetDirectory);
 
         $clone->clearNonPropagatingHooks();
 
@@ -182,19 +220,33 @@ class GeneratorRequest
 
     public function lookupReference(string $ref): ReferencedType
     {
-        if ($this->referenceLookup === null) {
+        if (empty($this->referenceLookup)) {
             return new ReferencedTypeUnknown();
         }
 
-        return $this->referenceLookup->lookupReference($ref);
+        foreach ($this->referenceLookup as $referenceLookup) {
+            $reference = $referenceLookup->lookupReference($ref);
+            if (!$reference instanceof ReferencedTypeUnknown) {
+                return $reference;
+            }
+        }
+
+        return new ReferencedTypeUnknown();
     }
 
     public function lookupSchema(string $ref): array
     {
-        if ($this->referenceLookup === null) {
+        if (empty($this->referenceLookup)) {
             return [];
         }
 
-        return $this->referenceLookup->lookupSchema($ref);
+        foreach ($this->referenceLookup as $referenceLookup) {
+            $schema = $referenceLookup->lookupSchema($ref);
+            if (!empty($schema)) {
+                return $schema;
+            }
+        }
+
+        return [];
     }
 }
