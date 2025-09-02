@@ -8,6 +8,18 @@ class PropertyQuery
     public static function isDeprecated(PropertyInterface $property): bool
     {
         $schema = $property->schema();
-        return isset($schema["deprecated"]) && $schema["deprecated"];
+        if (isset($schema["deprecated"]) && $schema["deprecated"]) {
+            return true;
+        }
+
+        if (isset($schema["allOf"])) {
+            foreach ($schema["allOf"] as $subSchema) {
+                if (isset($subSchema["deprecated"]) && $subSchema["deprecated"]) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
