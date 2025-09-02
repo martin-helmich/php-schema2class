@@ -16,7 +16,7 @@ class StringUtils
 
     public static function camelCase(string $input): string
     {
-        $separatorCharacters = ["-", "_", "/", " "];
+        $separatorCharacters = ["-", "_", "/", " ", ":"];
         $canonicalizedName = str_replace($separatorCharacters, " ", $input);
         $words = explode(" ", $canonicalizedName);
 
