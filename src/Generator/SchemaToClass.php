@@ -51,7 +51,7 @@ class SchemaToClass
             throw new GeneratorException("cannot generate class for types other than 'object'");
         }
 
-        $schemaProperty = new PropertyGenerator("schema", $schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
+        $schemaProperty = new PropertyGenerator("internalValidationSchema", $schema, PropertyGenerator::FLAG_PRIVATE | PropertyGenerator::FLAG_STATIC);
         $schemaProperty->setDocBlock(new DocBlockGenerator(
             "Schema used to validate input for creating instances of this class",
             null,

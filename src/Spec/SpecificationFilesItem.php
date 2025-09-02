@@ -11,7 +11,7 @@ class SpecificationFilesItem
      *
      * @var array
      */
-    private static array $schema = [
+    private static array $internalValidationSchema = [
         'required' => [
             'input',
             'className',
@@ -104,7 +104,7 @@ class SpecificationFilesItem
     public function withInput(string $input) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($input, self::$schema['properties']['input']);
+        $validator->validate($input, self::$internalValidationSchema['properties']['input']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -122,7 +122,7 @@ class SpecificationFilesItem
     public function withClassName(string $className) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($className, self::$schema['properties']['className']);
+        $validator->validate($className, self::$internalValidationSchema['properties']['className']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -140,7 +140,7 @@ class SpecificationFilesItem
     public function withTargetDirectory(string $targetDirectory) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($targetDirectory, self::$schema['properties']['targetDirectory']);
+        $validator->validate($targetDirectory, self::$internalValidationSchema['properties']['targetDirectory']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -158,7 +158,7 @@ class SpecificationFilesItem
     public function withTargetNamespace(string $targetNamespace) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($targetNamespace, self::$schema['properties']['targetNamespace']);
+        $validator->validate($targetNamespace, self::$internalValidationSchema['properties']['targetNamespace']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -238,7 +238,7 @@ class SpecificationFilesItem
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, self::$schema);
+        $validator->validate($input, self::$internalValidationSchema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

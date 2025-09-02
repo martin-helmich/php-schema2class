@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\DefaultValueAsOptional;
+namespace Ns\ReservedNames;
 
 class Foo
 {
@@ -13,86 +13,95 @@ class Foo
      */
     private static array $internalValidationSchema = [
         'required' => [
-            
+            'schema',
         ],
         'properties' => [
-            'limit' => [
-                'type' => 'integer',
-                'default' => 10000,
-                'minimum' => 1,
+            'foo' => [
+                'type' => 'string',
             ],
-            'skip' => [
-                'type' => 'integer',
-                'default' => 0,
+            'schema' => [
+                'type' => 'string',
             ],
         ],
     ];
 
     /**
-     * @var int
+     * @var string|null
      */
-    private int $limit = 10000;
+    private ?string $foo = null;
 
     /**
-     * @var int
+     * @var string
      */
-    private int $skip = 0;
+    private string $schema;
 
     /**
-     *
+     * @param string $schema
      */
-    public function __construct()
+    public function __construct(string $schema)
     {
+        $this->schema = $schema;
     }
 
     /**
-     * @return int
+     * @return string|null
      */
-    public function getLimit() : int
+    public function getFoo() : ?string
     {
-        return $this->limit;
+        return $this->foo ?? null;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getSkip() : int
+    public function getSchema() : string
     {
-        return $this->skip;
+        return $this->schema;
     }
 
     /**
-     * @param int $limit
+     * @param string $foo
      * @return self
      */
-    public function withLimit(int $limit) : self
+    public function withFoo(string $foo) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($limit, self::$internalValidationSchema['properties']['limit']);
+        $validator->validate($foo, self::$internalValidationSchema['properties']['foo']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->limit = $limit;
+        $clone->foo = $foo;
 
         return $clone;
     }
 
     /**
-     * @param int $skip
      * @return self
      */
-    public function withSkip(int $skip) : self
+    public function withoutFoo() : self
+    {
+        $clone = clone $this;
+        unset($clone->foo);
+
+        return $clone;
+    }
+
+    /**
+     * @param string $schema
+     * @return self
+     */
+    public function withSchema(string $schema) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($skip, self::$internalValidationSchema['properties']['skip']);
+        $validator->validate($schema, self::$internalValidationSchema['properties']['schema']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->skip = $skip;
+        $clone->schema = $schema;
 
         return $clone;
     }
@@ -112,18 +121,14 @@ class Foo
             static::validateInput($input);
         }
 
-        $limit = 10000;
-        if (isset($input->{'limit'})) {
-            $limit = (int)($input->{'limit'});
+        $foo = null;
+        if (isset($input->{'foo'})) {
+            $foo = $input->{'foo'};
         }
-        $skip = 0;
-        if (isset($input->{'skip'})) {
-            $skip = (int)($input->{'skip'});
-        }
+        $schema = $input->{'schema'};
 
-        $obj = new self();
-        $obj->limit = $limit;
-        $obj->skip = $skip;
+        $obj = new self($schema);
+        $obj->foo = $foo;
         return $obj;
     }
 
@@ -135,8 +140,10 @@ class Foo
     public function toJson() : array
     {
         $output = [];
-        $output['limit'] = $this->limit;
-        $output['skip'] = $this->skip;
+        if (isset($this->foo)) {
+            $output['foo'] = $this->foo;
+        }
+        $output['schema'] = $this->schema;
 
         return $output;
     }
