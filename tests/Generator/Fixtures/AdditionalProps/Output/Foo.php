@@ -11,7 +11,7 @@ class Foo
      *
      * @var array
      */
-    private static array $schema = [
+    private static array $internalValidationSchema = [
         'type' => 'object',
         'properties' => [
             'name' => [
@@ -66,7 +66,7 @@ class Foo
     public function withName(string $name) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($name, self::$schema['properties']['name']);
+        $validator->validate($name, self::$internalValidationSchema['properties']['name']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -95,7 +95,7 @@ class Foo
     public function withParams(array $params) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($params, self::$schema['properties']['params']);
+        $validator->validate($params, self::$internalValidationSchema['properties']['params']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -177,7 +177,7 @@ class Foo
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, self::$schema);
+        $validator->validate($input, self::$internalValidationSchema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

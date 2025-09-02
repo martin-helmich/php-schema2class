@@ -1,0 +1,7 @@
+required:
+  - schema
+properties:
+  foo:
+    type: string
+  schema:
+    type: string

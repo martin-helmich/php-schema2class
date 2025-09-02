@@ -11,7 +11,7 @@ class SpecificationOptions
      *
      * @var array
      */
-    private static array $schema = [
+    private static array $internalValidationSchema = [
         'properties' => [
             'disableStrictTypes' => [
                 'type' => 'boolean',
@@ -134,7 +134,7 @@ This is useful if you want to use a custom validator class.
     public function withDisableStrictTypes(bool $disableStrictTypes) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($disableStrictTypes, self::$schema['properties']['disableStrictTypes']);
+        $validator->validate($disableStrictTypes, self::$internalValidationSchema['properties']['disableStrictTypes']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -163,7 +163,7 @@ This is useful if you want to use a custom validator class.
     public function withTreatValuesWithDefaultAsOptional(bool $treatValuesWithDefaultAsOptional) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($treatValuesWithDefaultAsOptional, self::$schema['properties']['treatValuesWithDefaultAsOptional']);
+        $validator->validate($treatValuesWithDefaultAsOptional, self::$internalValidationSchema['properties']['treatValuesWithDefaultAsOptional']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -192,7 +192,7 @@ This is useful if you want to use a custom validator class.
     public function withInlineAllofReferences(bool $inlineAllofReferences) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($inlineAllofReferences, self::$schema['properties']['inlineAllofReferences']);
+        $validator->validate($inlineAllofReferences, self::$internalValidationSchema['properties']['inlineAllofReferences']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -244,7 +244,7 @@ This is useful if you want to use a custom validator class.
     public function withNewValidatorClassExpr(string $newValidatorClassExpr) : self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($newValidatorClassExpr, self::$schema['properties']['newValidatorClassExpr']);
+        $validator->validate($newValidatorClassExpr, self::$internalValidationSchema['properties']['newValidatorClassExpr']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
@@ -355,7 +355,7 @@ This is useful if you want to use a custom validator class.
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
-        $validator->validate($input, self::$schema);
+        $validator->validate($input, self::$internalValidationSchema);
 
         if (!$validator->isValid() && !$return) {
             $errors = array_map(function(array $e): string {

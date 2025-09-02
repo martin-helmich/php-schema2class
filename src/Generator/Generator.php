@@ -216,7 +216,7 @@ class Generator
             MethodGenerator::FLAG_PUBLIC | MethodGenerator::FLAG_STATIC,
             '$validator = ' . $newValidatorClassExpr . ';' . "\n" .
             '$input = is_array($input) ? \\JsonSchema\\Validator::arrayToObjectRecursive($input) : $input;' . "\n" .
-            '$validator->validate($input, self::$schema);' . "\n\n" .
+            '$validator->validate($input, self::$internalValidationSchema);' . "\n\n" .
             'if (!$validator->isValid() && !$return) {' . "\n" .
             ($this->generatorRequest->isAtLeastPHP("7.0") ?
                 '    $errors = array_map(function(array $e): string {' . "\n" :
@@ -355,7 +355,7 @@ class Generator
             $setterValidation = "";
         } else {
             $setterValidation = "\$validator = new \JsonSchema\Validator();
-\$validator->validate(\$$name, self::\$schema['properties']['$key']);
+\$validator->validate(\$$name, self::\$internalValidationSchema['properties']['$key']);
 if (!\$validator->isValid()) {
     throw new \InvalidArgumentException(\$validator->getErrors()[0]['message']);
 }
