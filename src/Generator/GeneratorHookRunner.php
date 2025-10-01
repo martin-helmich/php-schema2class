@@ -2,8 +2,8 @@
 
 namespace Helmich\Schema2Class\Generator;
 
+use Helmich\Schema2Class\Codegen\EnumGenerator;
 use Laminas\Code\Generator\ClassGenerator;
-use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
 
 trait GeneratorHookRunner
