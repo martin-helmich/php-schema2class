@@ -376,14 +376,23 @@ if (!\$validator->isValid()) {
         $docBlock = new DocBlockGenerator(null, null, $tags);
         $docBlock->setWordWrap(false);
 
+        $body      = $setterValidation . "\$clone = clone \$this;
+\$clone->$name = \$$name;
+
+return \$clone;";
+
+        if ($this->generatorRequest->isAtLeastPHP("8.5")) {
+            $body      = $setterValidation . "return clone(\$this, [
+    '$name' => \$$name,    
+]);
+\$clone->$name = \$$name;";
+        }
+
         $setMethod = new MethodGenerator(
             'with' . $camelCaseName,
             [new ParameterGenerator($name, $typeHint)],
             MethodGenerator::FLAG_PUBLIC,
-            $setterValidation . "\$clone = clone \$this;
-\$clone->$name = \$$name;
-
-return \$clone;",
+            $body,
             $docBlock
         );
 
