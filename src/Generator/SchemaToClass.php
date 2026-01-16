@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
-use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\IntersectProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
+use Helmich\Schema2Class\Util\ErrorCorrection;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Laminas\Code\DeclareStatement;
 use Laminas\Code\Generator\ClassGenerator;
@@ -14,6 +14,8 @@ use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
+use Laminas\Code\Generator\PropertyGenerator;
+use Laminas\Code\Generator\TypeGenerator;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SchemaToClass
@@ -59,7 +61,7 @@ class SchemaToClass
         ));
 
         if ($req->isAtLeastPHP("7.4")) {
-            $schemaProperty->setTypeHint("array");
+            $schemaProperty->setType(TypeGenerator::fromTypeString("array"));
         }
 
         $properties = [$schemaProperty];
@@ -120,11 +122,11 @@ class SchemaToClass
             $file->setDeclares([DeclareStatement::strictTypes(1)]);
         }
 
-        $content = $file->generate();
-
         // Do some corrections because the Zend code generation library is stupid.
-        $content = preg_replace('/ : \\\\self/', ' : self', $content);
-        $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace(), '/') . '\\\\/', '', $content);
+        $correction = new ErrorCorrection($req->getTargetNamespace());
+        $content = $file->generate()
+            |> $correction->replaceIncorrectlyNamespacedSelf(...)
+            |> $correction->replaceIncorrectFQCNs(...);
 
         $this->writer->writeFile($filename, $content);
     }

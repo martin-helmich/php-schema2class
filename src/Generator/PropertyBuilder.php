@@ -68,6 +68,7 @@ class PropertyBuilder
             }
         }
 
+        /** @psalm-suppress PossiblyFalseOperand */
         throw new GeneratorException("cannot map type " . json_encode($definition));
     }
 

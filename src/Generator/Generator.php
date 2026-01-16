@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
-use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\CodeFormatting;
 use Helmich\Schema2Class\Generator\Property\DefaultPropertyDecorator;
 use Helmich\Schema2Class\Generator\Property\OptionalPropertyDecorator;
@@ -19,6 +18,8 @@ use Laminas\Code\Generator\DocBlock\Tag\ThrowsTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
+use Laminas\Code\Generator\PropertyGenerator;
+use Laminas\Code\Generator\TypeGenerator;
 
 class Generator
 {
@@ -71,7 +72,7 @@ class Generator
 
             $typeHint = $property->typeHint($this->generatorRequest->getTargetPHPVersion());
             if ($this->generatorRequest->isAtLeastPHP("7.4") && $typeHint !== null) {
-                $prop->setTypeHint($typeHint);
+                $prop->setType(TypeGenerator::fromTypeString($typeHint));
             }
 
             if (!$isOptional) {
@@ -375,14 +376,23 @@ if (!\$validator->isValid()) {
         $docBlock = new DocBlockGenerator(null, null, $tags);
         $docBlock->setWordWrap(false);
 
+        $body      = $setterValidation . "\$clone = clone \$this;
+\$clone->$name = \$$name;
+
+return \$clone;";
+
+        if ($this->generatorRequest->isAtLeastPHP("8.5")) {
+            $body      = $setterValidation . "return clone(\$this, [
+    '$name' => \$$name,    
+]);
+\$clone->$name = \$$name;";
+        }
+
         $setMethod = new MethodGenerator(
             'with' . $camelCaseName,
             [new ParameterGenerator($name, $typeHint)],
             MethodGenerator::FLAG_PUBLIC,
-            $setterValidation . "\$clone = clone \$this;
-\$clone->$name = \$$name;
-
-return \$clone;",
+            $body,
             $docBlock
         );
 

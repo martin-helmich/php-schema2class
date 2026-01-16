@@ -9,8 +9,8 @@ jobs:
   build:
     strategy:
       matrix:
-        php-versions: ['8.2', '8.3']
-        symfony-versions: ['~5.4', '~6.4', '~7.0']
+        php-versions: ['8.5']
+        symfony-versions: ['~6.4', '~7.4']
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +40,7 @@ jobs:
     # Unit tests need to run before the type checker, because they generate code
     # that the type checker needs to see.
     - name: Run type checker (psalm)
-      run: ./vendor/bin/psalm --php-version=8.2
+      run: ./vendor/bin/psalm --php-version=8.5
 
     - name: Run type checker (PHPStan)
-      run: ./vendor/bin/phpstan analyze
+      run: ./vendor/bin/phpstan analyze --memory-limit=1G

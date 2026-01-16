@@ -46,7 +46,7 @@ class Foo
     /**
      * @return string|null
      */
-    public function getFoo() : ?string
+    public function getFoo(): ?string
     {
         return $this->foo ?? null;
     }
@@ -54,7 +54,7 @@ class Foo
     /**
      * @return string
      */
-    public function getSchema() : string
+    public function getSchema(): string
     {
         return $this->schema;
     }
@@ -63,7 +63,7 @@ class Foo
      * @param string $foo
      * @return self
      */
-    public function withFoo(string $foo) : self
+    public function withFoo(string $foo): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($foo, self::$internalValidationSchema['properties']['foo']);
@@ -80,7 +80,7 @@ class Foo
     /**
      * @return self
      */
-    public function withoutFoo() : self
+    public function withoutFoo(): self
     {
         $clone = clone $this;
         unset($clone->foo);
@@ -92,7 +92,7 @@ class Foo
      * @param string $schema
      * @return self
      */
-    public function withSchema(string $schema) : self
+    public function withSchema(string $schema): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($schema, self::$internalValidationSchema['properties']['schema']);
@@ -114,7 +114,7 @@ class Foo
      * @return Foo Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input, bool $validate = true) : Foo
+    public static function buildFromInput(array|object $input, bool $validate = true): Foo
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         if ($validate) {
@@ -137,7 +137,7 @@ class Foo
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
         if (isset($this->foo)) {
@@ -156,7 +156,7 @@ class Foo
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
