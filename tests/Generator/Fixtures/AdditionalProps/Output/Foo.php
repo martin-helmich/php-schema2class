@@ -46,7 +46,7 @@ class Foo
     /**
      * @return string|null
      */
-    public function getName() : ?string
+    public function getName(): ?string
     {
         return $this->name ?? null;
     }
@@ -54,7 +54,7 @@ class Foo
     /**
      * @return mixed[]|null
      */
-    public function getParams() : ?array
+    public function getParams(): ?array
     {
         return $this->params ?? null;
     }
@@ -63,7 +63,7 @@ class Foo
      * @param string $name
      * @return self
      */
-    public function withName(string $name) : self
+    public function withName(string $name): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($name, self::$internalValidationSchema['properties']['name']);
@@ -80,7 +80,7 @@ class Foo
     /**
      * @return self
      */
-    public function withoutName() : self
+    public function withoutName(): self
     {
         $clone = clone $this;
         unset($clone->name);
@@ -92,7 +92,7 @@ class Foo
      * @param mixed[] $params
      * @return self
      */
-    public function withParams(array $params) : self
+    public function withParams(array $params): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($params, self::$internalValidationSchema['properties']['params']);
@@ -109,7 +109,7 @@ class Foo
     /**
      * @return self
      */
-    public function withoutParams() : self
+    public function withoutParams(): self
     {
         $clone = clone $this;
         unset($clone->params);
@@ -125,7 +125,7 @@ class Foo
      * @return Foo Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input, bool $validate = true) : Foo
+    public static function buildFromInput(array|object $input, bool $validate = true): Foo
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         if ($validate) {
@@ -152,7 +152,7 @@ class Foo
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
         if (isset($this->name)) {
@@ -173,7 +173,7 @@ class Foo
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;

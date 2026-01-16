@@ -51,7 +51,7 @@ class PropertyGenerator extends ZendPropertyGenerator
         $property = ZendPropertyGenerator::fromReflection($reflectionProperty);
 
         if ($reflectionProperty->hasType()) {
-            $property->setTypeHint($reflectionProperty->getType() . "");
+            $property->setTypeHint((string)$reflectionProperty->getType());
         }
 
         return $property;

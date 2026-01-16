@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Helmich\Schema2Class\Command;
 
+use Exception;
 use Helmich\Schema2Class\Generator\GeneratorException;
 use Helmich\Schema2Class\Generator\GeneratorRequest;
 use Helmich\Schema2Class\Generator\NamespaceInferrer;
@@ -56,14 +57,23 @@ class GenerateSpecCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $workingDir = getcwd();
+        if ($workingDir === false) {
+            throw new GeneratorException("cannot determine current working directory");
+        }
+
         /** @var string $specFile */
-        $specFile = $input->getArgument("specfile") ?: getcwd() . "/.s2c.yaml";
+        $specFile = $input->getArgument("specfile") ?: $workingDir . DIRECTORY_SEPARATOR . ".s2c.yaml";
 
         if (!file_exists($specFile)) {
             throw new LoadingException($specFile, "specification file not found");
         }
 
         $contents = file_get_contents($specFile);
+        if ($contents === false) {
+            throw new LoadingException($specFile, "cannot read specification file");
+        }
+
         $parsed = Yaml::parse($contents);
         $specification = Specification::buildFromInput($parsed);
 

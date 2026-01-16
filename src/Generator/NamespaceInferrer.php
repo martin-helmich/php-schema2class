@@ -19,8 +19,13 @@ class NamespaceInferrer
             return substr($string, strlen($prefix) + $additional);
         };
 
+        $workingDirectory = getcwd();
+        if ($workingDirectory === false) {
+            throw new GeneratorException("could not determine current working directory");
+        }
+
         if ($directory[0] !== "/") {
-            $directory = getcwd() . "/" . $directory;
+            $directory = $workingDirectory . PATH_SEPARATOR . $directory;
         }
 
         list($root, $composer) = $this->getComposerJSONForDirectory($directory);
@@ -58,6 +63,10 @@ class NamespaceInferrer
         while ($directory !== "/" && $directory !== "") {
             if (file_exists($directory . "/composer.json")) {
                 $contents = file_get_contents($directory . "/composer.json");
+                if ($contents === false) {
+                    throw new GeneratorException("cannot read composer.json in directory $directory");
+                }
+
                 return [$directory, json_decode($contents, true)];
             }
 

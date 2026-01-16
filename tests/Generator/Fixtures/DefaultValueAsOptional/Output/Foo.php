@@ -48,7 +48,7 @@ class Foo
     /**
      * @return int
      */
-    public function getLimit() : int
+    public function getLimit(): int
     {
         return $this->limit;
     }
@@ -56,7 +56,7 @@ class Foo
     /**
      * @return int
      */
-    public function getSkip() : int
+    public function getSkip(): int
     {
         return $this->skip;
     }
@@ -65,7 +65,7 @@ class Foo
      * @param int $limit
      * @return self
      */
-    public function withLimit(int $limit) : self
+    public function withLimit(int $limit): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($limit, self::$internalValidationSchema['properties']['limit']);
@@ -83,7 +83,7 @@ class Foo
      * @param int $skip
      * @return self
      */
-    public function withSkip(int $skip) : self
+    public function withSkip(int $skip): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($skip, self::$internalValidationSchema['properties']['skip']);
@@ -105,7 +105,7 @@ class Foo
      * @return Foo Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input, bool $validate = true) : Foo
+    public static function buildFromInput(array|object $input, bool $validate = true): Foo
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         if ($validate) {
@@ -132,7 +132,7 @@ class Foo
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
         $output['limit'] = $this->limit;
@@ -149,7 +149,7 @@ class Foo
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;

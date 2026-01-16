@@ -61,7 +61,7 @@ class Foo
     /**
      * @return string
      */
-    public function getCity() : string
+    public function getCity(): string
     {
         return $this->city;
     }
@@ -69,7 +69,7 @@ class Foo
     /**
      * @return string
      */
-    public function getStreet() : string
+    public function getStreet(): string
     {
         return $this->street;
     }
@@ -77,7 +77,7 @@ class Foo
     /**
      * @return string
      */
-    public function getCountry() : string
+    public function getCountry(): string
     {
         return $this->country;
     }
@@ -86,7 +86,7 @@ class Foo
      * @param string $city
      * @return self
      */
-    public function withCity(string $city) : self
+    public function withCity(string $city): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($city, self::$internalValidationSchema['properties']['city']);
@@ -104,7 +104,7 @@ class Foo
      * @param string $street
      * @return self
      */
-    public function withStreet(string $street) : self
+    public function withStreet(string $street): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($street, self::$internalValidationSchema['properties']['street']);
@@ -122,7 +122,7 @@ class Foo
      * @param string $country
      * @return self
      */
-    public function withCountry(string $country) : self
+    public function withCountry(string $country): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($country, self::$internalValidationSchema['properties']['country']);
@@ -144,7 +144,7 @@ class Foo
      * @return Foo Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input, bool $validate = true) : Foo
+    public static function buildFromInput(array|object $input, bool $validate = true): Foo
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         if ($validate) {
@@ -165,7 +165,7 @@ class Foo
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
         $output['city'] = $this->city;
@@ -183,7 +183,7 @@ class Foo
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;

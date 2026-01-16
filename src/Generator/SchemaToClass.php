@@ -7,6 +7,7 @@ use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\IntersectProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
+use Helmich\Schema2Class\Util\ErrorCorrection;
 use Helmich\Schema2Class\Writer\WriterInterface;
 use Laminas\Code\DeclareStatement;
 use Laminas\Code\Generator\ClassGenerator;
@@ -120,11 +121,11 @@ class SchemaToClass
             $file->setDeclares([DeclareStatement::strictTypes(1)]);
         }
 
-        $content = $file->generate();
-
         // Do some corrections because the Zend code generation library is stupid.
-        $content = preg_replace('/ : \\\\self/', ' : self', $content);
-        $content = preg_replace('/\\\\' . preg_quote($req->getTargetNamespace(), '/') . '\\\\/', '', $content);
+        $correction = new ErrorCorrection($req->getTargetNamespace());
+        $content = $file->generate()
+            |> $correction->replaceIncorrectlyNamespacedSelf(...)
+            |> $correction->replaceIncorrectFQCNs(...);
 
         $this->writer->writeFile($filename, $content);
     }

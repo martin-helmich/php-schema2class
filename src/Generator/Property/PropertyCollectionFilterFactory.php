@@ -26,7 +26,7 @@ readonly class PropertyCollectionFilterFactory
             public function apply(PropertyInterface $property): bool
             {
                 $matchingProperties                  = $this->propertyNamesCaseInsensitive[strtolower($property->key())];
-                $matchingPropertiesWithDifferentCase = array_filter($matchingProperties, fn($name) => $name !== $property->key());
+                $matchingPropertiesWithDifferentCase = array_filter($matchingProperties, fn(string $name) => $name !== $property->key());
 
                 if (PropertyQuery::isDeprecated($property) && count($matchingPropertiesWithDifferentCase) > 0) {
                     return false;

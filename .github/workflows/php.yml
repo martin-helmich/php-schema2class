@@ -43,4 +43,4 @@ jobs:
       run: ./vendor/bin/psalm --php-version=8.2
 
     - name: Run type checker (PHPStan)
-      run: ./vendor/bin/phpstan analyze
+      run: ./vendor/bin/phpstan analyze --memory-limit=1G
