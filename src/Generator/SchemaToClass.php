@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Helmich\Schema2Class\Generator;
 
-use Helmich\Schema2Class\Codegen\PropertyGenerator;
 use Helmich\Schema2Class\Generator\Property\IntersectProperty;
 use Helmich\Schema2Class\Generator\Property\NestedObjectProperty;
 use Helmich\Schema2Class\Generator\Property\PropertyCollection;
@@ -15,6 +14,8 @@ use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\EnumGenerator\EnumGenerator;
 use Laminas\Code\Generator\FileGenerator;
+use Laminas\Code\Generator\PropertyGenerator;
+use Laminas\Code\Generator\TypeGenerator;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SchemaToClass
@@ -60,7 +61,7 @@ class SchemaToClass
         ));
 
         if ($req->isAtLeastPHP("7.4")) {
-            $schemaProperty->setTypeHint("array");
+            $schemaProperty->setType(TypeGenerator::fromTypeString("array"));
         }
 
         $properties = [$schemaProperty];
