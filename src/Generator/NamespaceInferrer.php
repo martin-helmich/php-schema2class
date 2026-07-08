@@ -25,7 +25,7 @@ class NamespaceInferrer
         }
 
         if ($directory[0] !== "/") {
-            $directory = $workingDirectory . PATH_SEPARATOR . $directory;
+            $directory = $workingDirectory . DIRECTORY_SEPARATOR . $directory;
         }
 
         list($root, $composer) = $this->getComposerJSONForDirectory($directory);
