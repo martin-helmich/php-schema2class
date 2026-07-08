@@ -42,7 +42,7 @@ class Foo
     /**
      * Properties from the input that are not explicitly declared in the schema
      *
-     * @var FooAdditionalPropertiesItem[]
+     * @var array<string, FooAdditionalPropertiesItem>
      */
     private array $additionalProperties = [];
 
@@ -81,7 +81,7 @@ class Foo
     }
 
     /**
-     * @return FooAdditionalPropertiesItem[]
+     * @return array<string, FooAdditionalPropertiesItem>
      */
     public function getAdditionalProperties(): array
     {
@@ -89,7 +89,7 @@ class Foo
     }
 
     /**
-     * @param FooAdditionalPropertiesItem[] $additionalProperties
+     * @param array<string, FooAdditionalPropertiesItem> $additionalProperties
      * @return self
      */
     public function withAdditionalProperties(array $additionalProperties): self

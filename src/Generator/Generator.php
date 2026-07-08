@@ -101,7 +101,7 @@ class Generator
         $docBlock = new DocBlockGenerator(
             "Properties from the input that are not explicitly declared in the schema",
             null,
-            [new GenericTag("var", trim($additionalPropertiesItem->typeAnnotation()) . "[]")]
+            [new GenericTag("var", "array<string, " . trim($additionalPropertiesItem->typeAnnotation()) . ">")]
         );
         $docBlock->setWordWrap(false);
         $prop->setDocBlock($docBlock);
@@ -116,7 +116,7 @@ class Generator
     public function generateAdditionalPropertiesGetter(PropertyInterface $additionalPropertiesItem): MethodGenerator
     {
         $docBlock = new DocBlockGenerator(null, null, [
-            new ReturnTag(trim($additionalPropertiesItem->typeAnnotation()) . "[]"),
+            new ReturnTag("array<string, " . trim($additionalPropertiesItem->typeAnnotation()) . ">"),
         ]);
         $docBlock->setWordWrap(false);
 
@@ -138,7 +138,7 @@ class Generator
     public function generateAdditionalPropertiesSetter(PropertyInterface $additionalPropertiesItem): MethodGenerator
     {
         $docBlock = new DocBlockGenerator(null, null, [
-            new ParamTag("additionalProperties", [trim($additionalPropertiesItem->typeAnnotation()) . "[]"]),
+            new ParamTag("additionalProperties", ["array<string, " . trim($additionalPropertiesItem->typeAnnotation()) . ">"]),
             new ReturnTag("self"),
         ]);
         $docBlock->setWordWrap(false);
