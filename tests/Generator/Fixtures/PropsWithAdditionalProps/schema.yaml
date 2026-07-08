@@ -1,0 +1,8 @@
+type: object
+required:
+  - reason
+properties:
+  reason:
+    type: string
+additionalProperties:
+  type: string
