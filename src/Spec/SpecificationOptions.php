@@ -90,7 +90,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return bool
      */
-    public function getDisableStrictTypes() : bool
+    public function getDisableStrictTypes(): bool
     {
         return $this->disableStrictTypes;
     }
@@ -98,7 +98,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return bool
      */
-    public function getTreatValuesWithDefaultAsOptional() : bool
+    public function getTreatValuesWithDefaultAsOptional(): bool
     {
         return $this->treatValuesWithDefaultAsOptional;
     }
@@ -106,7 +106,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return bool
      */
-    public function getInlineAllofReferences() : bool
+    public function getInlineAllofReferences(): bool
     {
         return $this->inlineAllofReferences;
     }
@@ -114,7 +114,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return int|string
      */
-    public function getTargetPHPVersion() : int|string
+    public function getTargetPHPVersion(): int|string
     {
         return $this->targetPHPVersion;
     }
@@ -122,7 +122,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return string
      */
-    public function getNewValidatorClassExpr() : string
+    public function getNewValidatorClassExpr(): string
     {
         return $this->newValidatorClassExpr;
     }
@@ -131,7 +131,7 @@ This is useful if you want to use a custom validator class.
      * @param bool $disableStrictTypes
      * @return self
      */
-    public function withDisableStrictTypes(bool $disableStrictTypes) : self
+    public function withDisableStrictTypes(bool $disableStrictTypes): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($disableStrictTypes, self::$internalValidationSchema['properties']['disableStrictTypes']);
@@ -148,7 +148,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutDisableStrictTypes() : self
+    public function withoutDisableStrictTypes(): self
     {
         $clone = clone $this;
         $clone->disableStrictTypes = false;
@@ -160,7 +160,7 @@ This is useful if you want to use a custom validator class.
      * @param bool $treatValuesWithDefaultAsOptional
      * @return self
      */
-    public function withTreatValuesWithDefaultAsOptional(bool $treatValuesWithDefaultAsOptional) : self
+    public function withTreatValuesWithDefaultAsOptional(bool $treatValuesWithDefaultAsOptional): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($treatValuesWithDefaultAsOptional, self::$internalValidationSchema['properties']['treatValuesWithDefaultAsOptional']);
@@ -177,7 +177,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutTreatValuesWithDefaultAsOptional() : self
+    public function withoutTreatValuesWithDefaultAsOptional(): self
     {
         $clone = clone $this;
         $clone->treatValuesWithDefaultAsOptional = false;
@@ -189,7 +189,7 @@ This is useful if you want to use a custom validator class.
      * @param bool $inlineAllofReferences
      * @return self
      */
-    public function withInlineAllofReferences(bool $inlineAllofReferences) : self
+    public function withInlineAllofReferences(bool $inlineAllofReferences): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($inlineAllofReferences, self::$internalValidationSchema['properties']['inlineAllofReferences']);
@@ -206,7 +206,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutInlineAllofReferences() : self
+    public function withoutInlineAllofReferences(): self
     {
         $clone = clone $this;
         $clone->inlineAllofReferences = false;
@@ -218,7 +218,7 @@ This is useful if you want to use a custom validator class.
      * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion(int|string $targetPHPVersion) : self
+    public function withTargetPHPVersion(int|string $targetPHPVersion): self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;
@@ -229,7 +229,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutTargetPHPVersion() : self
+    public function withoutTargetPHPVersion(): self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = '8.2.0';
@@ -241,7 +241,7 @@ This is useful if you want to use a custom validator class.
      * @param string $newValidatorClassExpr
      * @return self
      */
-    public function withNewValidatorClassExpr(string $newValidatorClassExpr) : self
+    public function withNewValidatorClassExpr(string $newValidatorClassExpr): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($newValidatorClassExpr, self::$internalValidationSchema['properties']['newValidatorClassExpr']);
@@ -258,7 +258,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutNewValidatorClassExpr() : self
+    public function withoutNewValidatorClassExpr(): self
     {
         $clone = clone $this;
         $clone->newValidatorClassExpr = 'new \\JsonSchema\\Validator()';
@@ -274,7 +274,7 @@ This is useful if you want to use a custom validator class.
      * @return SpecificationOptions Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input, bool $validate = true) : SpecificationOptions
+    public static function buildFromInput(array|object $input, bool $validate = true): SpecificationOptions
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         if ($validate) {
@@ -319,26 +319,16 @@ This is useful if you want to use a custom validator class.
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
-        if (isset($this->disableStrictTypes)) {
-            $output['disableStrictTypes'] = $this->disableStrictTypes;
-        }
-        if (isset($this->treatValuesWithDefaultAsOptional)) {
-            $output['treatValuesWithDefaultAsOptional'] = $this->treatValuesWithDefaultAsOptional;
-        }
-        if (isset($this->inlineAllofReferences)) {
-            $output['inlineAllofReferences'] = $this->inlineAllofReferences;
-        }
-        if (isset($this->targetPHPVersion)) {
-            $output['targetPHPVersion'] = match (true) {
-                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
-            };
-        }
-        if (isset($this->newValidatorClassExpr)) {
-            $output['newValidatorClassExpr'] = $this->newValidatorClassExpr;
-        }
+        $output['disableStrictTypes'] = $this->disableStrictTypes;
+        $output['treatValuesWithDefaultAsOptional'] = $this->treatValuesWithDefaultAsOptional;
+        $output['inlineAllofReferences'] = $this->inlineAllofReferences;
+        $output['targetPHPVersion'] = match (true) {
+            is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+        };
+        $output['newValidatorClassExpr'] = $this->newValidatorClassExpr;
 
         return $output;
     }
@@ -351,7 +341,7 @@ This is useful if you want to use a custom validator class.
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
@@ -369,11 +359,9 @@ This is useful if you want to use a custom validator class.
 
     public function __clone()
     {
-        if (isset($this->targetPHPVersion)) {
-            $this->targetPHPVersion = match (true) {
-                is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
-            };
-        }
+        $this->targetPHPVersion = match (true) {
+            is_int($this->targetPHPVersion), is_string($this->targetPHPVersion) => $this->targetPHPVersion,
+        };
     }
 }
 

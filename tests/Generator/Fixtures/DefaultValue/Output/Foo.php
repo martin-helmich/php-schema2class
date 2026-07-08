@@ -157,12 +157,8 @@ class Foo
     public function toJson(): array
     {
         $output = [];
-        if (isset($this->limit)) {
-            $output['limit'] = $this->limit;
-        }
-        if (isset($this->skip)) {
-            $output['skip'] = $this->skip;
-        }
+        $output['limit'] = $this->limit;
+        $output['skip'] = $this->skip;
 
         return $output;
     }

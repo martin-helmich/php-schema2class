@@ -71,6 +71,12 @@ class OptionalPropertyDecorator implements PropertyInterface
         $name  = $this->inner->name();
         $inner = $this->inner->convertTypeToJSON($outputVarName);
 
+        // Properties with a default value are declared non-nullable and initialized
+        // with their default, so isset() on them would always be true.
+        if (isset($this->schema()["default"])) {
+            return $inner;
+        }
+
         return "if (isset(\$this->{$name})) {\n" . $this->indentCode($inner, 1) . "\n}";
     }
 
@@ -136,6 +142,11 @@ class OptionalPropertyDecorator implements PropertyInterface
         $inner = $this->inner->cloneProperty();
 
         if ($inner !== null) {
+            // See convertTypeToJSON(): properties with a default value are always set.
+            if (isset($this->schema()["default"])) {
+                return $inner;
+            }
+
             return "if (isset(\$this->{$name})) {\n" . $this->indentCode($inner, 1) . "\n}";
         }
 

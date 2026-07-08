@@ -123,7 +123,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return int|string|null
      */
-    public function getTargetPHPVersion() : int|string|null
+    public function getTargetPHPVersion(): int|string|null
     {
         return $this->targetPHPVersion;
     }
@@ -131,7 +131,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return SpecificationFilesItem[]
      */
-    public function getFiles() : array
+    public function getFiles(): array
     {
         return $this->files;
     }
@@ -139,7 +139,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return SpecificationOptions|null
      */
-    public function getOptions() : ?SpecificationOptions
+    public function getOptions(): ?SpecificationOptions
     {
         return $this->options ?? null;
     }
@@ -148,7 +148,7 @@ This is useful if you want to use a custom validator class.
      * @param int|string $targetPHPVersion
      * @return self
      */
-    public function withTargetPHPVersion(int|string $targetPHPVersion) : self
+    public function withTargetPHPVersion(int|string $targetPHPVersion): self
     {
         $clone = clone $this;
         $clone->targetPHPVersion = $targetPHPVersion;
@@ -159,7 +159,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutTargetPHPVersion() : self
+    public function withoutTargetPHPVersion(): self
     {
         $clone = clone $this;
         unset($clone->targetPHPVersion);
@@ -171,7 +171,7 @@ This is useful if you want to use a custom validator class.
      * @param SpecificationFilesItem[] $files
      * @return self
      */
-    public function withFiles(array $files) : self
+    public function withFiles(array $files): self
     {
         $clone = clone $this;
         $clone->files = $files;
@@ -183,7 +183,7 @@ This is useful if you want to use a custom validator class.
      * @param SpecificationOptions $options
      * @return self
      */
-    public function withOptions(SpecificationOptions $options) : self
+    public function withOptions(SpecificationOptions $options): self
     {
         $clone = clone $this;
         $clone->options = $options;
@@ -194,7 +194,7 @@ This is useful if you want to use a custom validator class.
     /**
      * @return self
      */
-    public function withoutOptions() : self
+    public function withoutOptions(): self
     {
         $clone = clone $this;
         unset($clone->options);
@@ -210,7 +210,7 @@ This is useful if you want to use a custom validator class.
      * @return Specification Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input, bool $validate = true) : Specification
+    public static function buildFromInput(array|object $input, bool $validate = true): Specification
     {
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
         if ($validate) {
@@ -241,7 +241,7 @@ This is useful if you want to use a custom validator class.
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
         if (isset($this->targetPHPVersion)) {
@@ -265,7 +265,7 @@ This is useful if you want to use a custom validator class.
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;

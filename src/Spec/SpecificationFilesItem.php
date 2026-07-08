@@ -68,7 +68,7 @@ class SpecificationFilesItem
     /**
      * @return string
      */
-    public function getInput() : string
+    public function getInput(): string
     {
         return $this->input;
     }
@@ -76,7 +76,7 @@ class SpecificationFilesItem
     /**
      * @return string
      */
-    public function getClassName() : string
+    public function getClassName(): string
     {
         return $this->className;
     }
@@ -84,7 +84,7 @@ class SpecificationFilesItem
     /**
      * @return string
      */
-    public function getTargetDirectory() : string
+    public function getTargetDirectory(): string
     {
         return $this->targetDirectory;
     }
@@ -92,7 +92,7 @@ class SpecificationFilesItem
     /**
      * @return string|null
      */
-    public function getTargetNamespace() : ?string
+    public function getTargetNamespace(): ?string
     {
         return $this->targetNamespace ?? null;
     }
@@ -101,7 +101,7 @@ class SpecificationFilesItem
      * @param string $input
      * @return self
      */
-    public function withInput(string $input) : self
+    public function withInput(string $input): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($input, self::$internalValidationSchema['properties']['input']);
@@ -119,7 +119,7 @@ class SpecificationFilesItem
      * @param string $className
      * @return self
      */
-    public function withClassName(string $className) : self
+    public function withClassName(string $className): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($className, self::$internalValidationSchema['properties']['className']);
@@ -137,7 +137,7 @@ class SpecificationFilesItem
      * @param string $targetDirectory
      * @return self
      */
-    public function withTargetDirectory(string $targetDirectory) : self
+    public function withTargetDirectory(string $targetDirectory): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($targetDirectory, self::$internalValidationSchema['properties']['targetDirectory']);
@@ -155,7 +155,7 @@ class SpecificationFilesItem
      * @param string $targetNamespace
      * @return self
      */
-    public function withTargetNamespace(string $targetNamespace) : self
+    public function withTargetNamespace(string $targetNamespace): self
     {
         $validator = new \JsonSchema\Validator();
         $validator->validate($targetNamespace, self::$internalValidationSchema['properties']['targetNamespace']);
@@ -172,7 +172,7 @@ class SpecificationFilesItem
     /**
      * @return self
      */
-    public function withoutTargetNamespace() : self
+    public function withoutTargetNamespace(): self
     {
         $clone = clone $this;
         unset($clone->targetNamespace);
@@ -188,7 +188,7 @@ class SpecificationFilesItem
      * @return SpecificationFilesItem Created instance
      * @throws \InvalidArgumentException
      */
-    public static function buildFromInput(array|object $input2, bool $validate = true) : SpecificationFilesItem
+    public static function buildFromInput(array|object $input2, bool $validate = true): SpecificationFilesItem
     {
         $input2 = is_array($input2) ? \JsonSchema\Validator::arrayToObjectRecursive($input2) : $input2;
         if ($validate) {
@@ -213,7 +213,7 @@ class SpecificationFilesItem
      *
      * @return array Converted array
      */
-    public function toJson() : array
+    public function toJson(): array
     {
         $output = [];
         $output['input'] = $this->input;
@@ -234,7 +234,7 @@ class SpecificationFilesItem
      * @return bool Validation result
      * @throws \InvalidArgumentException
      */
-    public static function validateInput(array|object $input, bool $return = false) : bool
+    public static function validateInput(array|object $input, bool $return = false): bool
     {
         $validator = new \JsonSchema\Validator();
         $input = is_array($input) ? \JsonSchema\Validator::arrayToObjectRecursive($input) : $input;
