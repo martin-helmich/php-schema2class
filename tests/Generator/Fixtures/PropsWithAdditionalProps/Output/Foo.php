@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\DefaultValue;
+namespace Ns\PropsWithAdditionalProps;
 
 class Foo
 {
@@ -12,109 +12,82 @@ class Foo
      * @var array
      */
     private static array $internalValidationSchema = [
+        'type' => 'object',
         'required' => [
-            
+            'reason',
         ],
         'properties' => [
-            'limit' => [
-                'type' => 'integer',
-                'default' => 10000,
-                'minimum' => 1,
+            'reason' => [
+                'type' => 'string',
             ],
-            'skip' => [
-                'type' => 'integer',
-                'default' => 0,
-            ],
+        ],
+        'additionalProperties' => [
+            'type' => 'string',
         ],
     ];
 
     /**
-     * @var int
+     * @var string
      */
-    private int $limit = 10000;
+    private string $reason;
 
     /**
-     * @var int
-     */
-    private int $skip = 0;
-
-    /**
+     * Properties from the input that are not explicitly declared in the schema
      *
+     * @var array<string, string>
      */
-    public function __construct()
+    private array $additionalProperties = [];
+
+    /**
+     * @param string $reason
+     */
+    public function __construct(string $reason)
     {
+        $this->reason = $reason;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getLimit(): int
+    public function getReason(): string
     {
-        return $this->limit;
+        return $this->reason;
     }
 
     /**
-     * @return int
-     */
-    public function getSkip(): int
-    {
-        return $this->skip;
-    }
-
-    /**
-     * @param int $limit
+     * @param string $reason
      * @return self
      */
-    public function withLimit(int $limit): self
+    public function withReason(string $reason): self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($limit, self::$internalValidationSchema['properties']['limit']);
+        $validator->validate($reason, self::$internalValidationSchema['properties']['reason']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->limit = $limit;
+        $clone->reason = $reason;
 
         return $clone;
     }
 
     /**
-     * @return self
+     * @return array<string, string>
      */
-    public function withoutLimit(): self
+    public function getAdditionalProperties(): array
     {
-        $clone = clone $this;
-        $clone->limit = 10000;
-
-        return $clone;
+        return $this->additionalProperties;
     }
 
     /**
-     * @param int $skip
+     * @param array<string, string> $additionalProperties
      * @return self
      */
-    public function withSkip(int $skip): self
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($skip, self::$internalValidationSchema['properties']['skip']);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->skip = $skip;
-
-        return $clone;
-    }
-
-    /**
-     * @return self
-     */
-    public function withoutSkip(): self
+    public function withAdditionalProperties(array $additionalProperties): self
     {
         $clone = clone $this;
-        $clone->skip = 0;
+        $clone->additionalProperties = $additionalProperties;
 
         return $clone;
     }
@@ -134,18 +107,16 @@ class Foo
             static::validateInput($input);
         }
 
-        $limit = 10000;
-        if (isset($input->{'limit'})) {
-            $limit = (int)($input->{'limit'});
-        }
-        $skip = 0;
-        if (isset($input->{'skip'})) {
-            $skip = (int)($input->{'skip'});
-        }
+        $reason = $input->{'reason'};
 
-        $obj = new self();
-        $obj->limit = $limit;
-        $obj->skip = $skip;
+        $obj = new self($reason);
+
+        foreach (get_object_vars($input) as $key => $value) {
+            if (in_array($key, ['reason'], true)) {
+                continue;
+            }
+            $obj->additionalProperties[$key] = $value;
+        }
         return $obj;
     }
 
@@ -157,8 +128,10 @@ class Foo
     public function toJson(): array
     {
         $output = [];
-        $output['limit'] = $this->limit;
-        $output['skip'] = $this->skip;
+        foreach ($this->additionalProperties as $key => $value) {
+            $output[$key] = $value;
+        }
+        $output['reason'] = $this->reason;
 
         return $output;
     }

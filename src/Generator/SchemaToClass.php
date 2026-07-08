@@ -77,9 +77,13 @@ class SchemaToClass
             }
         }
 
+        $additionalPropertiesItem = $this->buildAdditionalPropertiesItem($req, $schema);
+
         foreach ($propertiesFromSchema as $property) {
             $property->generateSubTypes($this);
         }
+
+        $additionalPropertiesItem?->generateSubTypes($this);
 
         $codeGenerator = new Generator($req);
 
@@ -88,14 +92,22 @@ class SchemaToClass
             ...$codeGenerator->generateProperties($propertiesFromSchema),
         ];
 
+        if ($additionalPropertiesItem !== null) {
+            $properties[] = $codeGenerator->generateAdditionalPropertiesProperty($additionalPropertiesItem);
+        }
+
         $methods = [
             $codeGenerator->generateConstructor($propertiesFromSchema),
             ...$codeGenerator->generateGetterMethods($propertiesFromSchema),
             ...$codeGenerator->generateSetterMethods($propertiesFromSchema),
-            $codeGenerator->generateBuildMethod($propertiesFromSchema),
-            $codeGenerator->generateToJSONMethod($propertiesFromSchema),
+            ...($additionalPropertiesItem !== null ? [
+                $codeGenerator->generateAdditionalPropertiesGetter($additionalPropertiesItem),
+                $codeGenerator->generateAdditionalPropertiesSetter($additionalPropertiesItem),
+            ] : []),
+            $codeGenerator->generateBuildMethod($propertiesFromSchema, $additionalPropertiesItem),
+            $codeGenerator->generateToJSONMethod($propertiesFromSchema, $additionalPropertiesItem),
             $codeGenerator->generateValidateMethod(),
-            $codeGenerator->generateCloneMethod($propertiesFromSchema),
+            $codeGenerator->generateCloneMethod($propertiesFromSchema, $additionalPropertiesItem),
         ];
 
         $cls = new ClassGenerator(
@@ -129,6 +141,30 @@ class SchemaToClass
             |> $correction->replaceIncorrectFQCNs(...);
 
         $this->writer->writeFile($filename, $content);
+    }
+
+    /**
+     * Builds a pseudo-property representing the value type of 'additionalProperties'
+     * for schemas that combine 'properties' and 'additionalProperties'. Returns null
+     * when the schema does not use this combination; purely map-like schemas (only
+     * 'additionalProperties') are represented as plain array properties instead.
+     *
+     * @throws GeneratorException
+     */
+    private function buildAdditionalPropertiesItem(GeneratorRequest $req, array $schema): ?Property\PropertyInterface
+    {
+        $hasProperties           = isset($schema["properties"]) && count($schema["properties"]) > 0;
+        $hasAdditionalProperties = isset($schema["additionalProperties"]) && is_array($schema["additionalProperties"]) && count($schema["additionalProperties"]) > 0;
+
+        if (!$hasProperties || !$hasAdditionalProperties) {
+            return null;
+        }
+
+        if (isset($schema["properties"]["additionalProperties"])) {
+            throw new GeneratorException("schemas using 'additionalProperties' together with a regular property named 'additionalProperties' are not supported");
+        }
+
+        return PropertyBuilder::buildPropertyFromSchema($req, "additionalPropertiesItem", $schema["additionalProperties"], true);
     }
 
 }

@@ -13,8 +13,12 @@ class NestedObjectProperty extends AbstractProperty
     {
         $isObject = isset($schema["type"]) && $schema["type"] === "object" || isset($schema["properties"]);
         $isAssociativeArray = isset($schema["additionalProperties"]) && is_array($schema["additionalProperties"]);
+        $hasProperties = isset($schema["properties"]) && count($schema["properties"]) > 0;
 
-        return $isObject && !$isAssociativeArray;
+        // Schemas with declared properties are generated as classes, even when they
+        // also allow additional properties; purely map-like schemas (only
+        // 'additionalProperties') are handled by the array property types instead.
+        return $isObject && ($hasProperties || !$isAssociativeArray);
     }
 
     public function isComplex(): bool

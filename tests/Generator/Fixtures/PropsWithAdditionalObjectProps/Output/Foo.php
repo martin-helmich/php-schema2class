@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ns\DefaultValue;
+namespace Ns\PropsWithAdditionalObjectProps;
 
 class Foo
 {
@@ -12,109 +12,90 @@ class Foo
      * @var array
      */
     private static array $internalValidationSchema = [
+        'type' => 'object',
         'required' => [
-            
+            'name',
         ],
         'properties' => [
-            'limit' => [
-                'type' => 'integer',
-                'default' => 10000,
-                'minimum' => 1,
+            'name' => [
+                'type' => 'string',
             ],
-            'skip' => [
-                'type' => 'integer',
-                'default' => 0,
+        ],
+        'additionalProperties' => [
+            'type' => 'object',
+            'required' => [
+                'value',
+            ],
+            'properties' => [
+                'value' => [
+                    'type' => 'string',
+                ],
             ],
         ],
     ];
 
     /**
-     * @var int
+     * @var string
      */
-    private int $limit = 10000;
+    private string $name;
 
     /**
-     * @var int
-     */
-    private int $skip = 0;
-
-    /**
+     * Properties from the input that are not explicitly declared in the schema
      *
+     * @var array<string, FooAdditionalPropertiesItem>
      */
-    public function __construct()
+    private array $additionalProperties = [];
+
+    /**
+     * @param string $name
+     */
+    public function __construct(string $name)
     {
+        $this->name = $name;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getLimit(): int
+    public function getName(): string
     {
-        return $this->limit;
+        return $this->name;
     }
 
     /**
-     * @return int
-     */
-    public function getSkip(): int
-    {
-        return $this->skip;
-    }
-
-    /**
-     * @param int $limit
+     * @param string $name
      * @return self
      */
-    public function withLimit(int $limit): self
+    public function withName(string $name): self
     {
         $validator = new \JsonSchema\Validator();
-        $validator->validate($limit, self::$internalValidationSchema['properties']['limit']);
+        $validator->validate($name, self::$internalValidationSchema['properties']['name']);
         if (!$validator->isValid()) {
             throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
         }
 
         $clone = clone $this;
-        $clone->limit = $limit;
+        $clone->name = $name;
 
         return $clone;
     }
 
     /**
-     * @return self
+     * @return array<string, FooAdditionalPropertiesItem>
      */
-    public function withoutLimit(): self
+    public function getAdditionalProperties(): array
     {
-        $clone = clone $this;
-        $clone->limit = 10000;
-
-        return $clone;
+        return $this->additionalProperties;
     }
 
     /**
-     * @param int $skip
+     * @param array<string, FooAdditionalPropertiesItem> $additionalProperties
      * @return self
      */
-    public function withSkip(int $skip): self
-    {
-        $validator = new \JsonSchema\Validator();
-        $validator->validate($skip, self::$internalValidationSchema['properties']['skip']);
-        if (!$validator->isValid()) {
-            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
-        }
-
-        $clone = clone $this;
-        $clone->skip = $skip;
-
-        return $clone;
-    }
-
-    /**
-     * @return self
-     */
-    public function withoutSkip(): self
+    public function withAdditionalProperties(array $additionalProperties): self
     {
         $clone = clone $this;
-        $clone->skip = 0;
+        $clone->additionalProperties = $additionalProperties;
 
         return $clone;
     }
@@ -134,18 +115,16 @@ class Foo
             static::validateInput($input);
         }
 
-        $limit = 10000;
-        if (isset($input->{'limit'})) {
-            $limit = (int)($input->{'limit'});
-        }
-        $skip = 0;
-        if (isset($input->{'skip'})) {
-            $skip = (int)($input->{'skip'});
-        }
+        $name = $input->{'name'};
 
-        $obj = new self();
-        $obj->limit = $limit;
-        $obj->skip = $skip;
+        $obj = new self($name);
+
+        foreach (get_object_vars($input) as $key => $value) {
+            if (in_array($key, ['name'], true)) {
+                continue;
+            }
+            $obj->additionalProperties[$key] = FooAdditionalPropertiesItem::buildFromInput($value, validate: $validate);
+        }
         return $obj;
     }
 
@@ -157,8 +136,10 @@ class Foo
     public function toJson(): array
     {
         $output = [];
-        $output['limit'] = $this->limit;
-        $output['skip'] = $this->skip;
+        foreach ($this->additionalProperties as $key => $value) {
+            $output[$key] = ($value)->toJson();
+        }
+        $output['name'] = $this->name;
 
         return $output;
     }
@@ -189,5 +170,6 @@ class Foo
 
     public function __clone()
     {
+        $this->additionalProperties = array_map(fn ($value) => clone $value, $this->additionalProperties);
     }
 }

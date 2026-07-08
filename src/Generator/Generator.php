@@ -19,6 +19,7 @@ use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
+use Laminas\Code\Generator\PropertyValueGenerator;
 use Laminas\Code\Generator\TypeGenerator;
 
 class Generator
@@ -86,10 +87,82 @@ class Generator
     }
 
     /**
+     * Generates the property holding all input properties that are not explicitly
+     * declared in the schema (for schemas combining 'properties' and 'additionalProperties').
+     */
+    public function generateAdditionalPropertiesProperty(PropertyInterface $additionalPropertiesItem): PropertyGenerator
+    {
+        $prop = new PropertyGenerator(
+            "additionalProperties",
+            new PropertyValueGenerator([], PropertyValueGenerator::TYPE_ARRAY_SHORT, PropertyValueGenerator::OUTPUT_SINGLE_LINE),
+            PropertyGenerator::FLAG_PRIVATE
+        );
+
+        $docBlock = new DocBlockGenerator(
+            "Properties from the input that are not explicitly declared in the schema",
+            null,
+            [new GenericTag("var", "array<string, " . trim($additionalPropertiesItem->typeAnnotation()) . ">")]
+        );
+        $docBlock->setWordWrap(false);
+        $prop->setDocBlock($docBlock);
+
+        if ($this->generatorRequest->isAtLeastPHP("7.4")) {
+            $prop->setType(TypeGenerator::fromTypeString("array"));
+        }
+
+        return $prop;
+    }
+
+    public function generateAdditionalPropertiesGetter(PropertyInterface $additionalPropertiesItem): MethodGenerator
+    {
+        $docBlock = new DocBlockGenerator(null, null, [
+            new ReturnTag("array<string, " . trim($additionalPropertiesItem->typeAnnotation()) . ">"),
+        ]);
+        $docBlock->setWordWrap(false);
+
+        $method = new MethodGenerator(
+            'getAdditionalProperties',
+            [],
+            MethodGenerator::FLAG_PUBLIC,
+            'return $this->additionalProperties;',
+            $docBlock
+        );
+
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
+            $method->setReturnType("array");
+        }
+
+        return $method;
+    }
+
+    public function generateAdditionalPropertiesSetter(PropertyInterface $additionalPropertiesItem): MethodGenerator
+    {
+        $docBlock = new DocBlockGenerator(null, null, [
+            new ParamTag("additionalProperties", ["array<string, " . trim($additionalPropertiesItem->typeAnnotation()) . ">"]),
+            new ReturnTag("self"),
+        ]);
+        $docBlock->setWordWrap(false);
+
+        $method = new MethodGenerator(
+            'withAdditionalProperties',
+            [new ParameterGenerator("additionalProperties", "array")],
+            MethodGenerator::FLAG_PUBLIC,
+            "\$clone = clone \$this;\n\$clone->additionalProperties = \$additionalProperties;\n\nreturn \$clone;",
+            $docBlock
+        );
+
+        if ($this->generatorRequest->isAtLeastPHP("7.0")) {
+            $method->setReturnType("self");
+        }
+
+        return $method;
+    }
+
+    /**
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateBuildMethod(PropertyCollection $properties): MethodGenerator
+    public function generateBuildMethod(PropertyCollection $properties, ?PropertyInterface $additionalPropertiesItem = null): MethodGenerator
     {
         $requiredProperties = $properties->filter(PropertyCollectionFilterFactory::required());
         $optionalProperties = $properties->filter(PropertyCollectionFilterFactory::optional());
@@ -148,6 +221,7 @@ class Generator
             $properties->generateJSONToTypeConversionCode($inputVarName, object: true) . "\n\n" .
             '$obj = new self(' . join(", ", $constructorParams) . ');' . "\n" .
             join("\n", $assignments) . "\n" .
+            $this->generateAdditionalPropertiesCollectionCode($properties, $additionalPropertiesItem, $inputVarName) .
             'return $obj;',
             $docBlock
         );
@@ -159,11 +233,32 @@ class Generator
         return $method;
     }
 
+    private function generateAdditionalPropertiesCollectionCode(PropertyCollection $properties, ?PropertyInterface $additionalPropertiesItem, string $inputVarName): string
+    {
+        if ($additionalPropertiesItem === null) {
+            return "";
+        }
+
+        $declaredKeys = [];
+        foreach ($properties as $property) {
+            $declaredKeys[] = var_export($property->key(), true);
+        }
+
+        $mapping = $additionalPropertiesItem->generateInputMappingExpr('$value');
+
+        return "foreach (get_object_vars(\$$inputVarName) as \$key => \$value) {\n" .
+            "    if (in_array(\$key, [" . join(", ", $declaredKeys) . "], true)) {\n" .
+            "        continue;\n" .
+            "    }\n" .
+            "    \$obj->additionalProperties[\$key] = {$mapping};\n" .
+            "}\n";
+    }
+
     /**
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateToJSONMethod(PropertyCollection $properties): MethodGenerator
+    public function generateToJSONMethod(PropertyCollection $properties, ?PropertyInterface $additionalPropertiesItem = null): MethodGenerator
     {
         $docBlock = new DocBlockGenerator(
             "Converts this object back to a simple array that can be JSON-serialized",
@@ -172,11 +267,24 @@ class Generator
         );
         $docBlock->setWordWrap(false);
 
+        $additionalPropertiesCode = "";
+        if ($additionalPropertiesItem !== null) {
+            $mapping = $additionalPropertiesItem->generateOutputMappingExpr('$value');
+
+            // Additional properties are written first so that declared properties
+            // always win in case of a key collision.
+            $additionalPropertiesCode =
+                "foreach (\$this->additionalProperties as \$key => \$value) {\n" .
+                "    \$output[\$key] = {$mapping};\n" .
+                "}\n";
+        }
+
         $method = new MethodGenerator(
             'toJson',
             [],
             MethodGenerator::FLAG_PUBLIC,
             '$output = [];' . "\n" .
+            $additionalPropertiesCode .
             $properties->generateTypeToJSONConversionCode('output') . "\n\n" .
             'return $output;',
             $docBlock
@@ -241,7 +349,7 @@ class Generator
      * @param PropertyCollection $properties
      * @return MethodGenerator
      */
-    public function generateCloneMethod(PropertyCollection $properties): MethodGenerator
+    public function generateCloneMethod(PropertyCollection $properties, ?PropertyInterface $additionalPropertiesItem = null): MethodGenerator
     {
         $clones = [];
 
@@ -249,6 +357,15 @@ class Generator
             $c = $property->cloneProperty();
             if ($c !== null) {
                 $clones[] = $c;
+            }
+        }
+
+        if ($additionalPropertiesItem !== null) {
+            $cloneExpr = $additionalPropertiesItem->generateCloneExpr('$value');
+            if ($cloneExpr !== '$value') {
+                $clones[] = $this->generatorRequest->isAtLeastPHP("7.4")
+                    ? "\$this->additionalProperties = array_map(fn (\$value) => {$cloneExpr}, \$this->additionalProperties);"
+                    : "\$this->additionalProperties = array_map(function (\$value) { return {$cloneExpr}; }, \$this->additionalProperties);";
             }
         }
 
