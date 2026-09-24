@@ -3,3 +3,5 @@ required:
 properties:
   foo:bar:
     type: string
+  baz.qux:
+    type: boolean
