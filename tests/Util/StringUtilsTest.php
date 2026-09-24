@@ -37,4 +37,10 @@ class StringUtilsTest extends TestCase
         $camelCased = StringUtils::camelCase("content-disposition");
         assertThat($camelCased, equalTo("contentDisposition"));
     }
+
+    public function testCamelCaseCamelCasesWordsWithDots()
+    {
+        $camelCased = StringUtils::camelCase("contract.interactionRequired");
+        assertThat($camelCased, equalTo("contractInteractionRequired"));
+    }
 }

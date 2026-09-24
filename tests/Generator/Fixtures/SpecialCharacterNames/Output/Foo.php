@@ -19,6 +19,9 @@ class Foo
             'foo:bar' => [
                 'type' => 'string',
             ],
+            'baz.qux' => [
+                'type' => 'boolean',
+            ],
         ],
     ];
 
@@ -26,6 +29,11 @@ class Foo
      * @var string
      */
     private string $fooBar;
+
+    /**
+     * @var bool|null
+     */
+    private ?bool $bazQux = null;
 
     /**
      * @param string $fooBar
@@ -41,6 +49,14 @@ class Foo
     public function getFooBar(): string
     {
         return $this->fooBar;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getBazQux(): ?bool
+    {
+        return $this->bazQux ?? null;
     }
 
     /**
@@ -62,6 +78,35 @@ class Foo
     }
 
     /**
+     * @param bool $bazQux
+     * @return self
+     */
+    public function withBazQux(bool $bazQux): self
+    {
+        $validator = new \JsonSchema\Validator();
+        $validator->validate($bazQux, self::$internalValidationSchema['properties']['baz.qux']);
+        if (!$validator->isValid()) {
+            throw new \InvalidArgumentException($validator->getErrors()[0]['message']);
+        }
+
+        $clone = clone $this;
+        $clone->bazQux = $bazQux;
+
+        return $clone;
+    }
+
+    /**
+     * @return self
+     */
+    public function withoutBazQux(): self
+    {
+        $clone = clone $this;
+        unset($clone->bazQux);
+
+        return $clone;
+    }
+
+    /**
      * Builds a new instance from an input array
      *
      * @param array|object $input Input data
@@ -77,9 +122,13 @@ class Foo
         }
 
         $fooBar = $input->{'foo:bar'};
+        $bazQux = null;
+        if (isset($input->{'baz.qux'})) {
+            $bazQux = (bool)($input->{'baz.qux'});
+        }
 
         $obj = new self($fooBar);
-
+        $obj->bazQux = $bazQux;
         return $obj;
     }
 
@@ -92,6 +141,9 @@ class Foo
     {
         $output = [];
         $output['foo:bar'] = $this->fooBar;
+        if (isset($this->bazQux)) {
+            $output['baz.qux'] = $this->bazQux;
+        }
 
         return $output;
     }
